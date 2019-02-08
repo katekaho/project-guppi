@@ -1,4 +1,36 @@
 <div class="instance">
-  Image ID: 
-  <span class="image_id">{{ instance['ImageId'] }}</span>
+	{% if instance["State"]["Name"] == "running" %}
+		<div class="instance_bar green"></div>
+	{% elif instance["State"]["Name"] == "stopping" %}
+		<div class="instance_bar yellow"></div>
+	{% elif instance["State"]["Name"] == "pending" %}
+		<div class="instance_bar orange"></div>
+	{% elif instance["State"]["Name"] == "stopped" %}
+		<div class="instance_bar red"></div>
+	{% elif instance["State"]["Name"] == "shutting-down" %}
+		<div class="instance_bar dark_red"></div>
+	{% elif instance["State"]["Name"] == "terminated" %}
+		<div class="instance_bar black"></div>
+	{% end %}
+	<div class = stat_box>
+		<div class="stat" >
+			<b>Instance ID: &nbsp</b>
+			{{ instance['InstanceId'] }}
+		</div>
+	
+		<div class="stat" >
+			<b>Instance Type: &nbsp</b>
+			{{ instance['InstanceType'] }}
+		</div>
+	
+		<div class="stat" >
+			<b>State: &nbsp</b>
+			{{instance["State"]["Name"]}}
+		</div>
+	
+		<div class="stat" >
+				<b>Monitoring: &nbsp</b>
+				{{ instance['Monitoring']['State'] }}
+		</div>
+	</div>
 </div>
