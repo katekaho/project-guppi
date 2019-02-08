@@ -9,7 +9,7 @@ from tornado.options import define, options
 define("port", default=8000, help="run on the given port", type=int)
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render('index.html', instanceInfo=self.getInstanceInfo())
+        self.render('index.html', instanceInfo=self.getInstanceIds())
     def post(self):
         ec2 = boto3.resource('ec2')
         # create a new EC2 instance
@@ -20,8 +20,8 @@ class IndexHandler(tornado.web.RequestHandler):
             InstanceType='t2.micro',
             KeyName='ec2-keypair1'
         )
-        self.render('index.html', instanceInfo=self.getInstanceInfo())
-    def getInstanceInfo(self):
+        self.render('index.html', instanceInfo=self.getInstanceIds())
+    def getInstanceIds(self):
         ec2client = boto3.client('ec2')
         response = ec2client.describe_instances()
         instanceList = []
@@ -29,6 +29,15 @@ class IndexHandler(tornado.web.RequestHandler):
             for instance in reservation["Instances"]:
                 # This sample print will output entire Dictionary object
                 instanceList.append(instance["InstanceId"])
+        return instanceList
+    def getInstanceInfo(self):
+        ec2client = boto3.client('ec2')
+        response = ec2client.describe_instances()
+        instanceList = []
+        for reservation in response["Reservations"]:
+            for instance in reservation["Instances"]:
+                # This sample print will output entire Dictionary object
+                instanceList.append(instance)
         return instanceList
 
 if __name__ == '__main__':
