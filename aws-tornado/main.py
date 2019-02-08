@@ -9,7 +9,7 @@ from tornado.options import define, options
 define("port", default=8000, help="run on the given port", type=int)
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render('index.html', instanceIds=self.getInstanceIds())
+        self.render('index.html', instanceIds=self.getInstanceIds(), instanceInfo=self.getInstanceInfo())
     def post(self):
         ec2 = boto3.resource('ec2')
         # create a new EC2 instance
@@ -20,7 +20,7 @@ class IndexHandler(tornado.web.RequestHandler):
             InstanceType='t2.micro',
             KeyName='ec2-keypair1'
         )
-        self.render('index.html', instanceIds=self.getInstanceIds())
+        self.render('index.html', instanceIds=self.getInstanceIds(), instanceInfo=self.getInstanceInfo())
     def getInstanceIds(self):
         ec2client = boto3.client('ec2')
         response = ec2client.describe_instances()
