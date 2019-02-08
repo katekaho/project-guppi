@@ -5,12 +5,18 @@
 .instance{
 	display: inline-block;
 	font-family: 'Roboto';
+	font-size:large;
 	border-radius: 1em;
 	margin: 1em;
 	background-color: rgb(63, 68, 77);
-	color:lightgrey
+	color:lightgrey;
+	transition: all 0.25s ease-in-out;
 	
 }
+.instance:hover{
+	transform: scale(1.05,1.05);
+}
+
 
 .instance_bar{
 	width:100%;
@@ -41,6 +47,10 @@
 }
 
 .red{
+	background-color: #FF0000
+}
+
+.dark_red{
 	background-color: #880000
 }
 

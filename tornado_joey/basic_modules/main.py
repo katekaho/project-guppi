@@ -53,8 +53,6 @@ def main():
 	http_server = tornado.httpserver.HTTPServer(Application())
 	http_server.listen(options.port)
 	tornado.ioloop.IOLoop.instance().start()
-	# getInfo()
-	
 
 def getInfo():
 	ec2client = boto3.client('ec2')
