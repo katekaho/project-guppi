@@ -1,0 +1,19 @@
+{% extends "main.html" %}
+
+{% block header %}
+	<h1>{{ header_text }}</h1>
+{% end %}
+
+<div class="instanceList">
+	{% block body %}
+		{% for instances in instanceList["Reservations"] %}
+			{% for instance in instances["Instances"] %}
+				{{ modules.Instance(instance) }}
+			{% end %}
+		{% end %}
+	{% end %}
+</di>
+
+{% block footer %}
+	<p>{{ footer_text }}</p>
+{% end %}
