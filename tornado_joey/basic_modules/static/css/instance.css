@@ -6,7 +6,7 @@
 	display: inline-block;
 	font-family: 'Roboto';
 	font-size:large;
-	border-radius: 1em;
+	border-radius: 0.5em;
 	margin: 1em;
 	background-color: rgb(63, 68, 77);
 	color:lightgrey;
@@ -21,8 +21,8 @@
 .instance_bar{
 	width:100%;
 	height: 2em;
-	border-top-left-radius: 1em;
-	border-top-right-radius: 1em;
+	border-top-left-radius: 0.5em;
+	border-top-right-radius: 0.5em;
 }
 
 .stat_box{
