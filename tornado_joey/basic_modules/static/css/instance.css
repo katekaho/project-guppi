@@ -2,13 +2,17 @@
 	display: flex;
 }
 
+.status{
+	height: 15px;
+}
+
 .instance{
 	display: inline-block;
 	font-family: 'Roboto';
 	font-size:large;
 	border-radius: 0.5em;
 	margin: 1em;
-	background-color: rgb(63, 68, 77);
+	background-color: rgb(66, 66, 66);
 	color:lightgrey;
 	transition: all 0.25s ease-in-out;
 	
