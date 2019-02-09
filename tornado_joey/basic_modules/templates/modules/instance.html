@@ -22,22 +22,41 @@
   <td>{{ instance['LaunchTime'] }}</td>
   <td>
     {% if instance['State'] == 'running' %}
-    <form method="post" action="/end">
-      <button id="stop-instance" type="submit" value="{{ instance['InstanceId'] }}" name="stopInstanceId"
-        class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-          Stop Instance
-      </button>
-    </form>
+      <form method="post" action="/end">
+        <button id="stop-instance" type="submit" value="{{ instance['InstanceId'] }}" name="stopInstanceId"
+          class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+            Stop Instance
+        </button>
+      </form>
+    {% elif instance['State'] == 'stopped' %}
+      <form method="post" action="/start">
+        <button id="start-instance" type="submit" value="{{ instance['InstanceId'] }}" name="startInstanceId"
+          class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+            Start Instance
+        </button>
+      </form>
+    {% else %}
+      <form>
+        <button id="start-instance" type="submit" value="{{ instance['InstanceId'] }}" name="startInstanceId"
+          class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" disabled>
+            Start Instance
+        </button>
+      </form>
     {% end %}
   </td>
   <td>
-    {% if instance['State'] != 'shutting-down' and instance['State'] != 'terminated'%}
     <form method="post" action="/terminate">
+      {% if instance['State'] != 'shutting-down' and instance['State'] != 'terminated'%}
+        <button id="stop-instance" type="submit" value="{{ instance['InstanceId'] }}" name="terminateInstanceId"
+          class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+            Terminate Instance
+        </button>
+      {%else%}
       <button id="stop-instance" type="submit" value="{{ instance['InstanceId'] }}" name="terminateInstanceId"
-        class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
-          Terminate Instance
-      </button>
+      class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>
+        Terminate Instance
+    </button>
+      {% end %}
     </form>
-    {% end %}
   </td>
 </tr>

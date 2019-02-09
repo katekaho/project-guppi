@@ -17,6 +17,7 @@ class Application(tornado.web.Application):
       (r"/", MainHandler),
       (r"/create", CreateInstanceHandler),
       (r"/end", EndInstanceHandler),
+      (r"/start", StartInstanceHandler),
       (r"/terminate", TerminateInstanceHandler),
     ]
     settings = dict(
@@ -56,6 +57,15 @@ class EndInstanceHandler(tornado.web.RequestHandler):
     print(instanceId)
     ids = [instanceId]
     ec2.instances.filter(InstanceIds=ids).stop()
+    self.redirect('/')
+
+class StartInstanceHandler(tornado.web.RequestHandler):
+  def post(self):
+    ec2 = boto3.resource('ec2')
+    instanceId = self.get_argument('startInstanceId')
+    print(instanceId)
+    ids = [instanceId]
+    ec2.instances.filter(InstanceIds=ids).start()
     self.redirect('/')
 
 class TerminateInstanceHandler(tornado.web.RequestHandler):
