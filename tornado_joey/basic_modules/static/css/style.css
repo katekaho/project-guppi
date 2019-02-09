@@ -1,5 +1,13 @@
 body {
 	font-family: 'Roboto';
-	background-color: rgb(40, 44, 52)
+	background-color: rgb(44, 44, 44);
+	margin: 10px;
 }
 
+h1 {
+	color: white;
+}
+
+.container {
+	margin: 40px 0 0 30px;
+}

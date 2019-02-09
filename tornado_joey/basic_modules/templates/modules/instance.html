@@ -1,36 +1,43 @@
-<div class="instance">
-	{% if instance["State"]["Name"] == "running" %}
-		<div class="instance_bar green"></div>
-	{% elif instance["State"]["Name"] == "stopping" %}
-		<div class="instance_bar yellow"></div>
-	{% elif instance["State"]["Name"] == "pending" %}
-		<div class="instance_bar orange"></div>
-	{% elif instance["State"]["Name"] == "stopped" %}
-		<div class="instance_bar red"></div>
-	{% elif instance["State"]["Name"] == "shutting-down" %}
-		<div class="instance_bar dark_red"></div>
-	{% elif instance["State"]["Name"] == "terminated" %}
-		<div class="instance_bar black"></div>
-	{% end %}
-	<div class = stat_box>
-		<div class="stat" >
-			<b>Instance ID: &nbsp</b>
-			{{ instance['InstanceId'] }}
-		</div>
-	
-		<div class="stat" >
-			<b>Instance Type: &nbsp</b>
-			{{ instance['InstanceType'] }}
-		</div>
-	
-		<div class="stat" >
-			<b>State: &nbsp</b>
-			{{instance["State"]["Name"]}}
-		</div>
-	
-		<div class="stat" >
-				<b>Monitoring: &nbsp</b>
-				{{ instance['Monitoring']['State'] }}
-		</div>
-	</div>
-</div>
+<tr>
+  <td class="mdl-data-table__cell--non-numeric">{{ instance['Name'] }}</td>
+  <td>{{ instance['InstanceId'] }}</td>
+  <td>{{ instance['InstanceType'] }}</td>
+  <td>{{ instance['AvailabilityZone'] }}</td>
+  <td>{{ instance['State'] }}
+    {% if instance["State"] == "running" %}
+      <img class="status" src="https://icongr.am/material/checkbox-blank-circle.svg?color=42f450">
+    {% elif instance["State"] == "stopping" %}
+      <img class="status" src="https://icongr.am/material/checkbox-blank-circle.svg?color=faff00">
+    {% elif instance["State"] == "pending" %}
+      <img class="status" src="https://icongr.am/material/checkbox-blank-circle.svg?color=ffb200">
+    {% elif instance["State"] == "stopped" %}
+      <img class="status" src="https://icongr.am/material/checkbox-blank-circle.svg?color=ff4a32">
+    {% elif instance["State"] == "shutting-down" %}
+      <img class="status" src="https://icongr.am/material/checkbox-blank-circle.svg?color=7c0e00">
+    {% elif instance["State"] == "terminated" %}
+    <img class="status" src="https://icongr.am/material/checkbox-blank-circle.svg?color=000000">
+    {% end %}
+  </td>
+  <td>{{ instance['KeyName'] }}</td>
+  <td>{{ instance['LaunchTime'] }}</td>
+  <td>
+    {% if instance['State'] == 'running' %}
+    <form method="post" action="/end">
+      <button id="stop-instance" type="submit" value="{{ instance['InstanceId'] }}" name="stopInstanceId"
+        class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+          Stop Instance
+      </button>
+    </form>
+    {% end %}
+  </td>
+  <td>
+    {% if instance['State'] != 'shutting-down' and instance['State'] != 'terminated'%}
+    <form method="post" action="/terminate">
+      <button id="stop-instance" type="submit" value="{{ instance['InstanceId'] }}" name="terminateInstanceId"
+        class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+          Terminate Instance
+      </button>
+    </form>
+    {% end %}
+  </td>
+</tr>
