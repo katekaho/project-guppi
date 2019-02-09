@@ -4,35 +4,6 @@
 	<h1>{{ header_text }}</h1>
 {% end %}
 
-<div class="container">
-	<h1>Amazon EC2 Instances</h1>
-	<form method="post" action="/create">
-		<button id="create-instance" type="submit" value="Create Instance"
-			class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-				Create Instance
-		</button>
-	</form>
-
-	<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-		<thead>
-			<tr>
-				<th class="mdl-data-table__cell--non-numeric">Name</th>
-				<th>Instance Id</th>
-				<th>Instance Type</th>
-				<th>Availability Zone</th>
-				<th>Instance State</th>
-				<th>Key Name</th>
-				<th>Launch Time</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for instance in instanceList %}
-				{{ modules.Instance(instance) }}
-			{% end %}
-		</tbody>
-	</table>
-</div>
-
 {% block footer %}
 	<p>{{ footer_text }}</p>
 {% end %}
