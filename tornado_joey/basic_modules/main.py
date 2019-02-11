@@ -42,7 +42,8 @@ class CreateInstanceHandler(tornado.web.RequestHandler):
     ec2 = boto3.resource('ec2')
 
     ec2.create_instances(
-      ImageId='ami-0cd3dfa4e37921605',
+      ImageId='ami-0cd3dfa4e37921605', #kates ami
+      #ImageId='ami-0799ad445b5727125', #joeys ami
       MinCount=1,
       MaxCount=1,
       InstanceType='t2.micro',
