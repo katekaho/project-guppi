@@ -47,7 +47,7 @@ class CreateInstanceHandler(tornado.web.RequestHandler):
       MinCount=1,
       MaxCount=1,
       InstanceType='t2.micro',
-      KeyName='ec2-keypair1',
+      KeyName='key_pair_guppi',
     )
     self.redirect('/')
 
