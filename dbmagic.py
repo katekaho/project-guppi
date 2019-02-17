@@ -118,6 +118,52 @@ class TestMagics(Magics):
         display(button)
         button.on_click(on_button_clicked)
 
+
+        # children = []
+        # # children = [widgets.Text(description=instance['Instance Id']) for instance in instancesFormatted]
+        # for instance in instancesFormatted:
+        #     children.append(
+        #                     widgets.HTML(
+        #                         value="""<table>
+        #                                     <tr>
+        #                                         <th>
+        #                                             Name &emsp;
+        #                                         </th>
+        #                                         <th>
+        #                                             Instance ID &emsp;
+        #                                         </th>
+        #                                         <th>
+        #                                             Instance Type &emsp;
+        #                                         </th>
+        #                                         <th>
+        #                                             Availability Zone&emsp;
+        #                                         </th>
+        #                                         <th>
+        #                                             State &emsp;
+        #                                         </th>
+        #                                         <th>
+        #                                             Key Name &emsp;
+        #                                         </th>
+        #                                         <th>
+        #                                             LaunchTime 
+        #                                         </th>
+        #                                     </tr>
+        #                                 <table>""",
+        #                         placeholder='Some HTML',
+        #                     )
+        #     )
+    
+        # tab = widgets.Tab()
+        # tab.children = children
+        # count = 0
+        # for instance in instancesFormatted:
+        #     tab.set_title(count,instance['Instance Id'])
+        #     count+=1
+
+        # # for i in range(len(children)):
+        # #     tab.set_title(i, str(i))
+        # display(tab)
+
 def load_ipython_extension(ipython):
     """This function is called when the extension is
     loaded. It accepts an IPython InteractiveShell
