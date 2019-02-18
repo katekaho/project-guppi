@@ -101,46 +101,8 @@ class TestMagics(Magics):
     def db(self, line):
         global selected_instance
         global accordion
-        ec2client = boto3.client('ec2')
-        response = ec2client.describe_instances()
-        reservations = response.get('Reservations')
-        instances = []
-        for reservation in reservations:
-            reservationInstances = reservation.get('Instances')
-            for inst in reservationInstances:
-                instances.append(inst)
-  
-        instancesFormatted = []
-
-        for instance in instances:
-            tags = instance.get('Tags', [])
-            name = ''
-            for tag in tags:
-                tagKey = tag.get('Key', '')
-                if tagKey == 'Name':
-                    name = tag['Value']
-
-            placement = instance['Placement']
-            availabilityZone = placement['AvailabilityZone']
-
-            state = instance['State']
-            stateName = state.get('Name', '')
-
-            launchTime = instance.get('LaunchTime', '')
-
-            if len(name) > 20:
-                name = name[:20] + '...'
-
-            formatInst = {
-                'Name': name,
-                'Instance Id': instance.get('InstanceId', ''),
-                'Instance Type': instance.get('InstanceType', ''),
-                'Availability Zone': availabilityZone,
-                'State': stateName,
-                'Key Name': instance.get('KeyName', ''),
-                'Launch Time': launchTime,
-            }
-            instancesFormatted.append(formatInst)
+        instancesFormatted = get_instances_info()
+        
         button = widgets.Button(description="Create Instance")
         display(button)
         button.on_click(create_button_clicked)
