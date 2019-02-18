@@ -141,133 +141,134 @@ class TestMagics(Magics):
                 'Launch Time': launchTime,
             }
             instancesFormatted.append(formatInst)
-
-            
-            
-        # html = "<table><tr>"
-        # html += "<th>"
-        # html += 'Name'
-        # html += "</th>"
-        # html += "<th>"
-        # html += 'Instance Id'
-        # html += "</th>"
-        # html += "<th>"
-        # html += 'Instance Type'
-        # html += "</th>"
-        # html += "<th>"
-        # html += 'Availability Zone'
-        # html += "</th>"
-        # html += "<th>"
-        # html += 'State'
-        # html += "</th>"
-        # html += "<th>"
-        # html += 'Key Name'
-        # html += "</th>"
-        # html += "<th>"
-        # html += 'Launch Time'
-        # html += "</th>"
-                
-        # html += "</tr>"
-        # for row in instancesFormatted:
-        #     html += "<tr>"
-        #     html += "<td>"
-        #     html += row['Name']
-        #     html += "</td>"
-        #     html += "<td>"
-        #     html += row['Instance Id']
-        #     html += "</td>"
-        #     html += "<td>"
-        #     html += row['Instance Type']
-        #     html += "</td>"
-        #     html += "<td>"
-        #     html += row['Availability Zone']
-        #     html += "</td>"
-        #     html += "<td>"
-        #     html += row['State']
-        #     html += "</td>"
-        #     html += "<td>"
-        #     html += row['Key Name']
-        #     html += "</td>"
-        #     html += "<td>"
-        #     html += str(row['Launch Time'])
-        #     html += "</td>"
-        #     html += "</tr>"
-        
-        # html += "</table>"
-        
-        # display(HTML(html))
         button = widgets.Button(description="Create Instance")
         display(button)
         button.on_click(create_button_clicked)
 
-        #stores the info and buttons for each instance
-        accordion_children = []
+        if(line == "table"):
+            html = "<table><tr>"
+            html += "<th>"
+            html += 'Name'
+            html += "</th>"
+            html += "<th>"
+            html += 'Instance Id'
+            html += "</th>"
+            html += "<th>"
+            html += 'Instance Type'
+            html += "</th>"
+            html += "<th>"
+            html += 'Availability Zone'
+            html += "</th>"
+            html += "<th>"
+            html += 'State'
+            html += "</th>"
+            html += "<th>"
+            html += 'Key Name'
+            html += "</th>"
+            html += "<th>"
+            html += 'Launch Time'
+            html += "</th>"
+            html += "</tr>"
+            for row in instancesFormatted:
+                html += "<tr>"
+                html += "<td>"
+                html += row['Name']
+                html += "</td>"
+                html += "<td>"
+                html += row['Instance Id']
+                html += "</td>"
+                html += "<td>"
+                html += row['Instance Type']
+                html += "</td>"
+                html += "<td>"
+                html += row['Availability Zone']
+                html += "</td>"
+                html += "<td>"
+                html += row['State']
+                html += "</td>"
+                html += "<td>"
+                html += row['Key Name']
+                html += "</td>"
+                html += "<td>"
+                html += str(row['Launch Time'])
+                html += "</td>"
+                html += "</tr>"
+            html += "</table>"
+            display(HTML(html))
+         
+        else:
+            #stores the info and buttons for each instance
+            accordion_children = []
 
-        for row in instancesFormatted:
-            #appends all info into array of labels
-            info = ["<b>Instance Type:</b>", row['Instance Type'] ,"<b>Availability Zone:</b>", row['Availability Zone'], "<b>State:<b>" , row['State']]
+            for row in instancesFormatted:
+                #appends all info into array of labels
+                info = ["<b>Instance Type:</b>", row['Instance Type'] ,"<b>Availability Zone:</b>", row['Availability Zone'], "<b>State:<b>" , row['State']]
 
-            #makes each label html and puts into HBox
-            items = [widgets.HTML(str(i)) for i in info]
-            instance_info = widgets.HBox(items)
+                #makes each label html and puts into HBox
+                items = [widgets.HTML(str(i)) for i in info]
+                instance_info = widgets.HBox(items)
 
-            #buttons
+                #buttons
+                
+                if(row['State'] == "running"):
+                    toggle_button = widgets.Button(description='Stop Instance')
+                elif(row['State'] == "stopped"):
+                    toggle_button = widgets.Button(description='Start Instance')
+                else:
+                    toggle_button = widgets.Button(description='Start Instance',disabled=True)
+
+                #disables the terminate button when not running or stopped
+                if(row['State'] == "running" or row['State'] == "stopped"):
+                    terminate_button = widgets.Button(description='Terminate Instance')
+                else:
+                    terminate_button = widgets.Button(description='Terminate Instance',disabled=True)
+
+                indicator=widgets.IntProgress(value=1,min=0,max=1,bar_style='danger') #red
+                # 'success', 'info', 'warning', 'danger' or ''
+
+                if(row['State'] == "running"):
+                    indicator.bar_style = 'success'
+                elif(row['State'] == "pending"):
+                    indicator.bar_style = ''
+                elif(row['State'] == "stopping" or row['State'] == "shutting-down"):
+                    indicator.bar_style = 'warning'
+                else:
+                    indicator.bar_style = 'danger'
+                
+
+                toggle_button.on_click(toggle_button_clicked)
+                terminate_button.on_click(terminate_button_clicked)
+
+                buttons = [toggle_button,terminate_button,indicator]
+                button_box = widgets.HBox(buttons)
+
+                
+                #puts info and buttons into vBox
+                instance_box = widgets.VBox([instance_info, button_box])
+
+                #adds it to list of childeren for accordian
+                accordion_children.append(instance_box)
+
+            accordion = widgets.Accordion(accordion_children)
+
+            acc_index = 0
             
-            if(row['State'] == "running"):
-                toggle_button = widgets.Button(description='Stop Instance')
-            elif(row['State'] == "stopped"):
-                toggle_button = widgets.Button(description='Start Instance')
-            else:
-                toggle_button = widgets.Button(description='Start Instance',disabled=True)
+            #adding titles to the accordian
+            for row in instancesFormatted:
+                acc_title = row['Instance Id']
+                acc_title += " "
+                acc_title += row['State']
+                accordion.set_title(acc_index, acc_title)
+                acc_index += 1
 
-            #disables the terminate button when not running or stopped
-            if(row['State'] == "running" or row['State'] == "stopped"):
-                terminate_button = widgets.Button(description='Terminate Instance')
-            else:
-                terminate_button = widgets.Button(description='Terminate Instance',disabled=True)
-
-            indicator=widgets.IntProgress(value=1,min=0,max=1,bar_style='danger') #red
-            # 'success', 'info', 'warning', 'danger' or ''
-
-            if(row['State'] == "running"):
-                indicator.bar_style = 'success'
-            elif(row['State'] == "pending"):
-                indicator.bar_style = ''
-            elif(row['State'] == "stopping" or row['State'] == "shutting-down"):
-                indicator.bar_style = 'warning'
-            else:
-                indicator.bar_style = 'danger'
-            
-
-            toggle_button.on_click(toggle_button_clicked)
-            terminate_button.on_click(terminate_button_clicked)
-
-            buttons = [toggle_button,terminate_button,indicator]
-            button_box = widgets.HBox(buttons)
+            display(accordion)
 
             
-            #puts info and buttons into vBox
-            instance_box = widgets.VBox([instance_info, button_box])
-
-            #adds it to list of childeren for accordian
-            accordion_children.append(instance_box)
-
-        accordion = widgets.Accordion(accordion_children)
-
-        acc_index = 0
+            #sets global selected instance to currently selected instance
+            selected_instance = accordion.selected_index
         
-        #adding titles to the accordian
-        for row in instancesFormatted:
-            acc_title = row['Instance Id']
-            acc_title += " "
-            acc_title += row['State']
-            accordion.set_title(acc_index, acc_title)
-            acc_index += 1
 
-        display(accordion)
         
-        #sets global selected instance to currently selected instance
-        selected_instance = accordion.selected_index
 
         
 
