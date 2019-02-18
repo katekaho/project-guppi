@@ -226,12 +226,26 @@ class TestMagics(Magics):
             else:
                 terminate_button = widgets.Button(description='Terminate Instance',disabled=True)
 
+            indicator=widgets.IntProgress(value=1,min=0,max=1,bar_style='danger') #red
+            # 'success', 'info', 'warning', 'danger' or ''
+
+            if(row['State'] == "running"):
+                indicator.bar_style = 'success'
+            elif(row['State'] == "pending"):
+                indicator.bar_style = ''
+            elif(row['State'] == "stopping" or row['State'] == "shutting-down"):
+                indicator.bar_style = 'warning'
+            else:
+                indicator.bar_style = 'danger'
+            
+
             toggle_button.on_click(toggle_button_clicked)
             terminate_button.on_click(terminate_button_clicked)
 
-            buttons = [toggle_button,terminate_button]
+            buttons = [toggle_button,terminate_button,indicator]
             button_box = widgets.HBox(buttons)
 
+            
             #puts info and buttons into vBox
             instance_box = widgets.VBox([instance_info, button_box])
 
