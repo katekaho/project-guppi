@@ -146,7 +146,8 @@ class TestMagics(Magics):
         button.on_click(create_button_clicked)
         # if user wants to see table view
         if(line == "table"):
-            # start building html table
+            # I create a string 'html' to hold the html view of our table
+            # here I am creating the table and loading it with the column headers
             html = "<table><tr>"
             html += "<th>"
             html += 'Name'
