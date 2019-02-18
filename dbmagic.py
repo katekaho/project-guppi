@@ -144,8 +144,9 @@ class TestMagics(Magics):
         button = widgets.Button(description="Create Instance")
         display(button)
         button.on_click(create_button_clicked)
-
+        # if user wants to see table view
         if(line == "table"):
+            # start building html table
             html = "<table><tr>"
             html += "<th>"
             html += 'Name'
@@ -169,6 +170,7 @@ class TestMagics(Magics):
             html += 'Launch Time'
             html += "</th>"
             html += "</tr>"
+            # for each row load in data from AWS
             for row in instancesFormatted:
                 html += "<tr>"
                 html += "<td>"
@@ -194,6 +196,7 @@ class TestMagics(Magics):
                 html += "</td>"
                 html += "</tr>"
             html += "</table>"
+            # display html table
             display(HTML(html))
          
         else:
@@ -266,11 +269,6 @@ class TestMagics(Magics):
             
             #sets global selected instance to currently selected instance
             selected_instance = accordion.selected_index
-        
-
-        
-
-        
 
 def load_ipython_extension(ipython):
     """This function is called when the extension is
