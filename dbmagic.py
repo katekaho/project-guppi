@@ -189,17 +189,24 @@ class TestMagics(Magics):
                 else:
                     terminate_button = widgets.Button(description='Terminate Instance',disabled=True)
 
-                indicator=widgets.IntProgress(value=1,min=0,max=1,bar_style='danger') #red
-                # 'success', 'info', 'warning', 'danger' or ''
+
+                file = open("icons/running.png", "rb")
 
                 if(row['State'] == "running"):
-                    indicator.bar_style = 'success'
+                    file = open("icons/running.png", "rb")
                 elif(row['State'] == "pending"):
-                    indicator.bar_style = ''
-                elif(row['State'] == "stopping" or row['State'] == "shutting-down"):
-                    indicator.bar_style = 'warning'
+                    file = open("icons/pending.png", "rb")
+                elif(row['State'] == "stopping"):
+                    file = open("icons/stopping.png", "rb")
+                elif(row['State'] == "stopped"):
+                    file = open("icons/stopped.png", "rb")
+                elif(row['State'] == "shutting-down"):
+                    file = open("icons/shutting-down.png", "rb")
                 else:
-                    indicator.bar_style = 'danger'
+                    file = open("icons/terminated.png", "rb")
+
+                image = file.read()
+                indicator = widgets.Image(value=image,format='png')
                 
 
                 toggle_button.on_click(toggle_button_clicked)
