@@ -2,43 +2,25 @@ from IPython.core import magic_arguments
 from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, magics_class
 from IPython.display import HTML, display
 
-from aws import AwsInstances 
-
-import boto3 
+from amazonregister import AmazonService
 import ipywidgets as widgets
 
 selected_instance = ""
 accordion =""
-aws_instances = AwsInstances()
+
+aws = AmazonService()
+
 #create instance button handler
 def create_button_clicked(b):
-    # ec2 = boto3.resource('ec2')
-    # ec2.create_instances(
-    #   #ImageId='ami-0cd3dfa4e37921605', #kates ami
-    #   ImageId='ami-0799ad445b5727125', #joeys ami
-    #   MinCount=1,
-    #   MaxCount=1,
-    #   InstanceType='t2.micro',
-    #   KeyName='key_pair_guppi',
-    # )
-    # print("Instance Created.")
-    # print("Rerun %db to display.")
-   
-    aws_instances.create_instance()
+    aws.create_instance()
 
 #terminate instance button handler
 def terminate_button_clicked(b):
     global selected_instance
     global accordion
     selected_instance = accordion.selected_index
-    # ec2 = boto3.resource('ec2')
-    # instances = get_instances_info()
-    # ids = [instances[selected_instance]['Instance Id']]
-    # ec2.instances.filter(InstanceIds=ids).terminate()
-    # print("Instance Terminated.")
-    # print("Rerun %db to update.")
 
-    aws_instances.terminate_instance(selected_instance)
+    aws.terminate_instance(selected_instance)
 
 
 #toggle instance button handler
@@ -46,20 +28,8 @@ def toggle_button_clicked(b):
     global selected_instance
     global accordion
     selected_instance = accordion.selected_index
-    # ec2 = boto3.resource('ec2')
-    # instances = get_instances_info()
-    # ids = [instances[selected_instance]['Instance Id']]
-    
-    # if(instances[selected_instance]['State'] == "running"):
-    #     ec2.instances.filter(InstanceIds=ids).stop()
-    #     print("Instance Stopped.")
-    #     print("Rerun %db to update.")
-    # elif(instances[selected_instance]['State'] == "stopped"):
-    #     ec2.instances.filter(InstanceIds=ids).start()
-    #     print("Instance Started.")
-    #     print("Rerun %db to update.")
 
-    aws_instances.toggle_instance(selected_instance)
+    aws.toggle_instance(selected_instance)
 
 @magics_class
 class TestMagics(Magics):
@@ -68,7 +38,7 @@ class TestMagics(Magics):
         global selected_instance
         global accordion
 
-        instancesFormatted = aws_instances.get_instances_info()
+        instancesFormatted = aws.get_instances_info()
         
         button = widgets.Button(description="Create Instance")
         display(button)
