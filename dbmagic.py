@@ -1,99 +1,65 @@
 from IPython.core import magic_arguments
 from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, magics_class
 from IPython.display import HTML, display
+
+from aws import AwsInstances 
+
 import boto3 
 import ipywidgets as widgets
 
 selected_instance = ""
 accordion =""
+aws_instances = AwsInstances()
 #create instance button handler
 def create_button_clicked(b):
-    ec2 = boto3.resource('ec2')
-    ec2.create_instances(
-      #ImageId='ami-0cd3dfa4e37921605', #kates ami
-      ImageId='ami-0799ad445b5727125', #joeys ami
-      MinCount=1,
-      MaxCount=1,
-      InstanceType='t2.micro',
-      KeyName='key_pair_guppi',
-    )
-    print("Instance Created.")
-    print("Rerun %db to display.")
+    # ec2 = boto3.resource('ec2')
+    # ec2.create_instances(
+    #   #ImageId='ami-0cd3dfa4e37921605', #kates ami
+    #   ImageId='ami-0799ad445b5727125', #joeys ami
+    #   MinCount=1,
+    #   MaxCount=1,
+    #   InstanceType='t2.micro',
+    #   KeyName='key_pair_guppi',
+    # )
+    # print("Instance Created.")
+    # print("Rerun %db to display.")
+   
+    aws_instances.create_instance()
 
 #terminate instance button handler
 def terminate_button_clicked(b):
     global selected_instance
     global accordion
     selected_instance = accordion.selected_index
-    ec2 = boto3.resource('ec2')
-    instances = get_instances_info()
-    ids = [instances[selected_instance]['Instance Id']]
-    ec2.instances.filter(InstanceIds=ids).terminate()
-    print("Instance Terminated.")
-    print("Rerun %db to update.")
+    # ec2 = boto3.resource('ec2')
+    # instances = get_instances_info()
+    # ids = [instances[selected_instance]['Instance Id']]
+    # ec2.instances.filter(InstanceIds=ids).terminate()
+    # print("Instance Terminated.")
+    # print("Rerun %db to update.")
+
+    aws_instances.terminate_instance(selected_instance)
+
 
 #toggle instance button handler
 def toggle_button_clicked(b):
     global selected_instance
     global accordion
     selected_instance = accordion.selected_index
-    ec2 = boto3.resource('ec2')
-    instances = get_instances_info()
-    ids = [instances[selected_instance]['Instance Id']]
+    # ec2 = boto3.resource('ec2')
+    # instances = get_instances_info()
+    # ids = [instances[selected_instance]['Instance Id']]
     
-    if(instances[selected_instance]['State'] == "running"):
-        ec2.instances.filter(InstanceIds=ids).stop()
-        print("Instance Stopped.")
-        print("Rerun %db to update.")
-    elif(instances[selected_instance]['State'] == "stopped"):
-        ec2.instances.filter(InstanceIds=ids).start()
-        print("Instance Started.")
-        print("Rerun %db to update.")
-    
+    # if(instances[selected_instance]['State'] == "running"):
+    #     ec2.instances.filter(InstanceIds=ids).stop()
+    #     print("Instance Stopped.")
+    #     print("Rerun %db to update.")
+    # elif(instances[selected_instance]['State'] == "stopped"):
+    #     ec2.instances.filter(InstanceIds=ids).start()
+    #     print("Instance Started.")
+    #     print("Rerun %db to update.")
 
-def get_instances_info():
-    ec2client = boto3.client('ec2')
-    response = ec2client.describe_instances()
-    reservations = response.get('Reservations')
-    instances = []
-    for reservation in reservations:
-        reservationInstances = reservation.get('Instances')
-        for inst in reservationInstances:
-            instances.append(inst)
-
-    instancesFormatted = []
-
-    for instance in instances:
-        tags = instance.get('Tags', [])
-        name = ''
-        for tag in tags:
-            tagKey = tag.get('Key', '')
-            if tagKey == 'Name':
-                name = tag['Value']
-
-        placement = instance['Placement']
-        availabilityZone = placement['AvailabilityZone']
-
-        state = instance['State']
-        stateName = state.get('Name', '')
-
-        launchTime = instance.get('LaunchTime', '')
-
-        if len(name) > 20:
-            name = name[:20] + '...'
-
-        formatInst = {
-            'Name': name,
-            'Instance Id': instance.get('InstanceId', ''),
-            'Instance Type': instance.get('InstanceType', ''),
-            'Availability Zone': availabilityZone,
-            'State': stateName,
-            'Key Name': instance.get('KeyName', ''),
-            'Launch Time': launchTime,
-        }
-        instancesFormatted.append(formatInst)
-
-    return instancesFormatted
+    aws_instances.toggle_instance(selected_instance)
 
 @magics_class
 class TestMagics(Magics):
@@ -101,7 +67,8 @@ class TestMagics(Magics):
     def db(self, line):
         global selected_instance
         global accordion
-        instancesFormatted = get_instances_info()
+
+        instancesFormatted = aws_instances.get_instances_info()
         
         button = widgets.Button(description="Create Instance")
         display(button)
@@ -161,7 +128,7 @@ class TestMagics(Magics):
             html += "</table>"
             # display html table
             display(HTML(html))
-         
+            
         else:
             #stores the info and buttons for each instance
             accordion_children = []
