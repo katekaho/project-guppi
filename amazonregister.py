@@ -1,4 +1,3 @@
-from aws import AwsInstances 
 from pluginbase import PluginBase
 import boto3 
 
@@ -68,25 +67,32 @@ class AmazonService(LocalBaseClass):
         return instancesFormatted
   
     def terminate_instance(self,index):
-      instances = self.formatted_instances
-      ids = [instances[index]['Instance Id']]
-      self.ec2.instances.filter(InstanceIds=ids).terminate()
-      print("Instance Terminated.")
-      print("Rerun %db to update.")
-
-    def toggle_instance(self,index):
-      instances = self.formatted_instances
-      ids = [instances[index]['Instance Id']]
-
-      current_state = instances[index]['State']
-      if(current_state == "running"):
-        self.ec2.instances.filter(InstanceIds=ids).stop()
-        print("Instance Stopped.")
+        instances = self.formatted_instances
+        ids = [instances[index]['Instance Id']]
+        self.ec2.instances.filter(InstanceIds=ids).terminate()
+        print("Instance Terminated.")
         print("Rerun %db to update.")
 
-      elif(current_state == "stopped"):
-        self.ec2.instances.filter(InstanceIds=ids).start()
-        print("Instance Started.")
+    def toggle_instance(self,index):
+        instances = self.formatted_instances
+        ids = [instances[index]['Instance Id']]
+
+        current_state = instances[index]['State']
+        if(current_state == "running"):
+            self.ec2.instances.filter(InstanceIds=ids).stop()
+            print("Instance Stopped.")
+            print("Rerun %db to update.")
+
+        elif(current_state == "stopped"):
+            self.ec2.instances.filter(InstanceIds=ids).start()
+            print("Instance Started.")
+            print("Rerun %db to update.")
+
+    def reboot_instance(self,index):
+        instances = self.formatted_instances
+        ids = [instances[index]['Instance Id']]
+        self.ec2.instances.filter(InstanceIds=ids).reboot()
+        print("Instance Rebooted.")
         print("Rerun %db to update.")
     
 if __name__ == '__main__':
