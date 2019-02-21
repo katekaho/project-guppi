@@ -3,12 +3,16 @@ from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, 
 from IPython.display import HTML, display
 
 from amazonregister import AmazonService
+from googleregister import GoogleService
+from googleapiclient.discovery import build
 import ipywidgets as widgets
 
 selected_instance = ""
 accordion =""
 
 aws = AmazonService()
+compute = build('compute', 'v1')
+google = GoogleService()
 
 #create instance button handler
 def create_button_clicked(b):
@@ -46,7 +50,7 @@ class TestMagics(Magics):
         global selected_instance
         global accordion
 
-        instancesFormatted = aws.get_instances_info()
+        instancesFormatted = google.get_instances_info(compute, 'project-guppi-232323', 'us-east1-b')
         
         button = widgets.Button(description="Create Instance")
         display(button)
