@@ -1,4 +1,3 @@
-from aws import AwsInstances 
 from pluginbase import PluginBase
 import boto3 
 
@@ -88,6 +87,13 @@ class AmazonService(LocalBaseClass):
         self.ec2.instances.filter(InstanceIds=ids).start()
         print("Instance Started.")
         print("Rerun %db to update.")
+
+    def reboot_instance(self,index):
+      instances = self.formatted_instances
+      ids = [instances[index]['Instance Id']]
+      self.ec2.instances.filter(InstanceIds=ids).reboot()
+      print("Instance Rebooted.")
+      print("Rerun %db to update.")
     
 if __name__ == '__main__':
     print('SubClass:', issubclass(AmazonService,

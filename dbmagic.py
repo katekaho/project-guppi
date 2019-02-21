@@ -31,6 +31,14 @@ def toggle_button_clicked(b):
 
     aws.toggle_instance(selected_instance)
 
+
+#terminate instance button handler
+def reboot_button_clicked(b):
+    global selected_instance
+    global accordion
+    selected_instance = accordion.selected_index
+    aws.reboot_instance(selected_instance)
+
 @magics_class
 class TestMagics(Magics):
     @line_magic
@@ -125,6 +133,11 @@ class TestMagics(Magics):
                     terminate_button = widgets.Button(description='Terminate Instance')
                 else:
                     terminate_button = widgets.Button(description='Terminate Instance',disabled=True)
+                # reboot button
+                if(row['State'] == "running"):
+                    reboot_button = widgets.Button(description='Reboot Instance')
+                else:
+                    reboot_button = widgets.Button(description='Reboot Instance',disabled=True)
 
 
                 file = open("icons/running.png", "rb")
@@ -148,8 +161,9 @@ class TestMagics(Magics):
 
                 toggle_button.on_click(toggle_button_clicked)
                 terminate_button.on_click(terminate_button_clicked)
+                reboot_button.on_click(reboot_button_clicked)
 
-                buttons = [toggle_button,terminate_button,indicator]
+                buttons = [toggle_button,reboot_button,terminate_button,indicator]
                 button_box = widgets.HBox(buttons)
 
                 

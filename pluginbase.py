@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class PluginBase(ABC):   
+class PluginBase(ABC):
   @abstractmethod
   def get_instances_info(self):
     pass
@@ -15,4 +15,8 @@ class PluginBase(ABC):
 
   @abstractmethod
   def toggle_instance(self, instance):
+    pass
+
+  @abstractmethod
+  def reboot_instance(self, instance):
     pass
