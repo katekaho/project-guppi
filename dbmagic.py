@@ -35,7 +35,8 @@ def terminate_button_clicked(b):
     global accordion
     selected_instance = accordion.selected_index
 
-    aws.terminate_instance(selected_instance)
+    # aws.terminate_instance(selected_instance)
+    google.terminate_instance(compute, 'project-guppi-232323', 'us-east1-b', selected_instance)
 
 
 #toggle instance button handler
@@ -66,6 +67,7 @@ class TestMagics(Magics):
         button = widgets.Button(description="Create Instance")
         display(button)
         button.on_click(create_button_clicked)
+
         # if user wants to see table view
         if(line == "table"):
             # I create a string 'html' to hold the html view of our table
@@ -135,21 +137,24 @@ class TestMagics(Magics):
                 instance_info = widgets.HBox(items)
 
                 #buttons
+
+                # To-do: decide and generalize state names so this looks clean
                 
-                if(row['State'] == "running"):
+                if(row['State'] == "running" or row['State'] == "RUNNING"): 
                     toggle_button = widgets.Button(description='Stop Instance')
-                elif(row['State'] == "stopped"):
+                elif(row['State'] == "stopped" or row['State'] == 'TERMINATED'):
                     toggle_button = widgets.Button(description='Start Instance')
                 else:
                     toggle_button = widgets.Button(description='Start Instance',disabled=True)
 
                 #disables the terminate button when not running or stopped
-                if(row['State'] == "running" or row['State'] == "stopped"):
+                if(row['State'] == "running" or row['State'] == "stopped"
+                    or row['State'] == "RUNNING" or row['State'] == 'TERMINATED'):
                     terminate_button = widgets.Button(description='Terminate Instance')
                 else:
                     terminate_button = widgets.Button(description='Terminate Instance',disabled=True)
                 # reboot button
-                if(row['State'] == "running"):
+                if(row['State'] == "running" or row['State'] == "RUNNING"):
                     reboot_button = widgets.Button(description='Reboot Instance')
                 else:
                     reboot_button = widgets.Button(description='Reboot Instance',disabled=True)

@@ -69,7 +69,7 @@ class GoogleService(LocalBaseClass):
         
         formatInst = {
             'Name': instance.get('name', ''),
-            'Instance Id': instance.get('id', ''),
+            'Instance Id': instance.get('name', ''), # using name instead for now
             'Instance Type': machineType,
             'Availability Zone': zone,
             'State': instance.get('status', ''),
@@ -81,5 +81,13 @@ class GoogleService(LocalBaseClass):
         
     return instancesFormatted
 
-  
-    
+  def terminate_instance(self, compute, project, zone, index):
+    instances = self.get_instances_info(compute, project, zone)
+    name = instances[index]['Instance Id']
+
+    compute.instances().delete(
+        project=project,
+        zone=zone,
+        instance=name).execute()
+    print("Instance Terminated.")
+    print("Rerun %db to update.")
