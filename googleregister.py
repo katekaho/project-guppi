@@ -1,11 +1,12 @@
-from pluginbase import Google
+# from pluginbase import Google
+from pluginbase import PluginBase
 from googleapiclient.discovery import build
 import os
 
 class LocalBaseClass:
   pass
 
-@Google.register
+@PluginBase.register
 class GoogleService(LocalBaseClass):
   
   def create_instance(self, compute, project, zone, name):
@@ -90,4 +91,35 @@ class GoogleService(LocalBaseClass):
         zone=zone,
         instance=name).execute()
     print("Instance Terminated.")
+    print("Rerun %db to update.")
+  
+  def toggle_instance(self, compute, project, zone, index):
+    instances = self.get_instances_info(compute, project, zone)
+    name = instances[index]['Instance Id']
+
+    current_state = instances[index]['State']
+    if(current_state == "RUNNING"):
+        compute.instances().stop(
+          project=project,
+          zone=zone,
+          instance=name).execute()
+        print("Instance Stopped.")
+        print("Rerun %db to update.")
+
+    elif(current_state == "TERMINATED"):
+        compute.instances().start(
+          project=project,
+          zone=zone,
+          instance=name).execute()
+        print("Instance Started.")
+        print("Rerun %db to update.")
+
+  def reboot_instance(self, compute, project, zone, index):
+    instances = self.get_instances_info(compute, project, zone)
+    name = instances[index]['Instance Id']
+    compute.instances().reset(
+          project=project,
+          zone=zone,
+          instance=name).execute()
+    print("Instance Rebooted.")
     print("Rerun %db to update.")

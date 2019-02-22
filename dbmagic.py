@@ -16,8 +16,12 @@ import random
 selected_instance = ""
 accordion =""
 
-aws = AmazonService()
+# aws = AmazonService()
 compute = build('compute', 'v1')
+
+# Google service requires project name and region for instances
+# To-do: text inputs for project name, region, and instances names
+# After done, make variables for this
 google = GoogleService()
 
 #create instance button handler
@@ -45,7 +49,8 @@ def toggle_button_clicked(b):
     global accordion
     selected_instance = accordion.selected_index
 
-    aws.toggle_instance(selected_instance)
+    # aws.toggle_instance(selected_instance)
+    google.toggle_instance(compute, 'project-guppi-232323', 'us-east1-b', selected_instance)
 
 
 #terminate instance button handler
@@ -53,7 +58,8 @@ def reboot_button_clicked(b):
     global selected_instance
     global accordion
     selected_instance = accordion.selected_index
-    aws.reboot_instance(selected_instance)
+    # aws.reboot_instance(selected_instance)
+    google.reboot_instance(compute, 'project-guppi-232323', 'us-east1-b', selected_instance)
 
 @magics_class
 class TestMagics(Magics):
