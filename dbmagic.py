@@ -5,7 +5,13 @@ from IPython.display import HTML, display
 from amazonregister import AmazonService
 from googleregister import GoogleService
 from googleapiclient.discovery import build
+# from googleapiclient import discovery
+# from oauth2client.client import GoogleCredentials
+# from oauth2client import GOOGLE_TOKEN_URI
+
 import ipywidgets as widgets
+import string
+import random
 
 selected_instance = ""
 accordion =""
@@ -16,7 +22,12 @@ google = GoogleService()
 
 #create instance button handler
 def create_button_clicked(b):
-    aws.create_instance()
+    # aws.create_instance()
+
+    # Need to specify name, region, and instance name
+    # For now, generates a random lowercase 8 character name
+    name = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
+    google.create_instance(compute, 'project-guppi-232323', 'us-east1-b', name)
 
 #terminate instance button handler
 def terminate_button_clicked(b):
