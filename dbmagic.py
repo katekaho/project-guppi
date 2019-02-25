@@ -4,29 +4,19 @@ from IPython.display import HTML, display
 
 from amazonregister import AmazonService
 from googleregister import GoogleService
-from googleapiclient.discovery import build
 
 import ipywidgets as widgets
-import string
-import random
+
 
 selected_instance = ""
 accordion =""
+service = AmazonService()
 
-# aws = AmazonService()
-compute = build('compute', 'v1')
-google = GoogleService()
-
-project_name = 'project-guppi-232323'
-zone = 'us-east1-b'
 
 #create instance button handler
 def create_button_clicked(b):
-	# aws.create_instance()
-
-	# Generates a random lowercase 8 character name (google requires valid name)
-	name = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
-	google.create_instance(compute, project_name, zone, name)
+	
+	service.create_instance()
 
 #terminate instance button handler
 def terminate_button_clicked(b):
@@ -34,8 +24,7 @@ def terminate_button_clicked(b):
 	global accordion
 	selected_instance = accordion.selected_index
 
-	# aws.terminate_instance(selected_instance)
-	google.terminate_instance(compute, project_name, zone, selected_instance)
+	service.terminate_instance(selected_instance)
 
 
 #toggle instance button handler
@@ -44,8 +33,7 @@ def toggle_button_clicked(b):
 	global accordion
 	selected_instance = accordion.selected_index
 
-	# aws.toggle_instance(selected_instance)
-	google.toggle_instance(compute, project_name, zone, selected_instance)
+	service.toggle_instance(selected_instance)
 
 
 #terminate instance button handler
@@ -53,18 +41,30 @@ def reboot_button_clicked(b):
 	global selected_instance
 	global accordion
 	selected_instance = accordion.selected_index
-	# aws.reboot_instance(selected_instance)
-	google.reboot_instance(compute, project_name, zone, selected_instance)
+
+	service.reboot_instance(selected_instance)
 
 @magics_class
 class TestMagics(Magics):
+	@line_magic
+	def init(self, line):
+		global service
+		if(line == "aws"):
+			service = AmazonService()
+			print("You are now using AWS")
+		elif(line == "google"):
+			service = GoogleService()
+			print("You are now using Google")
+		print("Re-run %db to update")
 	@line_magic
 	def db(self, line):
 		global selected_instance
 		global accordion
 
-		instancesFormatted = google.get_instances_info(compute, project_name, zone)
+		instancesFormatted = service.get_instances_info()
 		
+		type_label = widgets.HTML(value="<b>"+service.type+"<b>")
+		display(type_label)
 		button = widgets.Button(description="Create Instance")
 		display(button)
 		button.on_click(create_button_clicked)
@@ -128,7 +128,8 @@ class TestMagics(Magics):
 		else:
 			#stores the info and buttons for each instance
 			accordion_children = []
-
+			if (len(instancesFormatted) == 0):
+				print("No instances found, press 'Create Instance' to create one")
 			for row in instancesFormatted:
 				#appends all info into array of labels
 				info = ["<b>Instance Type:</b>", row['Instance Type'] ,"<b>Availability Zone:</b>", row['Availability Zone'], "<b>State:<b>" , row['State']]
@@ -163,13 +164,13 @@ class TestMagics(Magics):
 
 				file = open("icons/running.png", "rb")
 
-				if(row['State'] == "running"):
+				if(row['State'] == "running" or row['State'] == "RUNNING"):
 					file = open("icons/running.png", "rb")
-				elif(row['State'] == "pending"):
+				elif(row['State'] == "pending"or row['State'] == 'STAGING'):
 					file = open("icons/pending.png", "rb")
-				elif(row['State'] == "stopping"):
+				elif(row['State'] == "stopping" or row['State'] == 'STOPPING'):
 					file = open("icons/stopping.png", "rb")
-				elif(row['State'] == "stopped"):
+				elif(row['State'] == "stopped"or row['State'] == 'TERMINATED'):
 					file = open("icons/stopped.png", "rb")
 				elif(row['State'] == "shutting-down"):
 					file = open("icons/shutting-down.png", "rb")

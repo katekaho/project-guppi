@@ -1,12 +1,23 @@
 from pluginbase import PluginBase
 from googleapiclient.discovery import build
 import os
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="Project Guppi-34c9ddf0bf3e.json"
+
+import string
+import random
+compute = build('compute', 'v1')
+project_name = 'project-guppi-232323'
+zone = 'us-east1-b'
 
 @PluginBase.register
 class GoogleService():
+	def __init__(self):
+		self.type = "GOOGLE SERVICE"
 
-	def create_instance(self, compute, project, zone, name):
+	def create_instance(self):
+		
 		# Get the latest Debian Jessie image.
+		name = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
 		image_response = compute.images().getFromFamily(
 			project='debian-cloud', family='debian-9').execute()
 		source_disk_image = image_response['selfLink']
@@ -47,12 +58,13 @@ class GoogleService():
 			]
 			}],
 		}
-		compute.instances().insert(project=project, zone=zone, body=config).execute()
+		compute.instances().insert(project=project_name, zone=zone, body=config).execute()
 		print("Instance Created.")
 		print("Rerun %db to display.")
 
-	def get_instances_info(self, compute, project, zone):
-		instances = compute.instances().list(project=project, zone=zone).execute()
+	def get_instances_info(self):
+		global zone
+		instances = compute.instances().list(project=project_name, zone=zone).execute()
 
 		instancesFormatted = []
 		
@@ -78,25 +90,25 @@ class GoogleService():
 				
 		return instancesFormatted
 
-	def terminate_instance(self, compute, project, zone, index):
-		instances = self.get_instances_info(compute, project, zone)
+	def terminate_instance(self,index):
+		instances = self.get_instances_info()
 		name = instances[index]['Instance Id']
 
 		compute.instances().delete(
-				project=project,
+				project=project_name,
 				zone=zone,
 				instance=name).execute()
 		print("Instance Terminated.")
 		print("Rerun %db to update.")
 	
-	def toggle_instance(self, compute, project, zone, index):
-		instances = self.get_instances_info(compute, project, zone)
+	def toggle_instance(self,index):
+		instances = self.get_instances_info()
 		name = instances[index]['Instance Id']
 
 		current_state = instances[index]['State']
 		if(current_state == "RUNNING"):
 			compute.instances().stop(
-				project=project,
+				project=project_name,
 				zone=zone,
 				instance=name).execute()
 			print("Instance Stopped.")
@@ -104,17 +116,17 @@ class GoogleService():
 
 		elif(current_state == "TERMINATED"):
 			compute.instances().start(
-				project=project,
+				project=project_name,
 				zone=zone,
 				instance=name).execute()
 			print("Instance Started.")
 			print("Rerun %db to update.")
 
-	def reboot_instance(self, compute, project, zone, index):
-		instances = self.get_instances_info(compute, project, zone)
+	def reboot_instance(self,index):
+		instances = self.get_instances_info()
 		name = instances[index]['Instance Id']
 		compute.instances().reset(
-				project=project,
+				project=project_name,
 				zone=zone,
 				instance=name).execute()
 		print("Instance Rebooted.")
