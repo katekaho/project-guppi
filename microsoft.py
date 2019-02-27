@@ -39,6 +39,35 @@ def create_resource_group(resource_group_client):
         GROUP_NAME, 
         resource_group_params
     )
+VM_LIST = []
+print('\nList VMs in subscription')
+for vm in compute_client.virtual_machines.list_all():
+    print("\tVM: {}".format(vm.name))
+    VM_LIST.append(vm.name)
+
+def start_vm(VM_NAME):
+# Start the VM
+    print('\nStart VM')
+    async_vm_start = compute_client.virtual_machines.start(GROUP_NAME, VM_NAME)
+    async_vm_start.wait()
+
+def restart_vm(VM_NAME):
+# Restart the VM
+    print('\nRestart VM')
+    async_vm_restart = compute_client.virtual_machines.restart(GROUP_NAME, VM_NAME)
+    async_vm_restart.wait()
+
+def stop_vm(VM_NAME):
+# Stop the VM
+    print('\nStop VM')
+    async_vm_stop = compute_client.virtual_machines.power_off(GROUP_NAME, VM_NAME)
+    async_vm_stop.wait()
+
+def terminate_vm(VM_NAME):
+# Delete VM
+    print('\nDelete VM')
+    async_vm_delete = compute_client.virtual_machines.delete(GROUP_NAME, VM_NAME)
+    async_vm_delete.wait()
 
 def get_vm(compute_client):
     vm = compute_client.virtual_machines.get(GROUP_NAME, VM_NAME, expand='instanceView')
@@ -53,20 +82,18 @@ def get_vm(compute_client):
     print("  osDisk")
     print("    osType: ", vm.storage_profile.os_disk.os_type.value)
     print("    name: ", vm.storage_profile.os_disk.name)
-    # print("    createOption: ", vm.storage_profile.os_disk.create_option.value)
+    print("    createOption: ", vm.storage_profile.os_disk.create_option)
     print("    caching: ", vm.storage_profile.os_disk.caching.value)
     print("\nosProfile")
     print("  computerName: ", vm.os_profile.computer_name)
     print("  adminUsername: ", vm.os_profile.admin_username)
-    # print("  provisionVMAgent: {0}".format(vm.os_profile.windows_configuration.provision_vm_agent))
-    # print("  enableAutomaticUpdates: {0}".format(vm.os_profile.windows_configuration.enable_automatic_updates))
     print("\nnetworkProfile")
     for nic in vm.network_profile.network_interfaces:
         print("  networkInterface id: ", nic.id)
     print("\nvmAgent")
     print("  vmAgentVersion", vm.instance_view.vm_agent.vm_agent_version)
     print("    statuses")
-    for stat in vm_result.instance_view.vm_agent.statuses:
+    for stat in vm.instance_view.vm_agent.statuses:
         print("    code: ", stat.code)
         print("    displayStatus: ", stat.display_status)
         print("    message: ", stat.message)
