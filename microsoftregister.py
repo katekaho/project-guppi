@@ -17,7 +17,7 @@ class MicrosoftService(LocalBaseClass):
 		self.SUBSCRIPTION_ID = '96c2b8eb-ed80-462e-901f-4047a240bae1'
 		self.GROUP_NAME = 'guppi'
 		self.LOCATION = 'westus'
-		self.VM_NAME = 'test2'
+		self.VM_NAME = 'test3'
 		self.credentials = ServicePrincipalCredentials(
 			client_id = self.client_id,
 			secret = self.secret,
@@ -50,114 +50,24 @@ class MicrosoftService(LocalBaseClass):
 			}
 		}
 		# Network
-		self.VNET_NAME = 'azure-sample-vnet3'
-		self.SUBNET_NAME = 'azure-sample-subnet3'
-		self.IP_CONFIG_NAME = 'azure-sample-ip-config3'
-		self.NIC_NAME = 'azure-sample-nic3'
+		self.VNET_NAME = 'azure-sample-vnet7'
+		self.SUBNET_NAME = 'azure-sample-subnet7'
+		self.IP_CONFIG_NAME = 'azure-sample-ip-config7'
+		self.NIC_NAME = 'azure-sample-nic7'
 
 		self.USERNAME = 'project.guppi@gmail.com'
 		self.PASSWORD = 'GuppiCisco116'
-
-	
-	def create_vm_parameters(self, nic_id, vm_reference):
-		"""Create the VM parameters structure.
-		"""
-		return {
-			'location': self.LOCATION,
-			'os_profile': {
-				'computer_name': self.VM_NAME,
-				'admin_username': self.USERNAME,
-				'admin_password': self.PASSWORD
-			},
-			'hardware_profile': {
-				'vm_size': 'Standard_DS1_v2'
-			},
-			'storage_profile': {
-				'image_reference': {
-					'publisher': self.VM_REFERENCE['publisher'],
-					'offer': self.VM_REFERENCE['offer'],
-					'sku': self.VM_REFERENCE['sku'],
-					'version': self.VM_REFERENCE['version']
-				},
-			},
-			'network_profile': {
-				'network_interfaces': [{
-					'id': nic_id,
-				}]
-			},
-		}
+		self.instances = self.get_instances_info()
 
 	def create_instance(self):
-		print('\nCreating VNet')
-		# Create VNet
-		async_vnet_creation = self.network_client.virtual_networks.create_or_update(
-			self.GROUP_NAME,
-			self.VNET_NAME,
-			{
-				'location': self.LOCATION,
-				'address_space': {
-					'address_prefixes': ['10.0.0.0/16']
-				}
-			}
-		)
-		async_vnet_creation.wait()
-
-		# Create Subnet
-		print('\nCreating Subnet')
-		async_subnet_creation = self.network_client.subnets.create_or_update(
-			self.GROUP_NAME,
-			self.VNET_NAME,
-			self.SUBNET_NAME,
-			{'address_prefix': '10.0.0.0/24'}
-		)
-		subnet_info = async_subnet_creation.result()
-
-		# Create NIC
-		print('\nCreating NIC')
-		async_nic_creation = self.network_client.network_interfaces.create_or_update(
-			self.GROUP_NAME,
-			self.NIC_NAME,
-			{
-				'location': self.LOCATION,
-				'ip_configurations': [{
-					'name': self.IP_CONFIG_NAME,
-					'subnet': {
-						'id': subnet_info.id
-					}
-				}]
-			}
-		)
-		nic = async_nic_creation.result()
-
+		nic = self.create_nic(self.network_client)
 		# Create Linux VM
 		print('\nCreating VM')
-		vm_parameters = {
-			'location': self.LOCATION,
-			'os_profile': {
-				'computer_name': self.VM_NAME,
-				'admin_username': self.USERNAME,
-				'admin_password': self.PASSWORD
-			},
-			'hardware_profile': {
-				'vm_size': 'Standard_DS1_v2'
-			},
-			'storage_profile': {
-				'image_reference': {
-					'publisher': self.VM_REFERENCE['linux']['publisher'],
-					'offer': self.VM_REFERENCE['linux']['offer'],
-					'sku': self.VM_REFERENCE['linux']['sku'],
-					'version': self.VM_REFERENCE['linux']['version']
-				},
-			},
-			'network_profile': {
-				'network_interfaces': [{
-					'id': nic.id,
-				}]
-			},
-		}
+		vm_parameters = self.create_vm_parameters(nic.id, self.VM_REFERENCE['linux'])
 		async_vm_creation = self.compute_client.virtual_machines.create_or_update(
             self.GROUP_NAME, self.VM_NAME, vm_parameters)
 		async_vm_creation.wait()
+		self.instances = self.get_instances_info()
 		print("Instance Created.")
 		print("Rerun %db to display.")
 
@@ -193,41 +103,50 @@ class MicrosoftService(LocalBaseClass):
 		return instancesFormatted
   
 	def terminate_instance(self,index):
-		instances = self.formatted_instances
-		ids = [instances[index]['Instance Id']]
-		self.ec2.instances.filter(InstanceIds=ids).terminate()
+		instances = self.instances
+		print("Instance Terminating...")
+		vm_name = instances[index]['Name']
+		async_vm_delete = self.compute_client.virtual_machines.delete(self.GROUP_NAME, vm_name)
+		async_vm_delete.wait()
+		self.instances = self.get_instances_info()
 		print("Instance Terminated.")
 		print("Rerun %db to update.")
 
 	def toggle_instance(self,index):
-		async_vm_stop = self.compute_client.virtual_machines.power_off(self.GROUP_NAME, self.VM_NAME)
-		async_vm_stop.wait()
-		# instances = self.formatted_instances
-		# ids = [instances[index]['Instance Id']]
+		instances = self.instances
+		current_state = instances[index]['State']
+		if(current_state == "running"):
+			print("Instance Stopping...")
+			async_vm_stop = self.compute_client.virtual_machines.power_off(self.GROUP_NAME, self.instances[index]['Name'])
+			async_vm_stop.wait()
+			self.instances = self.get_instances_info()
+			print("Instance Stopped.")
+			print("Rerun %db to update.")
 
-		# current_state = instances[index]['State']
-		# if(current_state == "running"):
-		# 	self.ec2.instances.filter(InstanceIds=ids).stop()
-		# 	print("Instance Stopped.")
-		# 	print("Rerun %db to update.")
+		elif(current_state == "stopped"):
+			print("Instance Starting...")
+			async_vm_start = self.compute_client.virtual_machines.start(self.GROUP_NAME, self.instances[index]['Name'])
+			async_vm_start.wait()
+			self.instances = self.get_instances_info()
+			print("Instance Started.")
+			print("Rerun %db to update.")
 
-		# elif(current_state == "stopped"):
-		# 	self.ec2.instances.filter(InstanceIds=ids).start()
-		# 	print("Instance Started.")
-		# 	print("Rerun %db to update.")
-
-
+		else:
+			print("Error: State is " + self.instances[index]['State'])
 
 	def reboot_instance(self,index):
-		instances = self.formatted_instances
-		ids = [instances[index]['Instance Id']]
-		self.ec2.instances.filter(InstanceIds=ids).reboot()
+		print("Instance Rebooting...")
+		instances = self.instances
+		vm_name = instances[index]['Name']
+		async_vm_restart = self.compute_client.virtual_machines.restart(self.GROUP_NAME, vm_name)
+		async_vm_restart.wait()
+		self.instances = self.get_instances_info()
 		print("Instance Rebooted.")
 		print("Rerun %db to update.")
 	
 	def create_nic(self, network_client):
 		# Create VNet
-		print('\nCreate Vnet')
+		print('\nCreating Vnet')
 		async_vnet_creation = network_client.virtual_networks.create_or_update(
 			self.GROUP_NAME,
 			self.VNET_NAME,
@@ -241,7 +160,7 @@ class MicrosoftService(LocalBaseClass):
 		async_vnet_creation.wait()
 
 		# Create Subnet
-		print('\nCreate Subnet')
+		print('\nCreating Subnet in ')
 		async_subnet_creation = network_client.subnets.create_or_update(
 			self.GROUP_NAME,
 			self.VNET_NAME,
@@ -251,7 +170,7 @@ class MicrosoftService(LocalBaseClass):
 		subnet_info = async_subnet_creation.result()
 
 		# Create NIC
-		print('\nCreate NIC')
+		print('\nCreating NIC')
 		async_nic_creation = network_client.network_interfaces.create_or_update(
 			self.GROUP_NAME,
 			self.NIC_NAME,
@@ -266,7 +185,34 @@ class MicrosoftService(LocalBaseClass):
 			}
 		)
 		return async_nic_creation.result()
-
+	
+	def create_vm_parameters(self, nic_id, vm_reference):
+		"""Create the VM parameters structure.
+		"""
+		return {
+			'location': self.LOCATION,
+			'os_profile': {
+				'computer_name': self.VM_NAME,
+				'admin_username': self.USERNAME,
+				'admin_password': self.PASSWORD
+			},
+			'hardware_profile': {
+				'vm_size': 'Standard_B1s'
+			},
+			'storage_profile': {
+				'image_reference': {
+					'publisher': vm_reference['publisher'],
+					'offer': vm_reference['offer'],
+					'sku': vm_reference['sku'],
+					'version': vm_reference['version']
+				},
+			},
+			'network_profile': {
+				'network_interfaces': [{
+					'id': nic_id,
+				}]
+			},
+		}
 
 	
 if __name__ == '__main__':
