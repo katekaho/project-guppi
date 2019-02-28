@@ -8,6 +8,7 @@ from datetime import datetime
 
 from slackclient import SlackClient
 import os
+import sys
 
 token = "xoxp-524358460228-524727397301-562934358338-57f264d9e922b399e56952c65bac020f"
 sc = SlackClient(token)
@@ -28,11 +29,17 @@ def user_info():
 		
 # sends a new message to passed in channel_name and message
 def post_message(channel_name, message):
-	sc.api_call(
+	result = sc.api_call(
 		"chat.postMessage",
 		channel=channel_name,
 		text=message,
 	)
+
+	if(result.get('ok','') == True):
+		print("Message sent to " +channel_name)
+	else:
+		print('Message could not be sent')
+		print(result.get('error',''))
 
 #pass in userid, returns associated username
 def get_username(user_id, users):
@@ -70,18 +77,12 @@ def get_latest_messages(channel_name, users, num_messages):
 class SlackMagic(Magics):
 	channel_name = ""
 	message = ""
-
-	def send_message(self,b):
-		print("meesage"+self.message)
-		if(self.message != ''):
-			post_message(self.channel_name,self.message)
-	@line_magic
-	def slack(self, line):
+	def display_messages(self,channel):
 		users = user_info()
-		self.channel_name = line
-		if(line == None):
+		self.channel_name = channel
+		if(channel == None):
 			print("please enter a slack channel to view. ex: %slack general")
-		messages = get_latest_messages(line,users,10)
+		messages = get_latest_messages(channel,users,10)
 
 		for message in reversed(messages):
 			#user messages
@@ -108,30 +109,34 @@ class SlackMagic(Magics):
 
 			display(message_box)
 
-		message_box = widgets.Textarea(
-			value='',
-			placeholder='Type something',
-			description='',
-			disabled=False,
-			layout= Layout(width = '75%')
-		)
+		def display_messages(self,channel,message):
+			post_message(channel,message)
 
-		self.message = message_box.value
-		
-		
-		send_button = widgets.Button(
-			description='Send Message',
-			disabled=False,
-			button_style='', # 'success', 'info', 'warning', 'danger' or ''
-			tooltip='Click me',
-		)
+	@line_magic
+	@magic_arguments.magic_arguments()
+	@magic_arguments.argument('arguments', nargs='*')
+	def slack(self, line=''):
+		args = magic_arguments.parse_argstring(self.slack, line)
+		if(len(args.arguments) > 0):
+			if(args.arguments[0] == 'view'):
+				if(len(args.arguments)< 2):
+					print("Please enter a channel name: %slack [view] [channel_name]")
+				else:
+					self.display_messages(args.arguments[1])
+			elif(args.arguments[0] == 'send'):
+				if(len(args.arguments)< 2):
+					print("Please enter a channel name: %slack [send] [channel_name] [\"MESSAGE\"]")
+				else:
+					if(len(args.arguments)< 3):
+						print("Please enter a message: %slack [send] [channel_name] [\"MESSAGE\"]")
+						print("Note: message must be in quotes")
+					elif(len(args.arguments)> 3):
+						print("Your message must be in quotes")
+					else:
+						post_message(args.arguments[1],args.arguments[2])
+		else:
+			print("Please enter a command: %slack [view, send] [channel_name]")
 
-		send_button.on_click(self.send_message)
-
-		
-
-		display(message_box)
-		display(send_button)
 
 
 def load_ipython_extension(ipython):
