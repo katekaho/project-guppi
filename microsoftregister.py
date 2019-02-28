@@ -17,7 +17,7 @@ class MicrosoftService(LocalBaseClass):
 		self.SUBSCRIPTION_ID = '96c2b8eb-ed80-462e-901f-4047a240bae1'
 		self.GROUP_NAME = 'guppi'
 		self.LOCATION = 'westus'
-		self.VM_NAME = 'test1'
+		self.VM_NAME = 'test2'
 		self.credentials = ServicePrincipalCredentials(
 			client_id = self.client_id,
 			secret = self.secret,
@@ -35,17 +35,132 @@ class MicrosoftService(LocalBaseClass):
 			self.credentials, 
 			self.SUBSCRIPTION_ID
 		)
+		self.VM_REFERENCE = {
+			'linux': {
+				'publisher': 'Canonical',
+				'offer': 'UbuntuServer',
+				'sku': '16.04.0-LTS',
+				'version': 'latest'
+			},
+			'windows': {
+				'publisher': 'MicrosoftWindowsServer',
+				'offer': 'WindowsServer',
+				'sku': '2016-Datacenter',
+				'version': 'latest'
+			}
+		}
+		# Network
+		self.VNET_NAME = 'azure-sample-vnet3'
+		self.SUBNET_NAME = 'azure-sample-subnet3'
+		self.IP_CONFIG_NAME = 'azure-sample-ip-config3'
+		self.NIC_NAME = 'azure-sample-nic3'
+
+		self.USERNAME = 'project.guppi@gmail.com'
+		self.PASSWORD = 'GuppiCisco116'
+
+	
+	def create_vm_parameters(self, nic_id, vm_reference):
+		"""Create the VM parameters structure.
+		"""
+		return {
+			'location': self.LOCATION,
+			'os_profile': {
+				'computer_name': self.VM_NAME,
+				'admin_username': self.USERNAME,
+				'admin_password': self.PASSWORD
+			},
+			'hardware_profile': {
+				'vm_size': 'Standard_DS1_v2'
+			},
+			'storage_profile': {
+				'image_reference': {
+					'publisher': self.VM_REFERENCE['publisher'],
+					'offer': self.VM_REFERENCE['offer'],
+					'sku': self.VM_REFERENCE['sku'],
+					'version': self.VM_REFERENCE['version']
+				},
+			},
+			'network_profile': {
+				'network_interfaces': [{
+					'id': nic_id,
+				}]
+			},
+		}
 
 	def create_instance(self):
-		self.ec2.create_instances(
-			ImageId='ami-0799ad445b5727125',
-			MinCount=1,
-			MaxCount=1,
-			InstanceType='t2.micro',
-			KeyName='key_pair_guppi',
+		print('\nCreating VNet')
+		# Create VNet
+		async_vnet_creation = self.network_client.virtual_networks.create_or_update(
+			self.GROUP_NAME,
+			self.VNET_NAME,
+			{
+				'location': self.LOCATION,
+				'address_space': {
+					'address_prefixes': ['10.0.0.0/16']
+				}
+			}
 		)
+		async_vnet_creation.wait()
+
+		# Create Subnet
+		print('\nCreating Subnet')
+		async_subnet_creation = self.network_client.subnets.create_or_update(
+			self.GROUP_NAME,
+			self.VNET_NAME,
+			self.SUBNET_NAME,
+			{'address_prefix': '10.0.0.0/24'}
+		)
+		subnet_info = async_subnet_creation.result()
+
+		# Create NIC
+		print('\nCreating NIC')
+		async_nic_creation = self.network_client.network_interfaces.create_or_update(
+			self.GROUP_NAME,
+			self.NIC_NAME,
+			{
+				'location': self.LOCATION,
+				'ip_configurations': [{
+					'name': self.IP_CONFIG_NAME,
+					'subnet': {
+						'id': subnet_info.id
+					}
+				}]
+			}
+		)
+		nic = async_nic_creation.result()
+
+		# Create Linux VM
+		print('\nCreating VM')
+		vm_parameters = {
+			'location': self.LOCATION,
+			'os_profile': {
+				'computer_name': self.VM_NAME,
+				'admin_username': self.USERNAME,
+				'admin_password': self.PASSWORD
+			},
+			'hardware_profile': {
+				'vm_size': 'Standard_DS1_v2'
+			},
+			'storage_profile': {
+				'image_reference': {
+					'publisher': self.VM_REFERENCE['linux']['publisher'],
+					'offer': self.VM_REFERENCE['linux']['offer'],
+					'sku': self.VM_REFERENCE['linux']['sku'],
+					'version': self.VM_REFERENCE['linux']['version']
+				},
+			},
+			'network_profile': {
+				'network_interfaces': [{
+					'id': nic.id,
+				}]
+			},
+		}
+		async_vm_creation = self.compute_client.virtual_machines.create_or_update(
+            self.GROUP_NAME, self.VM_NAME, vm_parameters)
+		async_vm_creation.wait()
 		print("Instance Created.")
 		print("Rerun %db to display.")
+
 	
 	def get_instances_info(self):
 		vm_list = []
@@ -109,6 +224,50 @@ class MicrosoftService(LocalBaseClass):
 		self.ec2.instances.filter(InstanceIds=ids).reboot()
 		print("Instance Rebooted.")
 		print("Rerun %db to update.")
+	
+	def create_nic(self, network_client):
+		# Create VNet
+		print('\nCreate Vnet')
+		async_vnet_creation = network_client.virtual_networks.create_or_update(
+			self.GROUP_NAME,
+			self.VNET_NAME,
+			{
+				'location': self.LOCATION,
+				'address_space': {
+					'address_prefixes': ['10.0.0.0/16']
+				}
+			}
+		)
+		async_vnet_creation.wait()
+
+		# Create Subnet
+		print('\nCreate Subnet')
+		async_subnet_creation = network_client.subnets.create_or_update(
+			self.GROUP_NAME,
+			self.VNET_NAME,
+			self.SUBNET_NAME,
+			{'address_prefix': '10.0.0.0/24'}
+		)
+		subnet_info = async_subnet_creation.result()
+
+		# Create NIC
+		print('\nCreate NIC')
+		async_nic_creation = network_client.network_interfaces.create_or_update(
+			self.GROUP_NAME,
+			self.NIC_NAME,
+			{
+				'location': self.LOCATION,
+				'ip_configurations': [{
+					'name': self.IP_CONFIG_NAME,
+					'subnet': {
+						'id': subnet_info.id
+					}
+				}]
+			}
+		)
+		return async_nic_creation.result()
+
+
 	
 if __name__ == '__main__':
 	print('SubClass:', issubclass(AmazonService,

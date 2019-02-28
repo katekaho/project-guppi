@@ -146,19 +146,19 @@ class TestMagics(Magics):
 
 			acc_index = 0
 			
-			#adding titles to the accordian
-			for row in instancesFormatted:
-				acc_title = row['Instance Id']
-				acc_title += " "
-				acc_title += row['State']
-				accordion.set_title(acc_index, acc_title)
-				acc_index += 1
+		#adding titles to the accordian
+		for row in instancesFormatted:
+			acc_title = row['Instance Id']
+			acc_title += " "
+			acc_title += row['State']
+			accordion.set_title(acc_index, acc_title)
+			acc_index += 1
 
-			display(accordion)
+		display(accordion)
 
-			
-			#sets global selected instance to currently selected instance
-			selected_instance = accordion.selected_index
+		
+		#sets global selected instance to currently selected instance
+		selected_instance = accordion.selected_index
 
 def load_ipython_extension(ipython):
 	"""This function is called when the extension is
