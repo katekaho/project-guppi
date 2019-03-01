@@ -13,9 +13,9 @@ import sys
 token = "xoxp-524358460228-524727397301-562934358338-57f264d9e922b399e56952c65bac020f"
 sc = SlackClient(token)
 
-#===================================================
-#---------------Slack-API-Funtions------------------
-#===================================================
+#===================================================#
+#---------------Slack-API-Funtions------------------#
+#===================================================#
 
 # returns dict with user info
 def user_info():
@@ -67,16 +67,21 @@ def get_latest_messages(channel_name, users, num_messages):
 					channel=channel_id,
 					count = num_messages,
 					)
-	#replaces userid with users actual name
-	for message in message_list['messages']:
-		if('user' in message):
-			name = get_username(message['user'],users)
-			message['user'] = name
-	return message_list['messages']
+	if(message_list.get('ok','') == True):
+		#replaces userid with users actual name
+		for message in message_list['messages']:
+			if('user' in message):
+				name = get_username(message['user'],users)
+				message['user'] = name
+		return message_list['messages']
+	else:
+		print('Could not view messages')
+		print(message_list.get('error',''))
+		return False
 
-#===================================================
-#---------------Slack-Magic-Class-------------------
-#===================================================
+#===================================================#
+#---------------Slack-Magic-Class-------------------#
+#===================================================#
 
 @magics_class
 class SlackMagic(Magics):
@@ -90,28 +95,28 @@ class SlackMagic(Magics):
 
 		# gets last 10 messages
 		messages = get_latest_messages(channel,users,10)
+		if(messages != False):
+			for message in reversed(messages):
+				if('user' in message):
+					username = widgets.HTML(value="<b>"+message['user']+":<b>",layout=Layout(width='25%'))
+				elif('username' in message):
+					username = widgets.HTML(value="<b>"+message['username']+":<b>",layout=Layout(width='25%'))
 
-		for message in reversed(messages):
-			if('user' in message):
-				username = widgets.HTML(value="<b>"+message['user']+":<b>",layout=Layout(width='25%'))
-			elif('username' in message):
-				username = widgets.HTML(value="<b>"+message['username']+":<b>",layout=Layout(width='25%'))
+				message_content = widgets.HTML(value= message['text'],layout=Layout(width='70%'))
 
-			message_content = widgets.HTML(value= message['text'],layout=Layout(width='70%'))
+				ts = float(message['ts'])
+				formatted_time = datetime.utcfromtimestamp(ts).strftime('%H:%M')
+				empty_space = widgets.HTML(value= '',layout=Layout(width='5%'))
+				timestamp = widgets.HTML(value= formatted_time)
 
-			ts = float(message['ts'])
-			formatted_time = datetime.utcfromtimestamp(ts).strftime('%H:%M')
-			empty_space = widgets.HTML(value= '',layout=Layout(width='5%'))
-			timestamp = widgets.HTML(value= formatted_time)
+				box_layout = Layout(
+					border='solid 1px',
+					padding='1em',
+					width= '100%',
+				)
+				message_box = Box([username,message_content,empty_space,timestamp], layout=box_layout)
 
-			box_layout = Layout(
-				border='solid 1px',
-				padding='1em',
-				width= '100%',
-			)
-			message_box = Box([username,message_content,empty_space,timestamp], layout=box_layout)
-
-			display(message_box)
+				display(message_box)
 
 	#takes in channel name and message, sends message to channel
 	def send_message(self,channel,message):
@@ -145,9 +150,9 @@ class SlackMagic(Magics):
 		else:
 			print("For usage, use the  %slack help command")
 
-#===================================================
-#-----------ipython-Magic-Registering---------------
-#===================================================
+#===================================================#
+#-----------ipython-Magic-Registering---------------#
+#===================================================#
 
 def load_ipython_extension(ipython):
 	"""This function is called when the extension is
