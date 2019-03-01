@@ -88,7 +88,7 @@ class TestMagics(Magics):
 
 				#buttons
 
-				# To-do: decide and generalize state names so this looks clean
+				# TODO: decide and generalize state names so this looks clean
 				
 				if(row['State'] == "running" or row['State'] == "RUNNING"): 
 					toggle_button = widgets.Button(description='Stop Instance')

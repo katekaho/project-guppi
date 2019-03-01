@@ -13,17 +13,21 @@ import sys
 token = "xoxp-524358460228-524727397301-562934358338-57f264d9e922b399e56952c65bac020f"
 sc = SlackClient(token)
 
+#===================================================
+#---------------Slack-API-Funtions------------------
+#===================================================
+
+# returns dict with user info
 def user_info():
 	users_list = sc.api_call("users.list")
 	users = []
 	for member in users_list['members']:
-
 		profile = member['profile']
 		user = {
-				'id': member.get('id',''),
-				'username': member.get('name',''),
-				'real_name': profile.get('real_name_normalized','')
-			}
+			'id': member.get('id',''),
+			'username': member.get('name',''),
+			'real_name': profile.get('real_name_normalized','')
+		}
 		users.append(user)
 	return users
 		
@@ -34,7 +38,6 @@ def post_message(channel_name, message):
 		channel=channel_name,
 		text=message,
 	)
-
 	if(result.get('ok','') == True):
 		print("Message sent to " +channel_name)
 	else:
@@ -47,7 +50,6 @@ def get_username(user_id, users):
 		if(user_id == user.get('id','')):
 			return user.get('real_name','')
 	return "no username"
-
 
 #pass in channel name, returns associated channel id
 def get_channel_id(channel_name):
@@ -65,27 +67,31 @@ def get_latest_messages(channel_name, users, num_messages):
 					channel=channel_id,
 					count = num_messages,
 					)
+	#replaces userid with users actual name
 	for message in message_list['messages']:
 		if('user' in message):
 			name = get_username(message['user'],users)
 			message['user'] = name
-
 	return message_list['messages']
 
-# slack magic class
+#===================================================
+#---------------Slack-Magic-Class-------------------
+#===================================================
+
 @magics_class
 class SlackMagic(Magics):
 	channel_name = ""
 	message = ""
+	
+	#takes in channel name, outputs last x messages
 	def display_messages(self,channel):
 		users = user_info()
 		self.channel_name = channel
-		if(channel == None):
-			print("please enter a slack channel to view. ex: %slack general")
+
+		# gets last 10 messages
 		messages = get_latest_messages(channel,users,10)
 
 		for message in reversed(messages):
-			#user messages
 			if('user' in message):
 				username = widgets.HTML(value="<b>"+message['user']+":<b>",layout=Layout(width='25%'))
 			elif('username' in message):
@@ -95,7 +101,6 @@ class SlackMagic(Magics):
 
 			ts = float(message['ts'])
 			formatted_time = datetime.utcfromtimestamp(ts).strftime('%H:%M')
-
 			empty_space = widgets.HTML(value= '',layout=Layout(width='5%'))
 			timestamp = widgets.HTML(value= formatted_time)
 
@@ -104,14 +109,15 @@ class SlackMagic(Magics):
 				padding='1em',
 				width= '100%',
 			)
-
 			message_box = Box([username,message_content,empty_space,timestamp], layout=box_layout)
 
 			display(message_box)
 
-		def display_messages(self,channel,message):
-			post_message(channel,message)
+	#takes in channel name and message, sends message to channel
+	def send_message(self,channel,message):
+			post_message(channel, message)
 
+	#takes in jupyter inputs 
 	@line_magic
 	@magic_arguments.magic_arguments()
 	@magic_arguments.argument('arguments', nargs='*')
@@ -135,11 +141,13 @@ class SlackMagic(Magics):
 					elif(len(args.arguments)> 3):
 						print("Your message must be in quotes")
 					else:
-						post_message(args.arguments[1],args.arguments[2])
+						self.send_message(args.arguments[1],args.arguments[2])
 		else:
 			print("For usage, use the  %slack help command")
 
-
+#===================================================
+#-----------ipython-Magic-Registering---------------
+#===================================================
 
 def load_ipython_extension(ipython):
 	"""This function is called when the extension is
