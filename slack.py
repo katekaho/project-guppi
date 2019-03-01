@@ -118,7 +118,9 @@ class SlackMagic(Magics):
 	def slack(self, line=''):
 		args = magic_arguments.parse_argstring(self.slack, line)
 		if(len(args.arguments) > 0):
-			if(args.arguments[0] == 'view'):
+			if(args.arguments[0] == 'help'):
+				print("View a slack channel:\n%slack view [channel_name]\n\nSend a Slack message: \n%slack send [channel_name] [message in quotes]")
+			elif(args.arguments[0] == 'view'):
 				if(len(args.arguments)< 2):
 					print("Please enter a channel name: %slack [view] [channel_name]")
 				else:
@@ -135,7 +137,7 @@ class SlackMagic(Magics):
 					else:
 						post_message(args.arguments[1],args.arguments[2])
 		else:
-			print("Please enter a command: %slack [view, send] [channel_name]")
+			print("For usage, use the  %slack help command")
 
 
 

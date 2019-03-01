@@ -8,7 +8,7 @@ from microsoftregister import MicrosoftService
 
 import ipywidgets as widgets
 
-
+# TODO fix switching instances with init, needs to clear accordian
 selected_instance = ""
 accordion =""
 service = AmazonService()
@@ -158,6 +158,7 @@ class TestMagics(Magics):
 
 		
 		#sets global selected instance to currently selected instance
+		
 		selected_instance = accordion.selected_index
 
 def load_ipython_extension(ipython):
