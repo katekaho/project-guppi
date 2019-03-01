@@ -77,89 +77,89 @@ class TestMagics(Magics):
 		accordion_children = []
 		if (len(instancesFormatted) == 0):
 			print("No instances found, press 'Create Instance' to create one")
-		for row in instancesFormatted:
-			#appends all info into array of labels
-			info = ["<b>Instance Type:</b>", row['Instance Type'] ,"<b>Availability Zone:</b>", row['Availability Zone'], "<b>State:<b>" , row['State']]
+		else:
+			for row in instancesFormatted:
+				#appends all info into array of labels
+				info = ["<b>Instance Type:</b>", row['Instance Type'] ,"<b>Availability Zone:</b>", row['Availability Zone'], "<b>State:<b>" , row['State']]
 
-			#makes each label html and puts into HBox
-			items = [widgets.HTML(str(i)) for i in info]
-			instance_info = widgets.HBox(items)
+				#makes each label html and puts into HBox
+				items = [widgets.HTML(str(i)) for i in info]
+				instance_info = widgets.HBox(items)
 
-			#buttons
+				#buttons
 
-			# To-do: decide and generalize state names so this looks clean
-			
-			if(row['State'] == "running" or row['State'] == "RUNNING"): 
-				toggle_button = widgets.Button(description='Stop Instance')
-			elif(row['State'] == "stopped" or row['State'] == 'TERMINATED'):
-				toggle_button = widgets.Button(description='Start Instance')
-			else:
-				toggle_button = widgets.Button(description='Start Instance',disabled=True)
+				# To-do: decide and generalize state names so this looks clean
+				
+				if(row['State'] == "running" or row['State'] == "RUNNING"): 
+					toggle_button = widgets.Button(description='Stop Instance')
+				elif(row['State'] == "stopped" or row['State'] == 'TERMINATED'):
+					toggle_button = widgets.Button(description='Start Instance')
+				else:
+					toggle_button = widgets.Button(description='Start Instance',disabled=True)
 
-			#disables the terminate button when not running or stopped
-			if(row['State'] == "running" or row['State'] == "stopped"
-				or row['State'] == "RUNNING" or row['State'] == 'TERMINATED'):
-				terminate_button = widgets.Button(description='Terminate Instance')
-			else:
-				terminate_button = widgets.Button(description='Terminate Instance',disabled=True)
-			# reboot button
-			if(row['State'] == "running" or row['State'] == "RUNNING"):
-				reboot_button = widgets.Button(description='Reboot Instance')
-			else:
-				reboot_button = widgets.Button(description='Reboot Instance',disabled=True)
+				#disables the terminate button when not running or stopped
+				if(row['State'] == "running" or row['State'] == "stopped"
+					or row['State'] == "RUNNING" or row['State'] == 'TERMINATED'):
+					terminate_button = widgets.Button(description='Terminate Instance')
+				else:
+					terminate_button = widgets.Button(description='Terminate Instance',disabled=True)
+				# reboot button
+				if(row['State'] == "running" or row['State'] == "RUNNING"):
+					reboot_button = widgets.Button(description='Reboot Instance')
+				else:
+					reboot_button = widgets.Button(description='Reboot Instance',disabled=True)
 
 
-			file = open("icons/running.png", "rb")
-
-			if(row['State'] == "running" or row['State'] == "RUNNING"):
 				file = open("icons/running.png", "rb")
-			elif(row['State'] == "pending"or row['State'] == 'STAGING'):
-				file = open("icons/pending.png", "rb")
-			elif(row['State'] == "stopping" or row['State'] == 'STOPPING'):
-				file = open("icons/stopping.png", "rb")
-			elif(row['State'] == "stopped"or row['State'] == 'TERMINATED'):
-				file = open("icons/stopped.png", "rb")
-			elif(row['State'] == "shutting-down"):
-				file = open("icons/shutting-down.png", "rb")
-			else:
-				file = open("icons/terminated.png", "rb")
 
-			image = file.read()
-			indicator = widgets.Image(value=image,format='png')
+				if(row['State'] == "running" or row['State'] == "RUNNING"):
+					file = open("icons/running.png", "rb")
+				elif(row['State'] == "pending"or row['State'] == 'STAGING'):
+					file = open("icons/pending.png", "rb")
+				elif(row['State'] == "stopping" or row['State'] == 'STOPPING'):
+					file = open("icons/stopping.png", "rb")
+				elif(row['State'] == "stopped"or row['State'] == 'TERMINATED'):
+					file = open("icons/stopped.png", "rb")
+				elif(row['State'] == "shutting-down"):
+					file = open("icons/shutting-down.png", "rb")
+				else:
+					file = open("icons/terminated.png", "rb")
+
+				image = file.read()
+				indicator = widgets.Image(value=image,format='png')
+				
+
+				toggle_button.on_click(toggle_button_clicked)
+				terminate_button.on_click(terminate_button_clicked)
+				reboot_button.on_click(reboot_button_clicked)
+
+				buttons = [toggle_button,reboot_button,terminate_button,indicator]
+				button_box = widgets.HBox(buttons)
+
+				
+				#puts info and buttons into vBox
+				instance_box = widgets.VBox([instance_info, button_box])
+
+				#adds it to list of childeren for accordian
+				accordion_children.append(instance_box)
+
+				accordion = widgets.Accordion(accordion_children)
+
+				acc_index = 0
 			
+			#adding titles to the accordian
+			for row in instancesFormatted:
+				acc_title = row['Instance Id']
+				acc_title += " "
+				acc_title += row['State']
+				accordion.set_title(acc_index, acc_title)
+				acc_index += 1
 
-			toggle_button.on_click(toggle_button_clicked)
-			terminate_button.on_click(terminate_button_clicked)
-			reboot_button.on_click(reboot_button_clicked)
-
-			buttons = [toggle_button,reboot_button,terminate_button,indicator]
-			button_box = widgets.HBox(buttons)
-
-			
-			#puts info and buttons into vBox
-			instance_box = widgets.VBox([instance_info, button_box])
-
-			#adds it to list of childeren for accordian
-			accordion_children.append(instance_box)
-
-			accordion = widgets.Accordion(accordion_children)
-
-			acc_index = 0
-			
-		#adding titles to the accordian
-		for row in instancesFormatted:
-			acc_title = row['Instance Id']
-			acc_title += " "
-			acc_title += row['State']
-			accordion.set_title(acc_index, acc_title)
-			acc_index += 1
-
-		display(accordion)
+			display(accordion)
 
 		
-		#sets global selected instance to currently selected instance
-		
-		selected_instance = accordion.selected_index
+			#sets global selected instance to currently selected instance
+			selected_instance = accordion.selected_index
 
 def load_ipython_extension(ipython):
 	"""This function is called when the extension is

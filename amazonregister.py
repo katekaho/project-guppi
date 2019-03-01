@@ -67,9 +67,12 @@ class AmazonService(LocalBaseClass):
 		return instancesFormatted
   
 	def terminate_instance(self,index):
+		print("Terminating Instance...")
 		instances = self.formatted_instances
 		ids = [instances[index]['Instance Id']]
 		self.ec2.instances.filter(InstanceIds=ids).terminate()
+		# recalibrate self.formatted_instances to reflect the change
+		self.formatted_instances = self.get_instances_info()
 		print("Instance Terminated.")
 		print("Rerun %db to update.")
 
@@ -79,19 +82,26 @@ class AmazonService(LocalBaseClass):
 
 		current_state = instances[index]['State']
 		if(current_state == "running"):
+			print("Stopping Instance...")
 			self.ec2.instances.filter(InstanceIds=ids).stop()
 			print("Instance Stopped.")
 			print("Rerun %db to update.")
 
 		elif(current_state == "stopped"):
+			print("Starting Instance...")
 			self.ec2.instances.filter(InstanceIds=ids).start()
 			print("Instance Started.")
 			print("Rerun %db to update.")
+		# recalibrate self.formatted_instances to reflect the change
+		self.formatted_instances = self.get_instances_info()
 
 	def reboot_instance(self,index):
+		print("Rebooting Instance...")
 		instances = self.formatted_instances
 		ids = [instances[index]['Instance Id']]
 		self.ec2.instances.filter(InstanceIds=ids).reboot()
+		# recalibrate self.formatted_instances to reflect the change
+		self.formatted_instances = self.get_instances_info()
 		print("Instance Rebooted.")
 		print("Rerun %db to update.")
 	
