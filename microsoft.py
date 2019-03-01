@@ -98,7 +98,7 @@ def get_vm(compute_client):
         print("    displayStatus: ", stat.display_status)
         print("    message: ", stat.message)
         print("    time: ", stat.time)
-    print("\ndisks");
+    print("\ndisks")
     for disk in vm.instance_view.disks:
         print("  name: ", disk.name)
         print("  statuses")

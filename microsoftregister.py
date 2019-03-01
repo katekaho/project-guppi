@@ -11,18 +11,22 @@ class LocalBaseClass:
 class MicrosoftService(LocalBaseClass):
 	def __init__(self):
 		self.type = "AZURE SERVICE"
+		# credentials
 		self.client_id = '1858e2f8-7a54-4898-be37-b922a72b737f'
 		self.secret = 'jAzDkyVPFNfjF7QBPsgUr9/BynIhUQMeFCStbd3GE2A='
 		self.tenant = 'ad7ce373-aa8e-43d4-adab-480653dff4df'
 		self.SUBSCRIPTION_ID = '96c2b8eb-ed80-462e-901f-4047a240bae1'
 		self.GROUP_NAME = 'guppi'
 		self.LOCATION = 'westus'
-		self.VM_NAME = 'test3'
+		self.VM_NAME = 'test5'
 		self.credentials = ServicePrincipalCredentials(
 			client_id = self.client_id,
 			secret = self.secret,
 			tenant = self.tenant
 		)
+		self.USERNAME = 'project.guppi@gmail.com'
+		self.PASSWORD = 'GuppiCisco116'
+		# clients
 		self.resource_group_client = ResourceManagementClient(
 			self.credentials, 
 			self.SUBSCRIPTION_ID
@@ -35,6 +39,9 @@ class MicrosoftService(LocalBaseClass):
 			self.credentials, 
 			self.SUBSCRIPTION_ID
 		)
+		# instances holds all instance info
+		self.instances = self.get_instances_info()
+		# vm reference for create_instance
 		self.VM_REFERENCE = {
 			'linux': {
 				'publisher': 'Canonical',
@@ -49,24 +56,21 @@ class MicrosoftService(LocalBaseClass):
 				'version': 'latest'
 			}
 		}
-		# Network
-		self.VNET_NAME = 'azure-sample-vnet7'
-		self.SUBNET_NAME = 'azure-sample-subnet7'
-		self.IP_CONFIG_NAME = 'azure-sample-ip-config7'
-		self.NIC_NAME = 'azure-sample-nic7'
-
-		self.USERNAME = 'project.guppi@gmail.com'
-		self.PASSWORD = 'GuppiCisco116'
-		self.instances = self.get_instances_info()
+		# network
+		self.VNET_NAME = 'guppi-vnet'
+		self.SUBNET_NAME = 'azure-sample-subnet9'
+		self.IP_CONFIG_NAME = 'azure-sample-ip-config9'
+		self.NIC_NAME = 'azure-sample-nic9'
 
 	def create_instance(self):
 		nic = self.create_nic(self.network_client)
 		# Create Linux VM
-		print('\nCreating VM')
+		print('\nCreating Instance...')
 		vm_parameters = self.create_vm_parameters(nic.id, self.VM_REFERENCE['linux'])
 		async_vm_creation = self.compute_client.virtual_machines.create_or_update(
             self.GROUP_NAME, self.VM_NAME, vm_parameters)
 		async_vm_creation.wait()
+		# recalibrate self.instances to reflect the change
 		self.instances = self.get_instances_info()
 		print("Instance Created.")
 		print("Rerun %db to display.")
@@ -75,8 +79,10 @@ class MicrosoftService(LocalBaseClass):
 	def get_instances_info(self):
 		vm_list = []
 		instancesFormatted = []
+		# get list of all active vms
 		for vm in self.compute_client.virtual_machines.list_all():
 			vm_list.append(vm.name)
+		# make an info dict for each vm to display in accordian
 		for vm_name in vm_list:
 			key = ''
 			vm = self.compute_client.virtual_machines.get(self.GROUP_NAME, vm_name, expand='instanceView')
@@ -104,10 +110,11 @@ class MicrosoftService(LocalBaseClass):
   
 	def terminate_instance(self,index):
 		instances = self.instances
-		print("Instance Terminating...")
+		print("Terminating Instance...")
 		vm_name = instances[index]['Name']
 		async_vm_delete = self.compute_client.virtual_machines.delete(self.GROUP_NAME, vm_name)
 		async_vm_delete.wait()
+		# recalibrate self.instances to reflect the change
 		self.instances = self.get_instances_info()
 		print("Instance Terminated.")
 		print("Rerun %db to update.")
@@ -119,6 +126,7 @@ class MicrosoftService(LocalBaseClass):
 			print("Instance Stopping...")
 			async_vm_stop = self.compute_client.virtual_machines.power_off(self.GROUP_NAME, self.instances[index]['Name'])
 			async_vm_stop.wait()
+			# recalibrate self.instances to reflect the change
 			self.instances = self.get_instances_info()
 			print("Instance Stopped.")
 			print("Rerun %db to update.")
@@ -127,6 +135,7 @@ class MicrosoftService(LocalBaseClass):
 			print("Instance Starting...")
 			async_vm_start = self.compute_client.virtual_machines.start(self.GROUP_NAME, self.instances[index]['Name'])
 			async_vm_start.wait()
+			# recalibrate self.instances to reflect the change
 			self.instances = self.get_instances_info()
 			print("Instance Started.")
 			print("Rerun %db to update.")
@@ -140,14 +149,15 @@ class MicrosoftService(LocalBaseClass):
 		vm_name = instances[index]['Name']
 		async_vm_restart = self.compute_client.virtual_machines.restart(self.GROUP_NAME, vm_name)
 		async_vm_restart.wait()
+		# recalibrate self.instances to reflect the change
 		self.instances = self.get_instances_info()
 		print("Instance Rebooted.")
 		print("Rerun %db to update.")
 	
 	def create_nic(self, network_client):
 		# Create VNet
-		print('\nCreating Vnet')
-		async_vnet_creation = network_client.virtual_networks.create_or_update(
+		print('\nCreating Vnet...')
+		async_vnet_creation = self.network_client.virtual_networks.create_or_update(
 			self.GROUP_NAME,
 			self.VNET_NAME,
 			{
@@ -160,7 +170,7 @@ class MicrosoftService(LocalBaseClass):
 		async_vnet_creation.wait()
 
 		# Create Subnet
-		print('\nCreating Subnet in ')
+		print('\nCreating Subnet...')
 		async_subnet_creation = network_client.subnets.create_or_update(
 			self.GROUP_NAME,
 			self.VNET_NAME,
@@ -168,9 +178,8 @@ class MicrosoftService(LocalBaseClass):
 			{'address_prefix': '10.0.0.0/24'}
 		)
 		subnet_info = async_subnet_creation.result()
-
 		# Create NIC
-		print('\nCreating NIC')
+		print('\nCreating NIC...')
 		async_nic_creation = network_client.network_interfaces.create_or_update(
 			self.GROUP_NAME,
 			self.NIC_NAME,
@@ -187,8 +196,7 @@ class MicrosoftService(LocalBaseClass):
 		return async_nic_creation.result()
 	
 	def create_vm_parameters(self, nic_id, vm_reference):
-		"""Create the VM parameters structure.
-		"""
+		# Create the VM parameters structure.
 		return {
 			'location': self.LOCATION,
 			'os_profile': {
