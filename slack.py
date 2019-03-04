@@ -105,9 +105,8 @@ class SlackMagic(Magics):
 	message = ""
 	
 	#takes in channel name, outputs last x messages
-	def display_messages(self,channel):
+	def display_messages(self):
 		users = user_info()
-		self.channel_name = channel
 		channels_info = get_channel_list()
 		channels_box_list = []
 		for channel in channels_info:
@@ -171,12 +170,9 @@ class SlackMagic(Magics):
 		args = magic_arguments.parse_argstring(self.slack, line)
 		if(len(args.arguments) > 0):
 			if(args.arguments[0] == 'help'):
-				print("View a slack channel:\n%slack view [channel_name]\n\nSend a Slack message: \n%slack send [channel_name] [message in quotes]")
+				print("View slack messages:\n%slack view \n\nSend a Slack message: \n%slack send [channel_name] [message in quotes]")
 			elif(args.arguments[0] == 'view'):
-				if(len(args.arguments)< 2):
-					print("Please enter a channel name: %slack [view] [channel_name]")
-				else:
-					self.display_messages(args.arguments[1])
+				self.display_messages()
 			elif(args.arguments[0] == 'send'):
 				if(len(args.arguments)< 2):
 					print("Please enter a channel name: %slack [send] [channel_name] [\"MESSAGE\"]")
