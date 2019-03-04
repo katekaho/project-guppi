@@ -17,6 +17,22 @@ sc = SlackClient(token)
 #---------------Slack-API-Funtions------------------#
 #===================================================#
 
+def get_channel_list():
+	channel_list = sc.api_call("channels.list")
+	if(channel_list.get('ok','')):
+		channels_info = []
+		for channel in channel_list['channels']:
+			channel_data = {
+				'id': channel.get('id',''),
+				'name': channel.get('name',''),
+			}
+			channels_info.append(channel_data)
+		return channels_info
+	else:
+		print("Could not load channels")
+		print(channel_list.get('error',''))
+
+
 # returns dict with user info
 def user_info():
 	users_list = sc.api_call("users.list")
@@ -92,18 +108,30 @@ class SlackMagic(Magics):
 	def display_messages(self,channel):
 		users = user_info()
 		self.channel_name = channel
-
-		# gets last 10 messages
-		messages = get_latest_messages(channel,users,10)
-		if(messages != False):
+		channels_info = get_channel_list()
+		channels_box_list = []
+		for channel in channels_info:
+			# gets last 10 messages
+			messages = get_latest_messages(channel.get('name',''),users,3)
+			message_list = []
 			for message in reversed(messages):
 				if('user' in message):
 					username = widgets.HTML(value="<b>"+message['user']+":<b>",layout=Layout(width='25%'))
+					
+					if('bot_id' in message and 'attachments' in message):
+						if('text' in message['attachments']or 'text' in message['attachments'][0]):
+							if(message['user'] == 'GitHub'):
+								message_content = widgets.HTML(value= message['attachments'][0]['text'],layout=Layout(width='70%'))
+							else:
+								message_content = widgets.HTML(value= message['attachments']['text'],layout=Layout(width='70%'))
+							
+				
+					else:
+						message_content = widgets.HTML(value= message['text'],layout=Layout(width='70%'))
 				elif('username' in message):
 					username = widgets.HTML(value="<b>"+message['username']+":<b>",layout=Layout(width='25%'))
-
-				message_content = widgets.HTML(value= message['text'],layout=Layout(width='70%'))
-
+					message_content = widgets.HTML(value= message['text'],layout=Layout(width='70%'))
+				
 				ts = float(message['ts'])
 				formatted_time = datetime.utcfromtimestamp(ts).strftime('%H:%M')
 				empty_space = widgets.HTML(value= '',layout=Layout(width='5%'))
@@ -114,9 +142,22 @@ class SlackMagic(Magics):
 					padding='1em',
 					width= '100%',
 				)
-				message_box = Box([username,message_content,empty_space,timestamp], layout=box_layout)
+				message_list.append(Box([username,message_content,empty_space,timestamp], layout=box_layout))
+			
+			messages_box = widgets.VBox(message_list)
+			channels_box_list.append(messages_box)
+		
+		
+		accordion = widgets.Accordion(channels_box_list)
+		acc_index = 0
+		
+		#adding titles to the accordian
+		for channel in channels_info:
+			acc_title = channel['name']
+			accordion.set_title(acc_index, acc_title)
+			acc_index += 1
 
-				display(message_box)
+		display(accordion)
 
 	#takes in channel name and message, sends message to channel
 	def send_message(self,channel,message):

@@ -143,9 +143,9 @@ class TestMagics(Magics):
 				#adds it to list of childeren for accordian
 				accordion_children.append(instance_box)
 
-				accordion = widgets.Accordion(accordion_children)
+			accordion = widgets.Accordion(accordion_children)
 
-				acc_index = 0
+			acc_index = 0
 			
 			#adding titles to the accordian
 			for row in instancesFormatted:
