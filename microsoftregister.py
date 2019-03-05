@@ -18,7 +18,7 @@ class MicrosoftService(LocalBaseClass):
 		self.SUBSCRIPTION_ID = '96c2b8eb-ed80-462e-901f-4047a240bae1'
 		self.GROUP_NAME = 'guppi'
 		self.LOCATION = 'westus'
-		self.VM_NAME = 'test5'
+		self.VM_NAME = 'test6'
 		self.credentials = ServicePrincipalCredentials(
 			client_id = self.client_id,
 			secret = self.secret,
@@ -57,10 +57,10 @@ class MicrosoftService(LocalBaseClass):
 			}
 		}
 		# network
-		self.VNET_NAME = 'guppi-vnet'
-		self.SUBNET_NAME = 'azure-sample-subnet9'
-		self.IP_CONFIG_NAME = 'azure-sample-ip-config9'
-		self.NIC_NAME = 'azure-sample-nic9'
+		self.VNET_NAME = 'guppi-vnet1'
+		self.SUBNET_NAME = 'azure-sample-subnet10'
+		self.IP_CONFIG_NAME = 'azure-sample-ip-config10'
+		self.NIC_NAME = 'azure-sample-nic10'
 
 	def create_instance(self):
 		nic = self.create_nic(self.network_client)
