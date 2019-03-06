@@ -4,6 +4,7 @@ from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.compute.models import DiskCreateOption
 from pluginbase import PluginBase
+import random
 
 class LocalBaseClass:
 	pass
@@ -18,7 +19,6 @@ class MicrosoftService(LocalBaseClass):
 		self.SUBSCRIPTION_ID = '96c2b8eb-ed80-462e-901f-4047a240bae1'
 		self.GROUP_NAME = 'guppi'
 		self.LOCATION = 'westus'
-		self.VM_NAME = 'test6'
 		self.credentials = ServicePrincipalCredentials(
 			client_id = self.client_id,
 			secret = self.secret,
@@ -57,12 +57,19 @@ class MicrosoftService(LocalBaseClass):
 			}
 		}
 		# network
+		self.VM_NAME = 'test6'
 		self.VNET_NAME = 'guppi-vnet1'
 		self.SUBNET_NAME = 'azure-sample-subnet10'
 		self.IP_CONFIG_NAME = 'azure-sample-ip-config10'
 		self.NIC_NAME = 'azure-sample-nic10'
 
 	def create_instance(self):
+		# randomize names
+		self.VM_NAME = 'vm-' + str(random.randint(1,10000))
+		self.VNET_NAME = 'vnet-' + str(random.randint(1,10000))
+		self.SUBNET_NAME = 'subnet-' + str(random.randint(1,10000))
+		self.IP_CONFIG_NAME = 'ip-config-' + str(random.randint(1,10000))
+		self.NIC_NAME = 'nic-' + str(random.randint(1,10000))
 		nic = self.create_nic(self.network_client)
 		# Create Linux VM
 		print('\nCreating Instance...')
