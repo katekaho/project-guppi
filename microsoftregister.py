@@ -82,7 +82,6 @@ class MicrosoftService(LocalBaseClass):
 		print("Instance Created.")
 		print("Rerun %db to display.")
 
-	
 	def get_instances_info(self):
 		vm_list = []
 		instancesFormatted = []

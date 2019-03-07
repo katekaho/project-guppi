@@ -15,7 +15,7 @@ class GoogleService():
 		self.type = "GOOGLE SERVICE"
 
 	def create_instance(self):
-		
+		print("Creating Instance...")
 		# Get the latest Debian Jessie image.
 		name = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
 		image_response = compute.images().getFromFamily(
@@ -24,7 +24,6 @@ class GoogleService():
 
 		# Configure the machine
 		machine_type = "zones/%s/machineTypes/n1-standard-1" % zone
-
 		config = {
 			'name': name,
 			'machineType': machine_type,
@@ -64,18 +63,13 @@ class GoogleService():
 
 	def get_instances_info(self):
 		global zone
+		# Get instances from Google Compute
 		instances = compute.instances().list(project=project_name, zone=zone).execute()
-
 		instancesFormatted = []
-		
-		instances = instances.get('items', '')
-			 
+		instances = instances.get('items', '')	 
 		for instance in instances:
-				
 			machineType = instance.get('machineType', '').rsplit('/', 1)[-1]
-			
 			zone = instance.get('zone', '').rsplit('/', 1)[-1]
-			
 			formatInst = {
 				'Name': instance.get('name', ''),
 				'Instance Id': instance.get('name', ''), # using name instead for now
@@ -91,9 +85,9 @@ class GoogleService():
 		return instancesFormatted
 
 	def terminate_instance(self,index):
+		print("Terminating Instance...")
 		instances = self.get_instances_info()
 		name = instances[index]['Instance Id']
-
 		compute.instances().delete(
 				project=project_name,
 				zone=zone,
