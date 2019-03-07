@@ -24,27 +24,30 @@ class GuppiMagic(Magics):
 		python_file = re.sub('.py', '', python_file)
 		if python_file != '__init__':
 			python_files.append(python_file)
-	
-	print(python_files)
+
 
 	@line_magic
 	def init(self, line):
 		global service
-		print(self.python_files)
-		found = False
-		for file_name in self.python_files:
-			
-			if(line == file_name.lower()):
+		if(len(line) < 1):
+			print("To initialize a cloud service run %init <cloud_service>")
+			print("The available cloud services are:")
+			print(self.python_files)
+		else:
+			found = False
+			for file_name in self.python_files:
+				
+				if(line == file_name.lower() or line == file_name):
 
-				module_name = getattr(plugins, file_name)
-				mod_class = getattr(module_name, file_name)
-				service = mod_class()
-				found = True
-				print("You are now using " + file_name)
-				print("Re-run %db to update")
+					module_name = getattr(plugins, file_name)
+					mod_class = getattr(module_name, file_name)
+					service = mod_class()
+					found = True
+					print("You are now using " + file_name)
+					print("Re-run %db to update")
 
-		if(not found):
-			print(line + " not found!")
+			if(not found):
+				print(line + " not found!")
 
 	@line_magic
 	@magic_arguments.magic_arguments()
@@ -55,25 +58,56 @@ class GuppiMagic(Magics):
 		if(len(args.arguments) > 0):
 			# cloud services
 			if(args.arguments[0] == 'cloud'):
-				user_interfaces.CloudInterface.render_cloud_interface(service)
+				if(len(args.arguments) < 2):
+					user_interfaces.CloudInterface.render_cloud_interface(service)
+				else:
+					print(args.arguments[1] +" is not a cloud command, for usage, use %guppi help")
+				
 			#slack service
 			elif(args.arguments[0] == 'slack'):
 				if(len(args.arguments)>1):
 					if(args.arguments[1] == 'view'):
-						user_interfaces.SlackInterface.render_slack_interface()
+						if(len(args.arguments)< 3):
+							user_interfaces.SlackInterface.render_slack_interface()
+						else:
+							print(args.arguments[2] +" is not a slack command, for usage, use %guppi help")
 					elif(args.arguments[1] == 'send'):
 						if(len(args.arguments)< 2):
-							print("Please enter a channel name: %guppi slack send [channel_name] [\"MESSAGE\"]")
+							print("Please enter a channel name: %guppi slack send <channel_name> <\"MESSAGE\">")
 						else:
 							if(len(args.arguments)< 4):
-								print("Please enter a message: %guppi slack send [channel_name] [\"MESSAGE\"]")
+								print("Please enter a message: %guppi slack send <channel_name> <\"MESSAGE\">")
 								print("Note: message must be in quotes")
 							elif(len(args.arguments)> 4):
 								print("Your message must be in quotes")
 							else:
 								user_interfaces.SlackInterface.send_message(args.arguments[2],args.arguments[3])
+					else:
+						print(args.arguments[1] +" is not a slack command, for usage, use %guppi help")
 				else:
-					print("For usage, use the %guppi help command")
+					print("For Slack usage, use %guppi help ")
+
+			# github service
+			elif(args.arguments[0] == 'github'):
+				if(len(args.arguments) < 2):
+					user_interfaces.GitHubInterface.display_notifications(5)
+				else:
+					try:
+						num = int(args.arguments[1])
+					except ValueError:
+						print("Number of notifications must be an integer")
+					else:
+						user_interfaces.GitHubInterface.display_notifications(num+1)
+			elif(args.arguments[0] == 'help'):
+				print("To see a list of available cloud services, use:\n%init\n")
+				print("To choose a cloud service to view, use:\n%init <cloud_service>\n")
+				print("To view a cloud service, use:\n%guppi cloud\n")
+				print("To view Slack messages, use:\n%guppi slack view\n")
+				print("To send a Slack message, use:\n%guppi slack send <channel_name> <message in quotes>\n")
+				print("To view GitHub notifications, use:\n%guppi github <number_of_notifications>\n")
+			else:
+				print(args.arguments[0] + " is not a guppi command, for usage, use %guppi help")
+					
 		else:
 			print("For usage, use the %guppi help command")
 
