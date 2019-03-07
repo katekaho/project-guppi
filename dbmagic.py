@@ -1,18 +1,19 @@
 from IPython.core import magic_arguments
 from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, magics_class
 from IPython.display import HTML, display
-
-from amazonregister import AmazonService
-from googleregister import GoogleService
-from microsoftregister import MicrosoftService
+import glob
+import re
+import plugins
+import sys
 
 import ipywidgets as widgets
 
 # TODO fix switching instances with init, needs to clear accordian
 selected_instance = ""
 accordion =""
-service = AmazonService()
 
+# Setting default service
+service = plugins.AmazonService.AmazonService()
 
 #create instance button handler
 def create_button_clicked(b):
@@ -47,18 +48,38 @@ def reboot_button_clicked(b):
 
 @magics_class
 class TestMagics(Magics):
+	filenames = glob.glob('./plugins/*.py')
+	python_files = []
+	for f in filenames:
+		python_file = re.sub('./plugins\\\\', '', f)
+		python_file = re.sub('.py', '', python_file)
+		if python_file != '__init__':
+			python_files.append(python_file)
+	
+	print(python_files)
+
 	@line_magic
 	def init(self, line):
 		global service
-		if(line == "aws"):
-			service = AmazonService()
-			print("You are now using AWS")
-		elif(line == "google"):
-			service = GoogleService()
-			print("You are now using Google")
-		elif(line == "microsoft"):
-			service = MicrosoftService()
-			print("You are now using Microsoft")
+
+		for file_name in self.python_files:
+			
+			if(line == file_name.lower()):
+
+				module_name = getattr(plugins, file_name)
+				mod_class = getattr(module_name, file_name)
+				service = mod_class()
+				print("You are now using " + file_name)
+
+		# if(line == "aws"):
+		# 	service = AmazonService()
+		# 	print("You are now using AWS")
+		# elif(line == "google"):
+		# 	service = GoogleService()
+		# 	print("You are now using Google")
+		# elif(line == "microsoft"):
+		# 	service = MicrosoftService()
+		# 	print("You are now using Microsoft")
 		print("Re-run %db to update")
 	@line_magic
 	def db(self, line):

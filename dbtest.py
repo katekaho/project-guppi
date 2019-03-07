@@ -1,16 +1,13 @@
-from amazonregister import AmazonService
-from googleregister import GoogleService
-from microsoftregister import MicrosoftService
+import plugins
 # need to pip install -U pytest
 # to run: python -m pytest dbtest.py
 
-
 def test_get_instance_info():
-  service = AmazonService()
+  service = plugins.AmazonService.AmazonService()
   assert isinstance(service.get_instances_info(), list)
 
-  service = GoogleService()
+  service = plugins.GoogleService.GoogleService()
   assert isinstance(service.get_instances_info(), list)
 
-  service = MicrosoftService()
+  service = plugins.MicrosoftService.MicrosoftService()
   assert isinstance(service.get_instances_info(), list)
