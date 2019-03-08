@@ -80,7 +80,7 @@ class MicrosoftService(LocalBaseClass):
 		# recalibrate self.instances to reflect the change
 		self.instances = self.get_instances_info()
 		print("Instance Created.")
-		print("Rerun %db to display.")
+		print("Rerun %guppi cloud to display.")
 
 	def get_instances_info(self):
 		vm_list = []
@@ -123,7 +123,7 @@ class MicrosoftService(LocalBaseClass):
 		# recalibrate self.instances to reflect the change
 		self.instances = self.get_instances_info()
 		print("Instance Terminated.")
-		print("Rerun %db to update.")
+		print("Rerun %guppi cloud to update.")
 
 	def toggle_instance(self,index):
 		instances = self.instances
@@ -135,7 +135,7 @@ class MicrosoftService(LocalBaseClass):
 			# recalibrate self.instances to reflect the change
 			self.instances = self.get_instances_info()
 			print("Instance Stopped.")
-			print("Rerun %db to update.")
+			print("Rerun %guppi cloud to update.")
 
 		elif(current_state == "stopped"):
 			print("Instance Starting...")
@@ -144,7 +144,7 @@ class MicrosoftService(LocalBaseClass):
 			# recalibrate self.instances to reflect the change
 			self.instances = self.get_instances_info()
 			print("Instance Started.")
-			print("Rerun %db to update.")
+			print("Rerun %guppi cloud to update.")
 
 		else:
 			print("Error: State is " + self.instances[index]['State'])
@@ -158,7 +158,7 @@ class MicrosoftService(LocalBaseClass):
 		# recalibrate self.instances to reflect the change
 		self.instances = self.get_instances_info()
 		print("Instance Rebooted.")
-		print("Rerun %db to update.")
+		print("Rerun %guppi cloud to update.")
 	
 	def create_nic(self, network_client):
 		# Create VNet

@@ -11,6 +11,6 @@ class TestGetInstanceInfo(unittest.TestCase):
     def test_google(self):
         service = plugins.GoogleService.GoogleService()
         assert isinstance(service.get_instances_info(), list)
-    def test_azure(self):
+    def test_microsoft(self):
         service = plugins.MicrosoftService.MicrosoftService()
         assert isinstance(service.get_instances_info(), list)

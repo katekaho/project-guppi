@@ -1,7 +1,7 @@
 import unittest
 import plugins
 
-class TestGetInstanceInfo(unittest.TestCase):
+class TestCreate(unittest.TestCase):
     def test_aws_create(self):
         service = plugins.AmazonService.AmazonService()
         beforeCreate = service.get_instances_info()
@@ -9,7 +9,7 @@ class TestGetInstanceInfo(unittest.TestCase):
         service.create_instance()
         afterCreate = service.get_instances_info()
         print("after create length is: " + str(len(afterCreate)))
-        self.assertTrue(len(beforeCreate) == len(afterCreate) - 1)
+        self.assertTrue(len(afterCreate) == len(beforeCreate) + 1)
     
     def test_google_create(self):
         service = plugins.GoogleService.GoogleService()
@@ -18,13 +18,13 @@ class TestGetInstanceInfo(unittest.TestCase):
         service.create_instance()
         afterCreate = service.get_instances_info()
         print("after create length is: " + str(len(afterCreate)))
-        self.assertTrue(len(beforeCreate) == len(afterCreate) - 1)
+        self.assertTrue(len(afterCreate) == len(beforeCreate) + 1)
     
-    def test_azure_create(self):
+    def test_microsoft_create(self):
         service = plugins.MicrosoftService.MicrosoftService()
         beforeCreate = service.get_instances_info()
         print("before create length is: " + str(len(beforeCreate)))
         service.create_instance()
         afterCreate = service.get_instances_info()
         print("after create length is: " + str(len(afterCreate)))
-        self.assertTrue(len(beforeCreate) == len(afterCreate) - 1)
+        self.assertTrue(len(afterCreate) == len(beforeCreate) + 1)

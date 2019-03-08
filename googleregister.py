@@ -59,7 +59,7 @@ class GoogleService():
 		}
 		compute.instances().insert(project=project_name, zone=zone, body=config).execute()
 		print("Instance Created.")
-		print("Rerun %db to display.")
+		print("Rerun %guppi cloud to display.")
 
 	def get_instances_info(self):
 		global zone
@@ -93,7 +93,7 @@ class GoogleService():
 				zone=zone,
 				instance=name).execute()
 		print("Instance Terminated.")
-		print("Rerun %db to update.")
+		print("Rerun %guppi cloud to update.")
 	
 	def toggle_instance(self,index):
 		instances = self.get_instances_info()
@@ -106,7 +106,7 @@ class GoogleService():
 				zone=zone,
 				instance=name).execute()
 			print("Instance Stopped.")
-			print("Rerun %db to update.")
+			print("Rerun %guppi cloud to update.")
 
 		elif(current_state == "TERMINATED"):
 			compute.instances().start(
@@ -114,7 +114,7 @@ class GoogleService():
 				zone=zone,
 				instance=name).execute()
 			print("Instance Started.")
-			print("Rerun %db to update.")
+			print("Rerun %guppi cloud to update.")
 
 	def reboot_instance(self,index):
 		instances = self.get_instances_info()
@@ -124,4 +124,4 @@ class GoogleService():
 				zone=zone,
 				instance=name).execute()
 		print("Instance Rebooted.")
-		print("Rerun %db to update.")
+		print("Rerun %guppi cloud to update.")

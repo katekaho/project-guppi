@@ -20,7 +20,7 @@ class AmazonService(LocalBaseClass):
 			KeyName='key_pair_guppi',
 		)
 		print("Instance Created.")
-		print("Rerun %db to display.")
+		print("Rerun %guppi cloud to display.")
 	
 	def get_instances_info(self):
 		response = self.ec2_client.describe_instances()
@@ -74,7 +74,7 @@ class AmazonService(LocalBaseClass):
 		# recalibrate self.formatted_instances to reflect the change
 		self.formatted_instances = self.get_instances_info()
 		print("Instance Terminated.")
-		print("Rerun %db to update.")
+		print("Rerun %guppi cloud to update.")
 
 	def toggle_instance(self,index):
 		instances = self.formatted_instances
@@ -85,13 +85,13 @@ class AmazonService(LocalBaseClass):
 			print("Stopping Instance...")
 			self.ec2.instances.filter(InstanceIds=ids).stop()
 			print("Instance Stopped.")
-			print("Rerun %db to update.")
+			print("Rerun %guppi cloud to update.")
 
 		elif(current_state == "stopped"):
 			print("Starting Instance...")
 			self.ec2.instances.filter(InstanceIds=ids).start()
 			print("Instance Started.")
-			print("Rerun %db to update.")
+			print("Rerun %guppi cloud to update.")
 		# recalibrate self.formatted_instances to reflect the change
 		self.formatted_instances = self.get_instances_info()
 
@@ -103,7 +103,7 @@ class AmazonService(LocalBaseClass):
 		# recalibrate self.formatted_instances to reflect the change
 		self.formatted_instances = self.get_instances_info()
 		print("Instance Rebooted.")
-		print("Rerun %db to update.")
+		print("Rerun %guppi cloud to update.")
 	
 if __name__ == '__main__':
 	print('SubClass:', issubclass(AmazonService,
