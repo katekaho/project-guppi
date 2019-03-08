@@ -21,6 +21,7 @@ class GuppiMagic(Magics):
 	python_files = []
 	for f in filenames:
 		python_file = re.sub('./plugins\\\\', '', f)
+		python_file = python_file[10:]
 		python_file = re.sub('.py', '', python_file)
 		if python_file != '__init__':
 			python_files.append(python_file)
@@ -44,7 +45,7 @@ class GuppiMagic(Magics):
 					service = mod_class()
 					found = True
 					print("You are now using " + file_name)
-					print("Re-run %db to update")
+					print("Re-run %guppi cloud to update")
 
 			if(not found):
 				print(line + " not found!")
