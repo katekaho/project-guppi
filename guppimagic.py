@@ -33,6 +33,7 @@ class GuppiMagic(Magics):
 		if(len(line) < 1):
 			print("To initialize a cloud service run %init <cloud_service>")
 			print("The available cloud services are:")
+			
 			print(self.python_files)
 		else:
 			found = False

@@ -14,7 +14,6 @@ service = plugins.AmazonService.AmazonService()
 #-----------------Button-Functions------------------#
 #===================================================#
 def create_button_clicked(b):
-	
 	service.create_instance()
 
 #terminate instance button handler
@@ -32,8 +31,8 @@ def toggle_button_clicked(b):
 	global selected_instance
 	global accordion
 	global service
+	
 	selected_instance = accordion.selected_index
-
 	service.toggle_instance(selected_instance)
 
 

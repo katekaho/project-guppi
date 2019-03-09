@@ -87,7 +87,7 @@ def get_latest_messages(channel_name, users, num_messages):
 		#replaces userid with users actual name
 		for message in message_list['messages']:
 			if('user' in message):
-				name = get_username(message['user'],users)
+				name = get_username(message['user'], users)
 				message['user'] = name
 		return message_list['messages']
 	else:
@@ -106,7 +106,7 @@ def render_slack_interface():
 	channels_box_list = []
 	for channel in channels_info:
 		# gets last 10 messages
-		messages = get_latest_messages(channel.get('name',''),users,3)
+		messages = get_latest_messages(channel.get('name',''), users, 3)
 		message_list = []
 		for message in reversed(messages):
 			if('user' in message):

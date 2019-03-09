@@ -19,6 +19,8 @@ class AmazonService(LocalBaseClass):
 			InstanceType='t2.micro',
 			KeyName='key_pair_guppi',
 		)
+		# recalibrate self.formatted_instances to reflect the change
+		self.formatted_instances = self.get_instances_info()
 		print("Instance Created.")
 		print("Rerun %guppi cloud to display.")
 	
