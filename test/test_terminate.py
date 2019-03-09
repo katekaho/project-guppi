@@ -1,5 +1,7 @@
 import unittest
-import plugins
+import plugins.AmazonService as amazon
+import plugins.GoogleService as google 
+import plugins.MicrosoftService as microsoft
 
 class TestTerminate(unittest.TestCase):
     def setUp(self):
@@ -8,7 +10,7 @@ class TestTerminate(unittest.TestCase):
 
     def test_aws_terminate(self):
         # set service to Amazon
-        service = plugins.AmazonService.AmazonService()
+        service = amazon.AmazonService()
         beforeTerminate = service.get_instances_info()
         # set termIndex to the most recent instance if self.index == -1
         if(self.index < 1):
@@ -37,7 +39,7 @@ class TestTerminate(unittest.TestCase):
 
     def test_google_terminate(self):
         # set service to Google
-        service = plugins.GoogleService.GoogleService()
+        service = google.GoogleService()
         beforeTerminate = service.get_instances_info()
         # set index to the most recent instance if self.index == -1
         if(self.index < 1):
@@ -63,7 +65,7 @@ class TestTerminate(unittest.TestCase):
 
     def test_microsoft_terminate(self):
         # set service to Microsoft
-        service = plugins.MicrosoftService.MicrosoftService()
+        service = microsoft.MicrosoftService()
         beforeTerminate = service.get_instances_info()
         # set index to the most recent instance if self.index == -1
         if(self.index < 1):
