@@ -4,7 +4,7 @@ import user_interfaces.SlackInterface as slack
 
 class TestSlack(unittest.TestCase):
     def setUp(self):
-        self.channel_name = 'random'
+        self.channel_name = 'testing'
         self.message = 'sent from unit test again'
         self.unique_message = 'this message was never sent by anyone'
         self.users = slack.user_info()
