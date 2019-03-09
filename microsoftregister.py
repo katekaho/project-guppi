@@ -4,7 +4,7 @@ from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.compute.models import DiskCreateOption
 from pluginbase import PluginBase
-import random
+from haikunator import Haikunator
 
 class LocalBaseClass:
 	pass
@@ -65,14 +65,19 @@ class MicrosoftService(LocalBaseClass):
 
 	def create_instance(self):
 		# randomize names
-		self.VM_NAME = 'vm-' + str(random.randint(1,10000))
-		self.VNET_NAME = 'vnet-' + str(random.randint(1,10000))
-		self.SUBNET_NAME = 'subnet-' + str(random.randint(1,10000))
-		self.IP_CONFIG_NAME = 'ip-config-' + str(random.randint(1,10000))
-		self.NIC_NAME = 'nic-' + str(random.randint(1,10000))
+		self.VM_NAME = 'vm-' + Haikunator.haikunate()
+		self.VNET_NAME = 'vnet-' + Haikunator.haikunate()
+		self.SUBNET_NAME = 'subnet-' + Haikunator.haikunate()
+		self.IP_CONFIG_NAME = 'ip-config-' + Haikunator.haikunate()
+		self.NIC_NAME = 'nic-' + Haikunator.haikunate()
+		print('vm: ' + self.VM_NAME)
+		print('vnet: ' + self.VNET_NAME)
+		print('sub: ' + self.SUBNET_NAME)
+		print('ip: ' + self.IP_CONFIG_NAME)
+		print('nic: ' + self.NIC_NAME)
 		nic = self.create_nic(self.network_client)
 		# Create Linux VM
-		print('\nCreating Instance...')
+		print('Creating Instance...')
 		vm_parameters = self.create_vm_parameters(nic.id, self.VM_REFERENCE['linux'])
 		async_vm_creation = self.compute_client.virtual_machines.create_or_update(
             self.GROUP_NAME, self.VM_NAME, vm_parameters)
@@ -115,6 +120,7 @@ class MicrosoftService(LocalBaseClass):
 		return instancesFormatted
   
 	def terminate_instance(self,index):
+		self.instances = self.get_instances_info()
 		instances = self.instances
 		print("Terminating Instance...")
 		vm_name = instances[index]['Name']
@@ -162,7 +168,7 @@ class MicrosoftService(LocalBaseClass):
 	
 	def create_nic(self, network_client):
 		# Create VNet
-		print('\nCreating Vnet...')
+		print('Creating Vnet...')
 		async_vnet_creation = self.network_client.virtual_networks.create_or_update(
 			self.GROUP_NAME,
 			self.VNET_NAME,
@@ -176,7 +182,7 @@ class MicrosoftService(LocalBaseClass):
 		async_vnet_creation.wait()
 
 		# Create Subnet
-		print('\nCreating Subnet...')
+		print('Creating Subnet...')
 		async_subnet_creation = network_client.subnets.create_or_update(
 			self.GROUP_NAME,
 			self.VNET_NAME,
@@ -185,7 +191,7 @@ class MicrosoftService(LocalBaseClass):
 		)
 		subnet_info = async_subnet_creation.result()
 		# Create NIC
-		print('\nCreating NIC...')
+		print('Creating NIC...')
 		async_nic_creation = network_client.network_interfaces.create_or_update(
 			self.GROUP_NAME,
 			self.NIC_NAME,
