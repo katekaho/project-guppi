@@ -5,3 +5,4 @@ documentation_joey/performance reiveiw.docx
 .vscode/settings.json
 .pyc
 documentation_joey/
+__pycache__/
