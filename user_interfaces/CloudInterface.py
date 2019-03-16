@@ -78,21 +78,20 @@ def render_cloud_interface(cloud_service):
 
 			# TODO: decide and generalize state names so this looks clean
 			
-			if(row['State'] == "running" or row['State'] == "RUNNING"): 
+			if(row['State'] == "running"): 
 				toggle_button = widgets.Button(description='Stop Instance')
-			elif(row['State'] == "stopped" or row['State'] == 'TERMINATED'):
+			elif(row['State'] == "stopped"):
 				toggle_button = widgets.Button(description='Start Instance')
 			else:
 				toggle_button = widgets.Button(description='Start Instance',disabled=True)
 
 			#disables the terminate button when not running or stopped
-			if(row['State'] == "running" or row['State'] == "stopped"
-				or row['State'] == "RUNNING" or row['State'] == 'TERMINATED'):
+			if(row['State'] == "running" or row['State'] == "stopped"):
 				terminate_button = widgets.Button(description='Terminate Instance')
 			else:
 				terminate_button = widgets.Button(description='Terminate Instance',disabled=True)
 			# reboot button
-			if(row['State'] == "running" or row['State'] == "RUNNING"):
+			if(row['State'] == "running"):
 				reboot_button = widgets.Button(description='Reboot Instance')
 			else:
 				reboot_button = widgets.Button(description='Reboot Instance',disabled=True)
@@ -100,13 +99,13 @@ def render_cloud_interface(cloud_service):
 
 			file = open("icons/running.png", "rb")
 
-			if(row['State'] == "running" or row['State'] == "RUNNING"):
+			if(row['State'] == "running"):
 				file = open("icons/running.png", "rb")
-			elif(row['State'] == "pending"or row['State'] == 'STAGING'):
+			elif(row['State'] == "pending"or row['State'] == 'staging'):
 				file = open("icons/pending.png", "rb")
-			elif(row['State'] == "stopping" or row['State'] == 'STOPPING'):
+			elif(row['State'] == "stopping"):
 				file = open("icons/stopping.png", "rb")
-			elif(row['State'] == "stopped"or row['State'] == 'TERMINATED'):
+			elif(row['State'] == "stopped"):
 				file = open("icons/stopped.png", "rb")
 			elif(row['State'] == "shutting-down"):
 				file = open("icons/shutting-down.png", "rb")

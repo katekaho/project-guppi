@@ -68,7 +68,7 @@ class AmazonService(LocalBaseClass):
   
 	def terminate_instance(self,index):
 		print("Terminating Instance...")
-		instances = self.formatted_instances
+		instances = self.get_instances_info()
 		ids = [instances[index]['Instance Id']]
 		self.ec2.instances.filter(InstanceIds=ids).terminate()
 		# recalibrate self.formatted_instances to reflect the change
@@ -77,7 +77,7 @@ class AmazonService(LocalBaseClass):
 		print("Rerun %guppi cloud to update.")
 
 	def toggle_instance(self,index):
-		instances = self.formatted_instances
+		instances = self.get_instances_info()
 		ids = [instances[index]['Instance Id']]
 
 		current_state = instances[index]['State']
@@ -92,18 +92,26 @@ class AmazonService(LocalBaseClass):
 			self.ec2.instances.filter(InstanceIds=ids).start()
 			print("Instance Started.")
 			print("Rerun %guppi cloud to update.")
+		else:
+			print("Instance has already been toggled")
+			print("Rerun %guppi cloud to reflect changes")
 		# recalibrate self.formatted_instances to reflect the change
 		self.formatted_instances = self.get_instances_info()
 
 	def reboot_instance(self,index):
 		print("Rebooting Instance...")
-		instances = self.formatted_instances
-		ids = [instances[index]['Instance Id']]
-		self.ec2.instances.filter(InstanceIds=ids).reboot()
-		# recalibrate self.formatted_instances to reflect the change
-		self.formatted_instances = self.get_instances_info()
-		print("Instance Rebooted.")
-		print("Rerun %guppi cloud to update.")
+		instances = self.get_instances_info()
+		state = instances[index]['State']
+		if(state == "running"):
+			ids = [instances[index]['Instance Id']]
+			self.ec2.instances.filter(InstanceIds=ids).reboot()
+			# recalibrate self.formatted_instances to reflect the change
+			self.formatted_instances = self.get_instances_info()
+			print("Instance Rebooted.")
+			print("Rerun %guppi cloud to update.")
+		else:
+			print("Please rerun %guppi cloud to reflect changes")
+			print("You can only reboot instances that are  \"Running\" ")
 	
 if __name__ == '__main__':
 	print('SubClass:', issubclass(AmazonService,

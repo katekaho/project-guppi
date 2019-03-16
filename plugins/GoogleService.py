@@ -75,13 +75,15 @@ class GoogleService():
 			machineType = instance.get('machineType', '').rsplit('/', 1)[-1]
 			
 			zone = instance.get('zone', '').rsplit('/', 1)[-1]
-			
+			status = instance.get('status', '')
+			if(status ==  "TERMINATED"):
+				status = "STOPPED"
 			formatInst = {
 				'Name': instance.get('name', ''),
 				'Instance Id': instance.get('name', ''), # using name instead for now
 				'Instance Type': machineType,
 				'Availability Zone': zone,
-				'State': instance.get('status', ''),
+				'State': status.lower(),
 				'Key Name': '',
 				'Launch Time': instance.get('creationTimestamp', ''),
 			}
@@ -106,7 +108,7 @@ class GoogleService():
 		name = instances[index]['Instance Id']
 
 		current_state = instances[index]['State']
-		if(current_state == "RUNNING"):
+		if(current_state == "running"):
 			compute.instances().stop(
 				project=project_name,
 				zone=zone,
@@ -114,20 +116,28 @@ class GoogleService():
 			print("Instance Stopped.")
 			print("Rerun %guppi cloud to update.")
 
-		elif(current_state == "TERMINATED"):
+		elif(current_state == "stopped"):
 			compute.instances().start(
 				project=project_name,
 				zone=zone,
 				instance=name).execute()
 			print("Instance Started.")
 			print("Rerun %guppi cloud to update.")
+		else:
+			print("Instance has already been toggled")
+			print("Rerun %guppi cloud to reflect changes")
 
 	def reboot_instance(self,index):
 		instances = self.get_instances_info()
 		name = instances[index]['Instance Id']
-		compute.instances().reset(
-				project=project_name,
-				zone=zone,
-				instance=name).execute()
-		print("Instance Rebooted.")
-		print("Rerun %guppi cloud to update.")
+		current_state = instances[index]['State']
+		if(current_state == "running"):
+			compute.instances().reset(
+					project=project_name,
+					zone=zone,
+					instance=name).execute()
+			print("Instance Rebooted.")
+			print("Rerun %guppi cloud to update.")
+		else:
+			print("Please rerun %guppi cloud to reflect changes")
+			print("You can only reboot instances that are  \"Running\" ")

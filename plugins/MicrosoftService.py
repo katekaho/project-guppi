@@ -5,6 +5,7 @@ from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.compute.models import DiskCreateOption
 from pluginbase import PluginBase
 import random
+import re
 
 class LocalBaseClass:
 	pass
@@ -96,8 +97,9 @@ class MicrosoftService(LocalBaseClass):
 			for disk in vm.instance_view.disks:
 				for stat in disk.statuses:
 					time = stat.time
-			id = vm.id
+			id = vm.id[-7:]
 			name = vm.name
+			
 			zone = vm.location
 			for stat in vm.instance_view.statuses:
 				state = stat.display_status
@@ -115,7 +117,7 @@ class MicrosoftService(LocalBaseClass):
 		return instancesFormatted
   
 	def terminate_instance(self,index):
-		instances = self.instances
+		instances = self.get_instances_info()
 		print("Terminating Instance...")
 		vm_name = instances[index]['Name']
 		async_vm_delete = self.compute_client.virtual_machines.delete(self.GROUP_NAME, vm_name)
@@ -126,7 +128,7 @@ class MicrosoftService(LocalBaseClass):
 		print("Rerun %guppi cloud to update.")
 
 	def toggle_instance(self,index):
-		instances = self.instances
+		instances = self.get_instances_info()
 		current_state = instances[index]['State']
 		if(current_state == "running"):
 			print("Instance Stopping...")
@@ -151,14 +153,19 @@ class MicrosoftService(LocalBaseClass):
 
 	def reboot_instance(self,index):
 		print("Instance Rebooting...")
-		instances = self.instances
-		vm_name = instances[index]['Name']
-		async_vm_restart = self.compute_client.virtual_machines.restart(self.GROUP_NAME, vm_name)
-		async_vm_restart.wait()
-		# recalibrate self.instances to reflect the change
-		self.instances = self.get_instances_info()
-		print("Instance Rebooted.")
-		print("Rerun %guppi cloud to update.")
+		instances = self.get_instances_info()
+		if(instances[index]['State'] == 'running'):
+			vm_name = instances[index]['Name']
+			async_vm_restart = self.compute_client.virtual_machines.restart(self.GROUP_NAME, vm_name)
+			async_vm_restart.wait()
+			# recalibrate self.instances to reflect the change
+			self.instances = self.get_instances_info()
+			print("Instance Rebooted.")
+			print("Rerun %guppi cloud to update.")
+		else:
+			print("Instance has already been toggled")
+			print("Rerun %guppi cloud to reflect changes")
+
 	
 	def create_nic(self, network_client):
 		# Create VNet
@@ -230,7 +237,7 @@ class MicrosoftService(LocalBaseClass):
 
 	
 if __name__ == '__main__':
-	print('SubClass:', issubclass(AmazonService,
+	print('SubClass:', issubclass(MicrosoftService,
 								PluginBase))
-	print("Instance:", isinstance(AmazonService(),
+	print("Instance:", isinstance(MicrosoftService(),
 								  PluginBase))

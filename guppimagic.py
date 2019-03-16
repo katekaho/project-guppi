@@ -19,9 +19,12 @@ service = plugins.AmazonService.AmazonService()
 class GuppiMagic(Magics):
 	filenames = glob.glob('./plugins/*.py')
 	python_files = []
+	print("For useage: use %guppi help")
 	for f in filenames:
+		# print(f)
 		python_file = re.sub('./plugins\\\\', '', f)
-		python_file = python_file[10:]
+		# print(python_file)
+		# python_file = python_file[10:]
 		python_file = re.sub('.py', '', python_file)
 		if python_file != '__init__':
 			python_files.append(python_file)
@@ -50,6 +53,7 @@ class GuppiMagic(Magics):
 
 			if(not found):
 				print(line + " not found!")
+				print("To see a list of available services, use %init")
 
 	@line_magic
 	@magic_arguments.magic_arguments()
