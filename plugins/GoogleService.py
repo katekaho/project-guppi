@@ -59,7 +59,7 @@ class GoogleService():
 			}],
 		}
 		compute.instances().insert(project=project_name, zone=zone, body=config).execute()
-		print("Instance Created.")
+		print("Google Instance Created.")
 		print("Rerun %guppi cloud to display.")
 
 	def get_instances_info(self):
@@ -100,7 +100,7 @@ class GoogleService():
 				project=project_name,
 				zone=zone,
 				instance=name).execute()
-		print("Instance Terminated.")
+		print("Google Instance Terminated.")
 		print("Rerun %guppi cloud to update.")
 	
 	def toggle_instance(self,index):
@@ -113,7 +113,7 @@ class GoogleService():
 				project=project_name,
 				zone=zone,
 				instance=name).execute()
-			print("Instance Stopped.")
+			print("Google Instance Stopped.")
 			print("Rerun %guppi cloud to update.")
 
 		elif(current_state == "stopped"):
@@ -121,7 +121,7 @@ class GoogleService():
 				project=project_name,
 				zone=zone,
 				instance=name).execute()
-			print("Instance Started.")
+			print("Google Instance Started.")
 			print("Rerun %guppi cloud to update.")
 		else:
 			print("Instance has already been toggled")
@@ -136,7 +136,7 @@ class GoogleService():
 					project=project_name,
 					zone=zone,
 					instance=name).execute()
-			print("Instance Rebooted.")
+			print("Google Instance Rebooted.")
 			print("Rerun %guppi cloud to update.")
 		else:
 			print("Please rerun %guppi cloud to reflect changes")

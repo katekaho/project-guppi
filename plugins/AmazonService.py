@@ -67,13 +67,13 @@ class AmazonService(LocalBaseClass):
 		return instancesFormatted
   
 	def terminate_instance(self,index):
-		print("Terminating Instance...")
+		print("Terminating AWS Instance...")
 		instances = self.get_instances_info()
 		ids = [instances[index]['Instance Id']]
 		self.ec2.instances.filter(InstanceIds=ids).terminate()
 		# recalibrate self.formatted_instances to reflect the change
 		self.formatted_instances = self.get_instances_info()
-		print("Instance Terminated.")
+		print("AWS Instance Terminated.")
 		print("Rerun %guppi cloud to update.")
 
 	def toggle_instance(self,index):
@@ -82,15 +82,15 @@ class AmazonService(LocalBaseClass):
 
 		current_state = instances[index]['State']
 		if(current_state == "running"):
-			print("Stopping Instance...")
+			print("Stopping AWS nstance...")
 			self.ec2.instances.filter(InstanceIds=ids).stop()
-			print("Instance Stopped.")
+			print("AWS Instance Stopped.")
 			print("Rerun %guppi cloud to update.")
 
 		elif(current_state == "stopped"):
-			print("Starting Instance...")
+			print("Starting AWS Instance...")
 			self.ec2.instances.filter(InstanceIds=ids).start()
-			print("Instance Started.")
+			print("AWS Instance Started.")
 			print("Rerun %guppi cloud to update.")
 		else:
 			print("Instance has already been toggled")
@@ -99,7 +99,7 @@ class AmazonService(LocalBaseClass):
 		self.formatted_instances = self.get_instances_info()
 
 	def reboot_instance(self,index):
-		print("Rebooting Instance...")
+		print("Rebooting AWS Instance...")
 		instances = self.get_instances_info()
 		state = instances[index]['State']
 		if(state == "running"):
@@ -107,7 +107,7 @@ class AmazonService(LocalBaseClass):
 			self.ec2.instances.filter(InstanceIds=ids).reboot()
 			# recalibrate self.formatted_instances to reflect the change
 			self.formatted_instances = self.get_instances_info()
-			print("Instance Rebooted.")
+			print("AWS Instance Rebooted.")
 			print("Rerun %guppi cloud to update.")
 		else:
 			print("Please rerun %guppi cloud to reflect changes")

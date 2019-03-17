@@ -29,31 +29,40 @@ class GuppiMagic(Magics):
 		if python_file != '__init__':
 			python_files.append(python_file)
 
+	cloud_list = []
+	for file_name in python_files:
+		module_name = getattr(plugins, file_name)
+		mod_class = getattr(module_name, file_name)
+		service = mod_class()
+		cloud_list.append(service)
+		print("loading plugin: "+ file_name)
+	print("plugins loaded")
 
-	@line_magic
-	def init(self, line):
-		global service
-		if(len(line) < 1):
-			print("To initialize a cloud service run %init <cloud_service>")
-			print("The available cloud services are:")
+	# @line_magic
+	# def init(self, line):
+	# 	global service
+	# 	if(len(line) < 1):
+	# 		print("To initialize a cloud service run %init <cloud_service>")
+	# 		print("The available cloud services are:")
 			
-			print(self.python_files)
-		else:
-			found = False
-			for file_name in self.python_files:
+	# 		print(self.python_files)
+	# 	else:
+	# 		found = False
+	# 		for file_name in self.python_files:
 				
-				if(line == file_name.lower() or line == file_name):
+	# 			if(line == file_name.lower() or line == file_name):
 
-					module_name = getattr(plugins, file_name)
-					mod_class = getattr(module_name, file_name)
-					service = mod_class()
-					found = True
-					print("You are now using " + file_name)
-					print("Re-run %guppi cloud to update")
+	# 				module_name = getattr(plugins, file_name)
+	# 				mod_class = getattr(module_name, file_name)
+	# 				service = mod_class()
+	# 				found = True
+	# 				print("You are now using " + file_name)
+	# 				print("Re-run %guppi cloud to update")
 
-			if(not found):
-				print(line + " not found!")
-				print("To see a list of available services, use %init")
+	# 		if(not found):
+	# 			print(line + " not found!")
+	# 			print("To see a list of available services, use %init")
+
 
 	@line_magic
 	@magic_arguments.magic_arguments()
@@ -65,7 +74,7 @@ class GuppiMagic(Magics):
 			# cloud services
 			if(args.arguments[0] == 'cloud'):
 				if(len(args.arguments) < 2):
-					user_interfaces.CloudInterface.render_cloud_interface(service)
+					 user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list)
 				else:
 					print(args.arguments[1] +" is not a cloud command, for usage, use %guppi help")
 				

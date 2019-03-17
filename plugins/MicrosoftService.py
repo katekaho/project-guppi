@@ -73,14 +73,14 @@ class MicrosoftService(LocalBaseClass):
 		self.NIC_NAME = 'nic-' + str(random.randint(1,10000))
 		nic = self.create_nic(self.network_client)
 		# Create Linux VM
-		print('\nCreating Instance...')
+		print('\nCreating Azure Instance...')
 		vm_parameters = self.create_vm_parameters(nic.id, self.VM_REFERENCE['linux'])
 		async_vm_creation = self.compute_client.virtual_machines.create_or_update(
             self.GROUP_NAME, self.VM_NAME, vm_parameters)
 		async_vm_creation.wait()
 		# recalibrate self.instances to reflect the change
 		self.instances = self.get_instances_info()
-		print("Instance Created.")
+		print("Azure Instance Created.")
 		print("Rerun %guppi cloud to display.")
 
 	def get_instances_info(self):
@@ -118,41 +118,41 @@ class MicrosoftService(LocalBaseClass):
   
 	def terminate_instance(self,index):
 		instances = self.get_instances_info()
-		print("Terminating Instance...")
+		print("Terminating Azure Instance...")
 		vm_name = instances[index]['Name']
 		async_vm_delete = self.compute_client.virtual_machines.delete(self.GROUP_NAME, vm_name)
 		async_vm_delete.wait()
 		# recalibrate self.instances to reflect the change
 		self.instances = self.get_instances_info()
-		print("Instance Terminated.")
+		print("Azure Instance Terminated.")
 		print("Rerun %guppi cloud to update.")
 
 	def toggle_instance(self,index):
 		instances = self.get_instances_info()
 		current_state = instances[index]['State']
 		if(current_state == "running"):
-			print("Instance Stopping...")
+			print("Azure Instance Stopping...")
 			async_vm_stop = self.compute_client.virtual_machines.power_off(self.GROUP_NAME, self.instances[index]['Name'])
 			async_vm_stop.wait()
 			# recalibrate self.instances to reflect the change
 			self.instances = self.get_instances_info()
-			print("Instance Stopped.")
+			print("Azure Instance Stopped.")
 			print("Rerun %guppi cloud to update.")
 
 		elif(current_state == "stopped"):
-			print("Instance Starting...")
+			print("Azure Instance Starting...")
 			async_vm_start = self.compute_client.virtual_machines.start(self.GROUP_NAME, self.instances[index]['Name'])
 			async_vm_start.wait()
 			# recalibrate self.instances to reflect the change
 			self.instances = self.get_instances_info()
-			print("Instance Started.")
+			print("Azure Instance Started.")
 			print("Rerun %guppi cloud to update.")
 
 		else:
 			print("Error: State is " + self.instances[index]['State'])
 
 	def reboot_instance(self,index):
-		print("Instance Rebooting...")
+		print("Azure Instance Rebooting...")
 		instances = self.get_instances_info()
 		if(instances[index]['State'] == 'running'):
 			vm_name = instances[index]['Name']
@@ -160,7 +160,7 @@ class MicrosoftService(LocalBaseClass):
 			async_vm_restart.wait()
 			# recalibrate self.instances to reflect the change
 			self.instances = self.get_instances_info()
-			print("Instance Rebooted.")
+			print("Azure Instance Rebooted.")
 			print("Rerun %guppi cloud to update.")
 		else:
 			print("Instance has already been toggled")
