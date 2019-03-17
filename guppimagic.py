@@ -38,30 +38,30 @@ class GuppiMagic(Magics):
 		print("loading plugin: "+ file_name)
 	print("plugins loaded")
 
-	# @line_magic
-	# def init(self, line):
-	# 	global service
-	# 	if(len(line) < 1):
-	# 		print("To initialize a cloud service run %init <cloud_service>")
-	# 		print("The available cloud services are:")
+	@line_magic
+	def init(self, line):
+		global service
+		if(len(line) < 1):
+			print("To initialize a cloud service run %init <cloud_service>")
+			print("The available cloud services are:")
 			
-	# 		print(self.python_files)
-	# 	else:
-	# 		found = False
-	# 		for file_name in self.python_files:
+			print(self.python_files)
+		else:
+			found = False
+			for file_name in self.python_files:
 				
-	# 			if(line == file_name.lower() or line == file_name):
+				if(line == file_name.lower() or line == file_name):
 
-	# 				module_name = getattr(plugins, file_name)
-	# 				mod_class = getattr(module_name, file_name)
-	# 				service = mod_class()
-	# 				found = True
-	# 				print("You are now using " + file_name)
-	# 				print("Re-run %guppi cloud to update")
+					module_name = getattr(plugins, file_name)
+					mod_class = getattr(module_name, file_name)
+					service = mod_class()
+					found = True
+					print("You are now using " + file_name)
+					print("Re-run %guppi cloud to update")
 
-	# 		if(not found):
-	# 			print(line + " not found!")
-	# 			print("To see a list of available services, use %init")
+			if(not found):
+				print(line + " not found!")
+				print("To see a list of available services, use %init")
 
 
 	@line_magic
