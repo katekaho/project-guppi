@@ -74,7 +74,7 @@ class GuppiMagic(Magics):
 			# cloud services
 			if(args.arguments[0] == 'cloud'):
 				if(len(args.arguments) < 2):
-					 user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list)
+					user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list)
 				else:
 					print(args.arguments[1] +" is not a cloud command, for usage, use %guppi help")
 				
