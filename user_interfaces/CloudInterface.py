@@ -12,7 +12,7 @@ accordion_arr =""
 tab_nest = ""
 cloud_arr = ""
 
-service = plugins.AmazonService.AmazonService()
+service = ""
 
 #===================================================#
 #-----------------Button-Functions------------------#
@@ -118,6 +118,10 @@ def render_cloud_interface(cloud_list):
 
 		if(service.check_setup() == False):
 			# Change later to be dynamic
+			accordion = widgets.Accordion([])
+			button_and_title = widgets.VBox([])
+			if(service.type == "AWS SERVICE"):
+				print("Please configure AWS")
 			if(service.type == "GOOGLE SERVICE"):
 				print('False')
 				accordion = widgets.Accordion([])

@@ -13,7 +13,7 @@ selected_instance = ""
 accordion =""
 
 # Setting default service
-service = plugins.AmazonService.AmazonService()
+service = ""
 
 @magics_class
 class GuppiMagic(Magics):

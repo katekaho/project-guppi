@@ -7,12 +7,24 @@ class LocalBaseClass:
 class AmazonService(LocalBaseClass):
 	def __init__(self):
 		self.type = "AWS SERVICE"
-		self.ec2 = boto3.resource('ec2')
-		self.ec2_client = boto3.client('ec2')
-		self.formatted_instances = self.get_instances_info()
+		self.configured = True
+		try:
+			self.ec2 = boto3.resource('ec2')
+		except Exception :
+			print("AWS CLI has not been configured!")
+			self.configured = False
+
+		try:
+			self.ec2_client = boto3.client('ec2')
+		except Exception :
+			print("AWS CLI has not been configured!")
+			self.configured = False
+
+		if(self.configured):
+			self.formatted_instances = self.get_instances_info()
 	
 	def check_setup(self):
-		return True
+		return self.configured
 		
 	def create_instance(self):
 		self.ec2.create_instances(
