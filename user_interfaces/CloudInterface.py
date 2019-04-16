@@ -1,6 +1,6 @@
 from IPython.core import magic_arguments
 from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, magics_class
-from IPython.display import HTML, display
+from IPython.display import HTML, display, FileLink
 import ipywidgets as widgets
 import plugins
 
@@ -118,58 +118,65 @@ def render_cloud_interface(cloud_list):
 
 		if(service.check_setup() == False):
 			# Change later to be dynamic
+
+			
 			accordion = widgets.Accordion([])
-			button_and_title = widgets.VBox([])
-			if(service.type == "AWS SERVICE"):
-				print("Please configure AWS")
-			if(service.type == "GOOGLE SERVICE"):
-				print('False')
-				accordion = widgets.Accordion([])
-				info =  widgets.HTML(value="Setup Instructions")
-				text1 = widgets.HTML(value="Create a Google Cloud account or sign onto your existing one")
-				button1 = widgets.Button(description="Go to Google cloud")
-				button1.on_click(button1Clicked)
+			fn = "./"+service.name +"Setup.txt"
+			html_as_str = open(fn, 'r').read()
+			setup = widgets.HTML(value=html_as_str)
+
+			button_and_title = widgets.VBox([setup])
+			
+			# if(service.type == "AWS SERVICE"):
+			# 	display(HTML(filename="./AmazonSetup.html"))
+			# if(service.type == "GOOGLE SERVICE"):
+			# 	print('False')
+			# 	accordion = widgets.Accordion([])
+			# 	info =  widgets.HTML(value="Setup Instructions")
+			# 	text1 = widgets.HTML(value="Create a Google Cloud account or sign onto your existing one")
+			# 	button1 = widgets.Button(description="Go to Google cloud")
+			# 	button1.on_click(button1Clicked)
 				
-				text2 = widgets.HTML(value="Select or create a Google Cloud Platform project")
-				button2 = widgets.Button(description="Go to manage resources page")
-				button2.on_click(button2Clicked)
+			# 	text2 = widgets.HTML(value="Select or create a Google Cloud Platform project")
+			# 	button2 = widgets.Button(description="Go to manage resources page")
+			# 	button2.on_click(button2Clicked)
 
-				text3 = widgets.HTML(value="Make sure that billing is enabled for your Google Cloud Platform Project")
-				button3 = widgets.Button(description="Learn How to enable billing")
-				button3.on_click(button3Clicked)
+			# 	text3 = widgets.HTML(value="Make sure that billing is enabled for your Google Cloud Platform Project")
+			# 	button3 = widgets.Button(description="Learn How to enable billing")
+			# 	button3.on_click(button3Clicked)
 
-				text4 = widgets.HTML(value="Install the Cloud SDK")
-				button4 = widgets.Button(description="Go to installation page")
-				button4.on_click(button4Clicked)
+			# 	text4 = widgets.HTML(value="Install the Cloud SDK")
+			# 	button4 = widgets.Button(description="Go to installation page")
+			# 	button4.on_click(button4Clicked)
 
-				text5 = widgets.HTML(value="Go to your command line and 'run gcloud auth application-default login'")
+			# 	text5 = widgets.HTML(value="Go to your command line and 'run gcloud auth application-default login'")
 
-				text6 = widgets.HTML(value="Install the google-api-python-client library: pip install --upgrade google-api-python-client")
-				button6 = widgets.Button(description="View google api page")
-				button6.on_click(button6Clicked)
+			# 	text6 = widgets.HTML(value="Install the google-api-python-client library: pip install --upgrade google-api-python-client")
+			# 	button6 = widgets.Button(description="View google api page")
+			# 	button6.on_click(button6Clicked)
 
-				text7 = widgets.HTML(value="Enable the Google Cloud Storage API and Cloud Resource Manager API")
-				button7 = widgets.Button(description="View instructions")
-				button7.on_click(button7Clicked)
+			# 	text7 = widgets.HTML(value="Enable the Google Cloud Storage API and Cloud Resource Manager API")
+			# 	button7 = widgets.Button(description="View instructions")
+			# 	button7.on_click(button7Clicked)
 
-				text8 = widgets.HTML(value="Create a storage bucket and note the bucket name for later")
-				button8 = widgets.Button(description="View instructions")
-				button8.on_click(button8Clicked)
+			# 	text8 = widgets.HTML(value="Create a storage bucket and note the bucket name for later")
+			# 	button8 = widgets.Button(description="View instructions")
+			# 	button8.on_click(button8Clicked)
 
-				text9 = widgets.HTML(value="Create a service account for authentication")
-				button9 = widgets.Button(description="Go to admin page")
-				button9.on_click(button9Clicked)
+			# 	text9 = widgets.HTML(value="Create a service account for authentication")
+			# 	button9 = widgets.Button(description="Go to admin page")
+			# 	button9.on_click(button9Clicked)
 
-				text10 = widgets.HTML(value="From the Service account list, select New service account.")
-				text11 = widgets.HTML(value="In the Service account name field, enter a name.")
-				text12 = widgets.HTML(value="From the Role list, select Project > Owner.")
-				text13 = widgets.HTML(value="Click Create. This should download a JSON key")
-				text14 = widgets.HTML(value="Move this key file into the googleCredentials folder found in guppi/plugins")
-				text15 = widgets.HTML(value="Reload the'guppi cloud' command")
+			# 	text10 = widgets.HTML(value="From the Service account list, select New service account.")
+			# 	text11 = widgets.HTML(value="In the Service account name field, enter a name.")
+			# 	text12 = widgets.HTML(value="From the Role list, select Project > Owner.")
+			# 	text13 = widgets.HTML(value="Click Create. This should download a JSON key")
+			# 	text14 = widgets.HTML(value="Move this key file into the googleCredentials folder found in guppi/plugins")
+			# 	text15 = widgets.HTML(value="Reload the'guppi cloud' command")
 
-				array = [info, type_label,text1,button1, text2, button2, text3, button3, text4, button4, text5, text6, button6, text7, button7, text8, button8, text9, button9, text10, text11, text12, text13, text14, text15]
+			# 	array = [info, type_label,text1,button1, text2, button2, text3, button3, text4, button4, text5, text6, button6, text7, button7, text8, button8, text9, button9, text10, text11, text12, text13, text14, text15]
 
-				button_and_title = widgets.VBox(array)
+			# 	button_and_title = widgets.VBox(array)
 		else:
 			instancesFormatted = service.get_instances_info()
 			# display(type_label)

@@ -7,6 +7,7 @@ class LocalBaseClass:
 class AmazonService(LocalBaseClass):
 	def __init__(self):
 		self.type = "AWS SERVICE"
+		self.name = "Amazon"
 		self.configured = True
 		try:
 			self.ec2 = boto3.resource('ec2')
@@ -24,7 +25,8 @@ class AmazonService(LocalBaseClass):
 			self.formatted_instances = self.get_instances_info()
 	
 	def check_setup(self):
-		return self.configured
+		return False
+		# return self.configured
 		
 	def create_instance(self):
 		self.ec2.create_instances(

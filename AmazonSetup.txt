@@ -1,0 +1,33 @@
+<ol>
+	<h3><b>AWS has not been configured on this machine yet!</b></h3>
+	<li>
+		If AWSCLI is not installed, run <b>pip install awscli</b>
+	</li>
+	<li>
+		Sign in or sign up for AWS <a href="https://console.aws.amazon.com/iam/home?#home" target="_blank">here</a> 
+	</li>
+	<li>
+		In the navigation pane of the console, choose <b>Users</b>
+	</li>
+	<li>
+		Select your username from the list of users
+	</li>
+	<li>
+		Navigate to the <b>security credentials</b> tab, and choose <b>create access key</b>
+	</li>
+	<li>
+		Click <b>Create Access Key</b>, this will give you your <b>Access Key ID</b> and <b>Secret Access Key</b>
+	</li>
+	<li>
+		In your terminal, run <b>aws configure</b>
+	</li>
+	<ol>
+		<li>Enter your <b>Access Key ID</b></li>
+		<li>Enter your <b>Secret Access Key</b></li>
+		<li>Enter your default region name, you can find your region name <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html" target="_blank">here</a></li> 
+		<li>Enter JSON for default output format</li>
+	</ol>
+	<li>
+		Reload GUPPI
+	</li>
+</ol>

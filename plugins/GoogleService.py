@@ -38,6 +38,7 @@ else:
 class GoogleService():
 	def __init__(self):
 		self.type = "GOOGLE SERVICE"
+		self.name = "Google"
 	
 	def check_setup(self):
 		if credentials == '':

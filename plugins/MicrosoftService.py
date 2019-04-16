@@ -13,6 +13,7 @@ class LocalBaseClass:
 class MicrosoftService(LocalBaseClass):
 	def __init__(self):
 		self.type = "AZURE SERVICE"
+		self.name = "Microsoft"
 		# credentials
 		self.client_id = '1858e2f8-7a54-4898-be37-b922a72b737f'
 		self.secret = 'jAzDkyVPFNfjF7QBPsgUr9/BynIhUQMeFCStbd3GE2A='
