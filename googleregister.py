@@ -6,8 +6,25 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="Project Guppi-34c9ddf0bf3e.json"
 import string
 import random
 compute = build('compute', 'v1')
-project_name = 'project-guppi-232323'
+cloudresourcemanager = build('cloudresourcemanager', 'v1')
+
+
+project_name = ''
 zone = 'us-east1-b'
+
+# The following code gets the project id
+# Todo: support selecting specific project
+# while True:
+
+request = cloudresourcemanager.projects().list()
+response = request.execute()
+
+for project in response.get('projects', []):
+
+	project_name = project.get('projectId')
+	break
+    # break
+#     request = service.projects().list_next(previous_request=request, previous_response=response)
 
 @PluginBase.register
 class GoogleService():
