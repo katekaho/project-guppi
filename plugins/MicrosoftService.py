@@ -63,6 +63,9 @@ class MicrosoftService(LocalBaseClass):
 		self.SUBNET_NAME = 'azure-sample-subnet10'
 		self.IP_CONFIG_NAME = 'azure-sample-ip-config10'
 		self.NIC_NAME = 'azure-sample-nic10'
+	
+	def check_setup(self):
+		return True
 
 	def create_instance(self):
 		# randomize names

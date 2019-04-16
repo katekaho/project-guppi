@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 
 class PluginBase(ABC):  
 	@abstractmethod
+	def check_setup(self):
+		pass
+
 	def create_instance(self):
 		pass
   

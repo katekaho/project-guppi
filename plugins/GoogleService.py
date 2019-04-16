@@ -1,21 +1,51 @@
 from pluginbase import PluginBase
 from googleapiclient.discovery import build
 import os
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="Project Guppi-34c9ddf0bf3e.json"
-
 import string
 import random
-compute = build('compute', 'v1')
-project_name = 'project-guppi-232323'
-zone = 'us-east1-b'
+
+credentials = ''
+# for file in os.listdir('plugins/googleCredentials/'):
+#     if file.endswith('.json'):
+#         credentials = (os.path.join('plugins/googleCredentials/', file))
+if(credentials == ''):
+	print("No google credential file found")
+else:
+	os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials
+
+	compute = build('compute', 'v1')
+	cloudresourcemanager = build('cloudresourcemanager', 'v1')
+
+
+	project_name = ''
+	zone = 'us-east1-b'
+
+	# The following code gets the project id
+	# Todo: support selecting specific project
+	# while True:
+
+	request = cloudresourcemanager.projects().list()
+	response = request.execute()
+
+	for project in response.get('projects', []):
+
+		project_name = project.get('projectId')
+		break
+		# break
+	#     request = service.projects().list_next(previous_request=request, previous_response=response)
 
 @PluginBase.register
 class GoogleService():
 	def __init__(self):
 		self.type = "GOOGLE SERVICE"
+	
+	def check_setup(self):
+		if credentials == '':
+			return False
+		return True
 
 	def create_instance(self):
-		
+		print("Creating Instance...")
 		# Get the latest Debian Jessie image.
 		name = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
 		image_response = compute.images().getFromFamily(
@@ -24,7 +54,6 @@ class GoogleService():
 
 		# Configure the machine
 		machine_type = "zones/%s/machineTypes/n1-standard-1" % zone
-
 		config = {
 			'name': name,
 			'machineType': machine_type,
@@ -59,31 +88,24 @@ class GoogleService():
 			}],
 		}
 		compute.instances().insert(project=project_name, zone=zone, body=config).execute()
-		print("Google Instance Created.")
+		print("Instance Created.")
 		print("Rerun %guppi cloud to display.")
 
 	def get_instances_info(self):
 		global zone
+		# Get instances from Google Compute
 		instances = compute.instances().list(project=project_name, zone=zone).execute()
-
 		instancesFormatted = []
-		
-		instances = instances.get('items', '')
-			 
+		instances = instances.get('items', '')	 
 		for instance in instances:
-				
 			machineType = instance.get('machineType', '').rsplit('/', 1)[-1]
-			
 			zone = instance.get('zone', '').rsplit('/', 1)[-1]
-			status = instance.get('status', '')
-			if(status ==  "TERMINATED"):
-				status = "STOPPED"
 			formatInst = {
 				'Name': instance.get('name', ''),
 				'Instance Id': instance.get('name', ''), # using name instead for now
 				'Instance Type': machineType,
 				'Availability Zone': zone,
-				'State': status.lower(),
+				'State': instance.get('status', ''),
 				'Key Name': '',
 				'Launch Time': instance.get('creationTimestamp', ''),
 			}
@@ -93,14 +115,14 @@ class GoogleService():
 		return instancesFormatted
 
 	def terminate_instance(self,index):
+		print("Terminating Instance...")
 		instances = self.get_instances_info()
 		name = instances[index]['Instance Id']
-
 		compute.instances().delete(
 				project=project_name,
 				zone=zone,
 				instance=name).execute()
-		print("Google Instance Terminated.")
+		print("Instance Terminated.")
 		print("Rerun %guppi cloud to update.")
 	
 	def toggle_instance(self,index):
@@ -108,36 +130,28 @@ class GoogleService():
 		name = instances[index]['Instance Id']
 
 		current_state = instances[index]['State']
-		if(current_state == "running"):
+		if(current_state == "RUNNING"):
 			compute.instances().stop(
 				project=project_name,
 				zone=zone,
 				instance=name).execute()
-			print("Google Instance Stopped.")
+			print("Instance Stopped.")
 			print("Rerun %guppi cloud to update.")
 
-		elif(current_state == "stopped"):
+		elif(current_state == "TERMINATED"):
 			compute.instances().start(
 				project=project_name,
 				zone=zone,
 				instance=name).execute()
-			print("Google Instance Started.")
+			print("Instance Started.")
 			print("Rerun %guppi cloud to update.")
-		else:
-			print("Instance has already been toggled")
-			print("Rerun %guppi cloud to reflect changes")
 
 	def reboot_instance(self,index):
 		instances = self.get_instances_info()
 		name = instances[index]['Instance Id']
-		current_state = instances[index]['State']
-		if(current_state == "running"):
-			compute.instances().reset(
-					project=project_name,
-					zone=zone,
-					instance=name).execute()
-			print("Google Instance Rebooted.")
-			print("Rerun %guppi cloud to update.")
-		else:
-			print("Please rerun %guppi cloud to reflect changes")
-			print("You can only reboot instances that are  \"Running\" ")
+		compute.instances().reset(
+				project=project_name,
+				zone=zone,
+				instance=name).execute()
+		print("Instance Rebooted.")
+		print("Rerun %guppi cloud to update.")

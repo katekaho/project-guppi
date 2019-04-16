@@ -10,6 +10,9 @@ class AmazonService(LocalBaseClass):
 		self.ec2 = boto3.resource('ec2')
 		self.ec2_client = boto3.client('ec2')
 		self.formatted_instances = self.get_instances_info()
+	
+	def check_setup(self):
+		return True
 		
 	def create_instance(self):
 		self.ec2.create_instances(
