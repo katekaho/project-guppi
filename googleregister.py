@@ -1,7 +1,15 @@
 from pluginbase import PluginBase
 from googleapiclient.discovery import build
 import os
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="Project Guppi-34c9ddf0bf3e.json"
+
+credentials = ''
+for file in os.listdir(''./googleCredentials'):
+    if file.endswith(''.json'):
+        credentials = (os.path.join('/googleCredentials/', file)[1:])
+
+if(credentials == '')
+	print("No key found")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials
 
 import string
 import random
