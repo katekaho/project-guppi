@@ -194,7 +194,7 @@ def render_cloud_interface(cloud_list):
 			else:
 				for row in instancesFormatted:
 					#appends all info into array of labels
-					info = ["<b>Instance Type:</b>", row['Instance Type'] ,"<b>Availability Zone:</b>", row['Availability Zone'], "<b>State:<b>" , row['State']]
+					info = ["<b>Instance Type:</b>", row['Instance Type'] ,"<b>Availability Zone:</b>", row['Availability Zone'], "<b>State:<b>" , row['State'], "<b>Public DNS:<b>", row['Dns']]
 
 					#makes each label html and puts into HBox
 					items = [widgets.HTML(str(i)) for i in info]

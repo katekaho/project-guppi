@@ -109,6 +109,7 @@ class GoogleService():
 				'State': instance.get('status', ''),
 				'Key Name': '',
 				'Launch Time': instance.get('creationTimestamp', ''),
+				'Dns': '',
 			}
 			
 			instancesFormatted.append(formatInst)

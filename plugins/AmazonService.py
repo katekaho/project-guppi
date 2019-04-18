@@ -25,8 +25,9 @@ class AmazonService(LocalBaseClass):
 			self.formatted_instances = self.get_instances_info()
 	
 	def check_setup(self):
-		return False
-		# return self.configured
+		#comment this to show instructions
+		#return False
+		return self.configured
 		
 	def create_instance(self):
 		self.ec2.create_instances(
@@ -67,6 +68,11 @@ class AmazonService(LocalBaseClass):
 
 			launchTime = instance.get('LaunchTime', '')
 
+			dns = instance.get('PublicDnsName','')
+
+			if(dns == ''):
+				dns = "Instance is offline"
+
 			if len(name) > 20:
 				name = name[:20] + '...'
 
@@ -78,7 +84,10 @@ class AmazonService(LocalBaseClass):
 				'State': stateName,
 				'Key Name': instance.get('KeyName', ''),
 				'Launch Time': launchTime,
+				'Dns': dns,
+
 			}
+
 			instancesFormatted.append(formatInst)
 
 		return instancesFormatted

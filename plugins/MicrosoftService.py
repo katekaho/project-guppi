@@ -116,6 +116,7 @@ class MicrosoftService(LocalBaseClass):
 				'State': state,
 				'Key Name': key,
 				'Launch Time': time,
+				'Dns': '',
 			}
 			instancesFormatted.append(formatInst)
 		return instancesFormatted
