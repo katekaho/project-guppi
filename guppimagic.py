@@ -8,6 +8,7 @@ import sys
 import paramiko
 
 import ipywidgets as widgets
+from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label, IntSlider
 import user_interfaces
 
 selected_instance = ""
@@ -21,6 +22,8 @@ class GuppiMagic(Magics):
 	filenames = glob.glob('./plugins/*.py')
 	python_files = []
 	print("For useage: use %guppi help")
+	f = None
+	python_file = None
 	for f in filenames:
 		# print(f)
 		python_file = f
@@ -31,6 +34,9 @@ class GuppiMagic(Magics):
 			python_files.append(python_file)
 
 	cloud_list = []
+	file_name = None
+	module_name = None
+	mod_class = None
 	for file_name in python_files:
 		module_name = getattr(plugins, file_name)
 		mod_class = getattr(module_name, file_name)
@@ -39,60 +45,74 @@ class GuppiMagic(Magics):
 		print("loading plugin: "+ file_name)
 	print("plugins loaded")
 
-	@line_magic
-	def init(self, line):
-		global service
-		if(len(line) < 1):
-			print("To initialize a cloud service run %init <cloud_service>")
-			print("The available cloud services are:")
-			
-			print(self.python_files)
-		else:
-			found = False
-			for file_name in self.python_files:
-				
-				if(line == file_name.lower() or line == file_name):
-					print(mod_class)
-					service = mod_class()
-					found = True
-					print("You are now using " + file_name)
-					print("Re-run %guppi cloud to update")
-
-			if(not found):
-				print(line + " not found!")
-				print("To see a list of available services, use %init")
 	
 	@line_magic
 	def ssh(self, line):
-		if(len(line) < 1):
-			print("SSH usage: type ssh followed by the service name, then type your commands")
-		else:
-			array = line.split(" ", 2)
-			service = 'AmazonService'
-			# instances = self.cloud_list
-			instances = self.cloud_list[0].get_instances_info()
-			Dns = ''
-			for instance in instances:
-				if instance["Instance Id"] == array[1] or instance["Name"] == array[1]:
-					Dns = instance["Dns"]
+		instances = self.cloud_list[0].get_instances_info()
+		box_list = []	
+		for vm in instances:
+			if(vm['State'] == 'running'):
+
+
+				if(vm['Name'] == ''):	
+					cb = widgets.Checkbox(
+						value=False,
+						description=vm['Instance Id'],
+						disabled=False
+					)
+				else:
+					cb = widgets.Checkbox(
+						value=False,
+						description=vm['Name'],
+						disabled=False
+					)
+
+				box_list.append(cb)
+		boxes_container = widgets.VBox(box_list)
+
+		display(boxes_container)
+		
+		command_area = widgets.Textarea(
+			value='',
+			placeholder='Type your commands here',
+		)
+
+		submit_button = widgets.Button(
+			description='Run Commands',
+			disabled=False,
+			tooltip='',
+		)
+		command_box = widgets.VBox([command_area,submit_button])
+		display(command_box)
+
+		# button clicked function
+		def submit_button_clicked(b):
+			for checkbox in box_list:
+				if(checkbox.value == True):
+					print("---------------------------------------------------")
+					print(checkbox.description)
+					print("---------------------------------------------------")
+					Dns = ''
+					for vm in instances:
+						if(checkbox.description == vm['Instance Id'] or checkbox.description == vm['Name']):
+							Dns = vm['Dns']
+					ssh = paramiko.SSHClient()
+					ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+					ssh.connect(Dns,
+							username='ec2-user',
+							key_filename='key.pem')
+					commands = command_area.value
 				
-			if(array[0] == "Amazon" or array[0] == "amazon"):
-				ssh = paramiko.SSHClient()
-				ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-				ssh.connect(Dns,
-						username='ec2-user',
-						key_filename='key.pem')
-				commands = ''
-				i = 2
-				while i < len(array):
-					commands += array[i]
-					i+=1
-				stdin, stdout, stderr = ssh.exec_command(array[2])
-				stdin.flush()
-				data = stdout.read().splitlines()
-				for output_line in data:
-					print(output_line)
-				ssh.close()
+					stdin, stdout, stderr = ssh.exec_command(commands)
+					stdin.flush()
+					data = stdout.read().splitlines()
+					for output_line in data:
+						print(output_line)
+					ssh.close()
+					print("")
+					print("")
+
+		submit_button.on_click(submit_button_clicked)
 
 
 	@line_magic
@@ -102,8 +122,12 @@ class GuppiMagic(Magics):
 		args = magic_arguments.parse_argstring(self.guppi, line)
 
 		if(len(args.arguments) > 0):
+
+			if(args.arguments[0] == 'ssh'):
+				user_interfaces.SshInterface.render_ssh_interface(self.cloud_list)
+
 			# cloud services
-			if(args.arguments[0] == 'cloud'):
+			elif(args.arguments[0] == 'cloud'):
 				if(len(args.arguments) < 2):
 					user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list)
 				else:
