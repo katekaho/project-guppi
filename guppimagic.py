@@ -5,6 +5,7 @@ import glob
 import re
 import plugins
 import sys
+import paramiko
 
 import ipywidgets as widgets
 import user_interfaces
@@ -51,9 +52,7 @@ class GuppiMagic(Magics):
 			for file_name in self.python_files:
 				
 				if(line == file_name.lower() or line == file_name):
-
-					module_name = getattr(plugins, file_name)
-					mod_class = getattr(module_name, file_name)
+					print(mod_class)
 					service = mod_class()
 					found = True
 					print("You are now using " + file_name)
@@ -62,6 +61,38 @@ class GuppiMagic(Magics):
 			if(not found):
 				print(line + " not found!")
 				print("To see a list of available services, use %init")
+	
+	@line_magic
+	def ssh(self, line):
+		if(len(line) < 1):
+			print("SSH usage: type ssh followed by the service name, then type your commands")
+		else:
+			array = line.split(" ", 2)
+			service = 'AmazonService'
+			# instances = self.cloud_list
+			instances = self.cloud_list[0].get_instances_info()
+			Dns = ''
+			for instance in instances:
+				if instance["Instance Id"] == array[1] or instance["Name"] == array[1]:
+					Dns = instance["Dns"]
+				
+			if(array[0] == "Amazon" or array[0] == "amazon"):
+				ssh = paramiko.SSHClient()
+				ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+				ssh.connect(Dns,
+						username='ec2-user',
+						key_filename='key.pem')
+				commands = ''
+				i = 2
+				while i < len(array):
+					commands += array[i]
+					i+=1
+				stdin, stdout, stderr = ssh.exec_command(array[2])
+				stdin.flush()
+				data = stdout.read().splitlines()
+				for output_line in data:
+					print(output_line)
+				ssh.close()
 
 
 	@line_magic
