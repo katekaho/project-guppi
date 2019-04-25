@@ -5,9 +5,9 @@ import string
 import random
 
 credentials = ''
-# for file in os.listdir('plugins/googleCredentials/'):
-#     if file.endswith('.json'):
-#         credentials = (os.path.join('plugins/googleCredentials/', file))
+for file in os.listdir('plugins/googleCredentials/'):
+    if file.endswith('.json'):
+        credentials = (os.path.join('plugins/googleCredentials/', file))
 if(credentials == ''):
 	print("No google credential file found")
 else:
