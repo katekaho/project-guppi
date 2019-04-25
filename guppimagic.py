@@ -22,9 +22,9 @@ class GuppiMagic(Magics):
 	print("For useage: use %guppi help")
 	for f in filenames:
 		# print(f)
-		python_file = re.sub('./plugins\\\\', '', f)
+		python_file = f
 		# print(python_file)
-		# python_file = python_file[10:]
+		python_file = python_file[10:]
 		python_file = re.sub('.py', '', python_file)
 		if python_file != '__init__':
 			python_files.append(python_file)

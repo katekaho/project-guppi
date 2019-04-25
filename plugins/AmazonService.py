@@ -30,12 +30,13 @@ class AmazonService(LocalBaseClass):
 		return self.configured
 		
 	def create_instance(self):
+
 		self.ec2.create_instances(
 			ImageId='ami-082c116bf79a9feef',
 			MinCount=1,
 			MaxCount=1,
 			InstanceType='t2.micro',
-			KeyName='new_key_pair',
+			KeyName='key',
 		)
 		print("Instance Created.")
 		print("Rerun %guppi cloud to display.")

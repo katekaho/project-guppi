@@ -1,1 +1,20 @@
-Put Google Setup stuff here
+Google Setup Instructions
+
+Go to https://console.cloud.google.com/ and create an account or sign onto your existing one.
+Go to https://console.cloud.google.com/cloud-resource-manager and select or create a Google Cloud Platform project
+Make sure that billing is enabled for your Google Cloud Platform Project https://cloud.google.com/billing/docs/how-to/modify-project
+Install the Cloud SDK https://cloud.google.com/sdk/
+Go to your command line and "run gcloud auth application-default login"
+Install the google-api-python-client library: pip install --upgrade google-api-python-client
+Enable the Google Cloud Storage API and Cloud Resource Manager API https://cloud.google.com/apis/docs/enable-disable-apis?hl=en&ref_topic=6262490&visit_id=636909616876722358-4171110160&rd=1
+Create a storage bucket and note the bucket name for later https://cloud.google.com/storage/docs/creating-buckets
+
+
+Create a service account for authentication https://console.cloud.google.com/projectselector/apis/credentials/serviceaccountkey?supportedpurview=project
+From the Service account list, select New service account.
+In the Service account name field, enter a name.
+From the Role list, select Project > Owner.
+Click Create. This should download a JSON key
+Move this key file into the googleCredentials folder found in guppi/plugins
+Reload "guppi cloud" command
+
