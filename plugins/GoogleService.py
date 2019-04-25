@@ -18,7 +18,7 @@ else:
 
 
 	project_name = ''
-	zone = 'us-east1-b'
+	zone = 'us-east1-c'
 
 	# The following code gets the project id
 	# Todo: support selecting specific project
@@ -97,16 +97,23 @@ class GoogleService():
 		# Get instances from Google Compute
 		instances = compute.instances().list(project=project_name, zone=zone).execute()
 		instancesFormatted = []
-		instances = instances.get('items', '')	 
+		instances = instances.get('items', '')
+		
 		for instance in instances:
 			machineType = instance.get('machineType', '').rsplit('/', 1)[-1]
 			zone = instance.get('zone', '').rsplit('/', 1)[-1]
+			state = instance.get('status', '')
+			state = state.lower()
+			if state == 'terminated':
+				state = 'stopped'
+			elif state == 'stopping':
+				state = 'shutting-down'
 			formatInst = {
 				'Name': instance.get('name', ''),
 				'Instance Id': instance.get('name', ''), # using name instead for now
 				'Instance Type': machineType,
 				'Availability Zone': zone,
-				'State': instance.get('status', ''),
+				'State': state,
 				'Key Name': '',
 				'Launch Time': instance.get('creationTimestamp', ''),
 				'Dns': '',
@@ -132,7 +139,7 @@ class GoogleService():
 		name = instances[index]['Instance Id']
 
 		current_state = instances[index]['State']
-		if(current_state == "RUNNING"):
+		if(current_state == "running"):
 			compute.instances().stop(
 				project=project_name,
 				zone=zone,
@@ -140,7 +147,7 @@ class GoogleService():
 			print("Instance Stopped.")
 			print("Rerun %guppi cloud to update.")
 
-		elif(current_state == "TERMINATED"):
+		elif(current_state == "stopped"):
 			compute.instances().start(
 				project=project_name,
 				zone=zone,
