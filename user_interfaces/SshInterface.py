@@ -5,7 +5,8 @@ import ipywidgets as widgets
 
 import plugins
 import paramiko
-
+import warnings
+warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 
 
 #===================================================#
@@ -23,13 +24,9 @@ def render_ssh_interface(cloud_list):
 	box_list = []
 	instance_boxes = []
 
-	
-
+	#creates the checkboxes
 	for vm in instances:
-		
 		if(vm['State'] == 'running'):
-
-
 			if(vm['Name'] == ''):	
 				cb = widgets.Checkbox(
 					value=False,
@@ -44,40 +41,45 @@ def render_ssh_interface(cloud_list):
 				)
 			instance_boxes.append(widgets.Box([cb], layout=box_layout))
 			box_list.append(cb)
-
+	
 	select_button = widgets.Button(
-		description='Select All',
-		disabled=False,
-		tooltip='',
-		icon='check',
+			description='Select All',
+			disabled=False,
+			tooltip='',
+			icon='check',
 
-	)	
-	display(select_button)
-
-
-	box_array = []
-	for i in range(0, len(instance_boxes), 3):
-		box_array.append(instance_boxes[i:i+3])
-	
-	for row in box_array:
-		boxes_container = widgets.HBox(row)
-
-		display(boxes_container)
-	
-	command_area = widgets.Textarea(
-		value='',
-		placeholder='Type your commands here',
-	)
-
+		)	
 	submit_button = widgets.Button(
 		description='Run Commands',
 		disabled=False,
 		tooltip='',
 	)
-	command_box = widgets.VBox([command_area,submit_button])
-	display(command_box)
 
-	# submit button clicked function
+	if(len(box_list) == 0):
+		display(widgets.HTML(value="There are no running instances."))
+	else:
+		display(select_button)
+
+		box_array = []
+
+		for i in range(0, len(instance_boxes), 3):
+			box_array.append(instance_boxes[i:i+3])
+		
+		for row in box_array:
+			boxes_container = widgets.HBox(row)
+			display(boxes_container)
+		
+		command_area = widgets.Textarea(
+			value='',
+			placeholder='Type your commands here',
+		)
+		command_box = widgets.VBox([command_area,submit_button])
+		display(command_box)
+
+	#===================================================#
+	#-----------------Button-Functions------------------#
+	#===================================================#
+
 	def submit_button_clicked(b):
 		for checkbox in box_list:
 			if(checkbox.value == True):
@@ -98,14 +100,23 @@ def render_ssh_interface(cloud_list):
 				stdin, stdout, stderr = ssh.exec_command(commands)
 				stdin.flush()
 				data = stdout.read().splitlines()
+				
+				errors = stderr.read().splitlines()
+
+				for output_line in errors:
+					print(output_line)
+
+				print("")
+
 				for output_line in data:
 					print(output_line)
 				ssh.close()
 				print("")
-				print("")
+				if(len(errors) == 0):
+					print("Successfully ran "+ commands + " on " + checkbox.description)
+					print("")
 
 	
-	# select button clicked function
 	def select_button_clicked(b):
 		toggle = check_true(box_list)
 		for checkbox in box_list:

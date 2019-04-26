@@ -19,17 +19,18 @@ service = ""
 
 @magics_class
 class GuppiMagic(Magics):
+
+	# initializes file from interfaces and services folders
 	filenames = glob.glob('./plugins/*.py')
 	python_files = []
 	print("For useage: use %guppi help")
 	f = None
 	python_file = None
 	for f in filenames:
-		# print(f)
 		python_file = f
-		# print(python_file)
 		python_file = python_file[10:]
 		python_file = re.sub('.py', '', python_file)
+		
 		if python_file != '__init__':
 			python_files.append(python_file)
 
@@ -44,76 +45,6 @@ class GuppiMagic(Magics):
 		cloud_list.append(service)
 		print("loading plugin: "+ file_name)
 	print("plugins loaded")
-
-	
-	# @line_magic
-	# def ssh(self, line):
-	# 	instances = self.cloud_list[0].get_instances_info()
-	# 	box_list = []	
-	# 	for vm in instances:
-	# 		if(vm['State'] == 'running'):
-
-
-	# 			if(vm['Name'] == ''):	
-	# 				cb = widgets.Checkbox(
-	# 					value=False,
-	# 					description=vm['Instance Id'],
-	# 					disabled=False
-	# 				)
-	# 			else:
-	# 				cb = widgets.Checkbox(
-	# 					value=False,
-	# 					description=vm['Name'],
-	# 					disabled=False
-	# 				)
-
-	# 			box_list.append(cb)
-	# 	boxes_container = widgets.VBox(box_list)
-
-	# 	display(boxes_container)
-		
-	# 	command_area = widgets.Textarea(
-	# 		value='',
-	# 		placeholder='Type your commands here',
-	# 	)
-
-	# 	submit_button = widgets.Button(
-	# 		description='Run Commands',
-	# 		disabled=False,
-	# 		tooltip='',
-	# 	)
-	# 	command_box = widgets.VBox([command_area,submit_button])
-	# 	display(command_box)
-
-	# 	# button clicked function
-	# 	def submit_button_clicked(b):
-	# 		for checkbox in box_list:
-	# 			if(checkbox.value == True):
-	# 				print("---------------------------------------------------")
-	# 				print(checkbox.description)
-	# 				print("---------------------------------------------------")
-	# 				Dns = ''
-	# 				for vm in instances:
-	# 					if(checkbox.description == vm['Instance Id'] or checkbox.description == vm['Name']):
-	# 						Dns = vm['Dns']
-	# 				ssh = paramiko.SSHClient()
-	# 				ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-	# 				ssh.connect(Dns,
-	# 						username='ec2-user',
-	# 						key_filename='key.pem')
-	# 				commands = command_area.value
-				
-	# 				stdin, stdout, stderr = ssh.exec_command(commands)
-	# 				stdin.flush()
-	# 				data = stdout.read().splitlines()
-	# 				for output_line in data:
-	# 					print(output_line)
-	# 				ssh.close()
-	# 				print("")
-	# 				print("")
-
-	# 	submit_button.on_click(submit_button_clicked)
-
 
 	@line_magic
 	@magic_arguments.magic_arguments()

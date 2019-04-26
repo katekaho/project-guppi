@@ -1,5 +1,5 @@
 from pluginbase import PluginBase
-import boto3 
+import boto3
 
 class LocalBaseClass:
 	pass
@@ -92,7 +92,7 @@ class AmazonService(LocalBaseClass):
 			instancesFormatted.append(formatInst)
 
 		return instancesFormatted
-  
+
 	def terminate_instance(self,index):
 		print("Terminating AWS Instance...")
 		instances = self.get_instances_info()
@@ -109,7 +109,7 @@ class AmazonService(LocalBaseClass):
 
 		current_state = instances[index]['State']
 		if(current_state == "running"):
-			print("Stopping AWS nstance...")
+			print("Stopping AWS Instance...")
 			self.ec2.instances.filter(InstanceIds=ids).stop()
 			print("AWS Instance Stopped.")
 			print("Rerun %guppi cloud to update.")

@@ -6,114 +6,40 @@ import plugins
 
 import webbrowser
 
-
-selected_instance = ""
-accordion_arr =""
-tab_nest = ""
-cloud_arr = ""
-
-service = ""
-
-#===================================================#
-#-----------------Button-Functions------------------#
-#===================================================#
-def create_button_clicked(b):
-	global selected_service
-	global tab_nest
-	global cloud_arr
-
-	selected_service = tab_nest.selected_index
-
-	service = cloud_arr[selected_service]
-	service.create_instance()
-
-#terminate instance button handler
-def terminate_button_clicked(b):
-	global selected_instance
-	global accordion_arr
-	global service
-	global selected_service
-	global tab_nest
-	global cloud_arr
-	selected_service = tab_nest.selected_index
-
-	service = cloud_arr[selected_service]
-	accordion = accordion_arr[selected_service]
-	selected_instance = accordion.selected_index
-	service.terminate_instance(selected_instance)
-
-
-#toggle instance button handler
-def toggle_button_clicked(b):
-	global selected_instance
-	global accordion_arr
-	global service
-	global selected_service
-	global tab_nest
-	global cloud_arr
-
-	selected_service = tab_nest.selected_index
-
-	service = cloud_arr[selected_service]
-	accordion = accordion_arr[selected_service]
-	
-	selected_instance = accordion.selected_index
-	service.toggle_instance(selected_instance)
-
-
-#terminate instance button handler
-def reboot_button_clicked(b):
-	global selected_instance
-	global accordion_arr
-	global selected_service
-	global tab_nest
-	global service
-	global cloud_arr
-
-	selected_service = tab_nest.selected_index
-
-	service = cloud_arr[selected_service]
-	accordion = accordion_arr[selected_service]
-	selected_instance = accordion.selected_index
-
-	service.reboot_instance(selected_instance)
-
 #===================================================#
 #------------Cloud-Interface-Function---------------#
 #===================================================#
 def render_cloud_interface(cloud_list):
-	global selected_instance
-	global accordion_arr
-	global service
-	global selected_service
-	global tab_nest
-	global cloud_arr
 
 	cloud_arr = cloud_list
 	tab_list = []
 	accordion_arr = []
 
 	for cloud_service in cloud_list:
-		service = cloud_service
 
-		type_label = widgets.HTML(value="<b>"+service.type+"<b>")
+		type_label = widgets.HTML(value="<b>"+cloud_service.type+"<b>")
 
-		if(service.check_setup() == False):
-			# Change later to be dynamic
-	
+		button = widgets.Button(description="Create Instance")
+		toggle_button = widgets.Button(description='Stop Instance')
+		terminate_button = widgets.Button(description='Terminate Instance')
+		reboot_button = widgets.Button(description='Reboot Instance',disabled=True)
+		accordion = widgets.Accordion()
+		tab_nest = widgets.Tab()
+		service = ''
+
+
+		if(cloud_service.check_setup() == False):	
 			accordion = widgets.Accordion([])
-			fn = "./"+service.name +"Setup.txt"
+			fn = "./"+cloud_service.name +"Setup.txt"
 			html_as_str = open(fn, 'r').read()
 			setup = widgets.HTML(value=html_as_str)
-
 			button_and_title = widgets.VBox([setup])
 			
 		else:
-			instancesFormatted = service.get_instances_info()
+			instancesFormatted = cloud_service.get_instances_info()
 			# display(type_label)
 			button = widgets.Button(description="Create Instance")
 			# display(button)
-			button.on_click(create_button_clicked)
 			button_and_title = widgets.VBox([type_label,button])
 
 			#stores the info and buttons for each instance
@@ -169,10 +95,6 @@ def render_cloud_interface(cloud_list):
 					image = file.read()
 					indicator = widgets.Image(value=image,format='png')
 
-					toggle_button.on_click(toggle_button_clicked)
-					terminate_button.on_click(terminate_button_clicked)
-					reboot_button.on_click(reboot_button_clicked)
-
 					buttons = [toggle_button,reboot_button,terminate_button,indicator]
 					button_box = widgets.HBox(buttons)
 					
@@ -181,6 +103,45 @@ def render_cloud_interface(cloud_list):
 
 					#adds it to list of childeren for accordian
 					accordion_children.append(instance_box)
+					#===================================================#
+					#-----------------Button-Functions------------------#
+					#===================================================#
+
+					selected_instance = ''
+
+					def create_button_clicked(b):
+						service = cloud_arr[selected_service]
+						service.create_instance()
+
+					#terminate instance button handler
+					def terminate_button_clicked(b):
+						service = cloud_arr[selected_service]
+						accordion = accordion_arr[selected_service]
+						selected_instance = accordion.selected_index
+						service.terminate_instance(selected_instance)
+
+
+					#toggle instance button handler
+					def toggle_button_clicked(b):
+						selected_service = tab_nest.selected_index
+						service = cloud_arr[selected_service]
+						accordion = accordion_arr[selected_service]
+						selected_instance = accordion.selected_index
+						service.toggle_instance(selected_instance)
+
+					#terminate instance button handler
+					def reboot_button_clicked(b):
+						selected_service = tab_nest.selected_index
+						service = cloud_arr[selected_service]
+						accordion = accordion_arr[selected_service]
+						selected_instance = accordion.selected_index
+						service.reboot_instance(selected_instance)
+						
+
+					button.on_click(create_button_clicked)
+					toggle_button.on_click(toggle_button_clicked)
+					terminate_button.on_click(terminate_button_clicked)
+					reboot_button.on_click(reboot_button_clicked)
 
 				accordion = widgets.Accordion(accordion_children)
 
@@ -208,5 +169,6 @@ def render_cloud_interface(cloud_list):
 
 	display(tab_nest)
 	#sets global selected instance to currently selected instance
-	selected_instance = accordion.selected_index
 	selected_service = tab_nest.selected_index
+
+	
