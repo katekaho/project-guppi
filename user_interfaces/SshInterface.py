@@ -29,13 +29,13 @@ def render_ssh_interface(cloud_list):
 		if(vm['State'] == 'running'):
 			if(vm['Name'] == ''):	
 				cb = widgets.Checkbox(
-					value=False,
+					value=True,
 					description=vm['Instance Id'],
 					disabled=False
 				)
 			else:
 				cb = widgets.Checkbox(
-					value=False,
+					value=True,
 					description=vm['Name'],
 					disabled=False
 				)
@@ -54,7 +54,7 @@ def render_ssh_interface(cloud_list):
 		disabled=False,
 		tooltip='',
 	)
-
+	
 	if(len(box_list) == 0):
 		display(widgets.HTML(value="There are no running instances."))
 	else:
