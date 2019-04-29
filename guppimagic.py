@@ -56,6 +56,9 @@ class GuppiMagic(Magics):
 
 			if(args.arguments[0] == 'ssh'):
 				user_interfaces.SshInterface.render_ssh_interface(self.cloud_list)
+			
+			elif(args.arguments[0] == 'create'):
+				user_interfaces.CreateInterface.render_create_interface(self.cloud_list)
 
 			# cloud services
 			elif(args.arguments[0] == 'cloud'):

@@ -1,5 +1,6 @@
 from pluginbase import PluginBase
 import boto3
+import random
 
 class LocalBaseClass:
 	pass
@@ -29,14 +30,21 @@ class AmazonService(LocalBaseClass):
 		#return False
 		return self.configured
 		
-	def create_instance(self):
+	def create_instance(self,group,size):
+		tags = [
+			# {'Key':'Name','Value': group + str(random.randint(10000,99999))},
+			{'Key':'Group','Value': group},
+		]
+
+		tag_specification = [{'ResourceType': 'instance', 'Tags': tags},]
 
 		self.ec2.create_instances(
 			ImageId='ami-082c116bf79a9feef',
 			MinCount=1,
 			MaxCount=1,
-			InstanceType='t2.micro',
+			InstanceType= size,
 			KeyName='key',
+			TagSpecifications= tag_specification,
 		)
 		print("Instance Created.")
 		print("Rerun %guppi cloud to display.")
@@ -56,10 +64,13 @@ class AmazonService(LocalBaseClass):
 		for instance in instances:
 			tags = instance.get('Tags', [])
 			name = ''
+			group_name = ''
 			for tag in tags:
 				tagKey = tag.get('Key', '')
 				if tagKey == 'Name':
 					name = tag['Value']
+				elif tagKey == 'Group':
+					group_name = tag['Value']
 
 			placement = instance['Placement']
 			availabilityZone = placement['AvailabilityZone']
@@ -86,6 +97,7 @@ class AmazonService(LocalBaseClass):
 				'Key Name': instance.get('KeyName', ''),
 				'Launch Time': launchTime,
 				'Dns': dns,
+				'Group Name': group_name
 
 			}
 

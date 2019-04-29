@@ -3,9 +3,10 @@ from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, 
 from IPython.display import HTML, display, FileLink
 import ipywidgets as widgets
 import plugins
+import user_interfaces
 
 import webbrowser
-
+# TODO: fix create instance button
 #===================================================#
 #------------Cloud-Interface-Function---------------#
 #===================================================#
@@ -111,7 +112,8 @@ def render_cloud_interface(cloud_list):
 
 					def create_button_clicked(b):
 						service = cloud_arr[selected_service]
-						service.create_instance()
+						# user_interfaces.CreateInterface.render_create_interface(cloud_list)
+						# service.create_instance()
 
 					#terminate instance button handler
 					def terminate_button_clicked(b):
