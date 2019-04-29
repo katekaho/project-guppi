@@ -6,21 +6,29 @@ import plugins
 import user_interfaces
 
 import webbrowser
-# TODO: fix create instance button
+
+create_clicked = False
 #===================================================#
 #------------Cloud-Interface-Function---------------#
 #===================================================#
 def render_cloud_interface(cloud_list):
 
+	# def create_button_clicked(b):
+	# 		# service = cloud_arr[selected_service]
+	# 		user_interfaces.CreateInterface.render_create_interface(cloud_list)
+	# 		# service.create_instance()
+
 	cloud_arr = cloud_list
 	tab_list = []
 	accordion_arr = []
+	ctitle = widgets.HTML("<h3>Instances</h3>")
+	display(ctitle)
+
 
 	for cloud_service in cloud_list:
 
 		type_label = widgets.HTML(value="<b>"+cloud_service.type+"<b>")
 
-		button = widgets.Button(description="Create Instance")
 		toggle_button = widgets.Button(description='Stop Instance')
 		terminate_button = widgets.Button(description='Terminate Instance')
 		reboot_button = widgets.Button(description='Reboot Instance',disabled=True)
@@ -39,24 +47,30 @@ def render_cloud_interface(cloud_list):
 		else:
 			instancesFormatted = cloud_service.get_instances_info()
 			# display(type_label)
-			button = widgets.Button(description="Create Instance")
+			# button = widgets.Button(description="Create Instance")
 			# display(button)
-			button_and_title = widgets.VBox([type_label,button])
+			button_and_title = widgets.VBox([type_label])
+
 
 			#stores the info and buttons for each instance
 			accordion_children = []
 			if (len(instancesFormatted) == 0):
 				accordion = widgets.Accordion([])
 				message = widgets.HTML(value="No instances found, press 'Create Instance' to create one")
-				button_and_title = widgets.VBox([type_label,message,button])
+				button_and_title = widgets.VBox([type_label,message])
 			else:
 				for row in instancesFormatted:
 					#appends all info into array of labels
-					info = ["<b>Instance Type:</b>", row['Instance Type'] ,"<b>Availability Zone:</b>", row['Availability Zone'], "<b>State:<b>" , row['State'], "<b>Public DNS:<b>", row['Dns']]
+					info1 = ["<b>Group:</b>", row['Group Name'],"<b>Instance Type:</b>", row['Instance Type'] ,"<b>Availability Zone:</b>", row['Availability Zone']]
+
+					info2 = ["<b>State:<b>" , row['State'], "<b>Public DNS:<b>", row['Dns']]
 
 					#makes each label html and puts into HBox
-					items = [widgets.HTML(str(i)) for i in info]
-					instance_info = widgets.HBox(items)
+					items1 = [widgets.HTML(str(i)) for i in info1]
+					instance_info1 = widgets.HBox(items1)
+
+					items2 = [widgets.HTML(str(i)) for i in info2]
+					instance_info2 = widgets.HBox(items2)
 					
 					#buttons
 					if(row['State'] == "running"): 
@@ -100,7 +114,7 @@ def render_cloud_interface(cloud_list):
 					button_box = widgets.HBox(buttons)
 					
 					#puts info and buttons into vBox
-					instance_box = widgets.VBox([instance_info, button_box])
+					instance_box = widgets.VBox([instance_info1, instance_info2, button_box])
 
 					#adds it to list of childeren for accordian
 					accordion_children.append(instance_box)
@@ -109,11 +123,6 @@ def render_cloud_interface(cloud_list):
 					#===================================================#
 
 					selected_instance = ''
-
-					def create_button_clicked(b):
-						service = cloud_arr[selected_service]
-						# user_interfaces.CreateInterface.render_create_interface(cloud_list)
-						# service.create_instance()
 
 					#terminate instance button handler
 					def terminate_button_clicked(b):
@@ -140,7 +149,6 @@ def render_cloud_interface(cloud_list):
 						service.reboot_instance(selected_instance)
 						
 
-					button.on_click(create_button_clicked)
 					toggle_button.on_click(toggle_button_clicked)
 					terminate_button.on_click(terminate_button_clicked)
 					reboot_button.on_click(reboot_button_clicked)
@@ -168,9 +176,18 @@ def render_cloud_interface(cloud_list):
 		tab_title = service.type.split(" ")
 		tab_nest.set_title(tab_index, tab_title[0])
 		tab_index += 1
-
+	
 	display(tab_nest)
+	
+	# button = widgets.Button(description="Create Instance")
+	# display(button)
+	# button.on_click(create_button_clicked)
 	#sets global selected instance to currently selected instance
 	selected_service = tab_nest.selected_index
+	title = widgets.HTML("<h3>Create a new instance</h3>")
+	display(title)
+	user_interfaces.CreateInterface.render_create_interface(cloud_list)
+
+	
 
 	

@@ -10,7 +10,7 @@ warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 
 
 #===================================================#
-#--------------Create-Interface-Function---------------#
+#--------------Create-Interface-Function------------#
 #===================================================#
 def render_create_interface(cloud_list):
 
@@ -24,6 +24,8 @@ def render_create_interface(cloud_list):
 		group_name = instance['Group Name']
 		if group_name not in group_list and group_name != '':
 			group_list.append(group_name)
+
+	group_list.sort(key=str.lower)
 
 	group_dropdown = widgets.Dropdown(
 		options = group_list,
