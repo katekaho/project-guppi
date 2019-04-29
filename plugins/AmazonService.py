@@ -30,7 +30,7 @@ class AmazonService(LocalBaseClass):
 		#return False
 		return self.configured
 		
-	def create_instance(self,group,size):
+	def create_instance(self,group,size,num):
 		tags = [
 			# {'Key':'Name','Value': group + str(random.randint(10000,99999))},
 			{'Key':'Group','Value': group},
@@ -40,8 +40,8 @@ class AmazonService(LocalBaseClass):
 
 		self.ec2.create_instances(
 			ImageId='ami-082c116bf79a9feef',
-			MinCount=1,
-			MaxCount=1,
+			MinCount=num,
+			MaxCount=num,
 			InstanceType= size,
 			KeyName='key',
 			TagSpecifications= tag_specification,

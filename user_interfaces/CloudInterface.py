@@ -21,7 +21,7 @@ def render_cloud_interface(cloud_list):
 	cloud_arr = cloud_list
 	tab_list = []
 	accordion_arr = []
-	ctitle = widgets.HTML("<h3>Instances</h3>")
+	ctitle = widgets.HTML("<h4>Instances</h4>")
 	display(ctitle)
 
 
@@ -184,7 +184,7 @@ def render_cloud_interface(cloud_list):
 	# button.on_click(create_button_clicked)
 	#sets global selected instance to currently selected instance
 	selected_service = tab_nest.selected_index
-	title = widgets.HTML("<h3>Create a new instance</h3>")
+	title = widgets.HTML("<h4>Create a new instance</h4>")
 	display(title)
 	user_interfaces.CreateInterface.render_create_interface(cloud_list)
 

@@ -59,6 +59,15 @@ def render_create_interface(cloud_list):
 		value = 't2.micro',
 	)
 
+	num_instances = widgets.BoundedIntText(
+		value=1,
+		min=1,
+		max=20,
+		step=1,
+		description='How Many?',
+		disabled=False
+	)
+
 	create_button = widgets.Button(
 		description='Create Instance'
 	)
@@ -75,14 +84,15 @@ def render_create_interface(cloud_list):
 			if(group == "Create Group"):
 				group = new_group_text.value
 
-			service.create_instance(group,size_dropdown.value)
+			service.create_instance(group,size_dropdown.value,num_instances.value)
 		
 
 	create_button.on_click(create_button_clicked)
 
-	size_region_row = [size_dropdown,create_button]
+	size_region_row = [size_dropdown,num_instances]
 	sr_row = widgets.HBox(size_region_row)
 	display(sr_row)
+	display(create_button)
 
 
 
