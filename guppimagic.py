@@ -53,10 +53,15 @@ class GuppiMagic(Magics):
 		args = magic_arguments.parse_argstring(self.guppi, line)
 
 		if(len(args.arguments) > 0):
-
+			# ssh service
 			if(args.arguments[0] == 'ssh'):
-				user_interfaces.SshInterface.render_ssh_interface(self.cloud_list)
+				verbose = False
+				if (len(args.arguments) != 1):
+					if args.arguments[1] == 'v':
+						verbose = True
+				user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, verbose)
 			
+			# create instance
 			elif(args.arguments[0] == 'create'):
 				user_interfaces.CreateInterface.render_create_interface(self.cloud_list)
 

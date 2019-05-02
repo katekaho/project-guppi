@@ -8,13 +8,15 @@ from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label
 import plugins
 import paramiko
 import warnings
+import threading
+
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 
 
 #===================================================#
 #--------------SSH-Interface-Function---------------#
 #===================================================#
-def render_ssh_interface(cloud_list):
+def render_ssh_interface(cloud_list, verbose):
 	title = widgets.HTML("<h4>SSH into instances </h4>")
 	display(title)
 	instances = cloud_list[0].get_instances_info()
@@ -27,13 +29,13 @@ def render_ssh_interface(cloud_list):
 
 	group_list.sort(key=str.lower)
 	tab_arr = []
-	layout_arr = render_group(instances,'All Instances')
+	layout_arr = render_group(instances,'All Instances', verbose)
 	tab_child = widgets.VBox(layout_arr)
 	tab_arr.append(tab_child)
 
 	tab = widgets.Tab()
 	for group_name in group_list:
-		layout_arr = render_group(instances,group_name)
+		layout_arr = render_group(instances,group_name, verbose)
 		tab_child = widgets.VBox(layout_arr)
 		tab_arr.append(tab_child)
 	
@@ -46,7 +48,7 @@ def render_ssh_interface(cloud_list):
 	display(tab)
 	
 
-def render_group(instances,group_name):
+def render_group(instances,group_name, verbose):
 	group_layout_arr = []
 
 	# box_layout = widgets.Layout(
@@ -128,40 +130,66 @@ def render_group(instances,group_name):
 	#===================================================#
 
 	def submit_button_clicked(b):
+		print("Running please wait...")
+		threadDataList = []
+		threadErrorList = []
+		def ssh(commands, instanceId):
+			Dns = ''
+			for vm in instances:
+				if(checkbox.description == vm['Instance Id'] or checkbox.description == vm['Name']):
+					Dns = vm['Dns']
+			
+			ssh = paramiko.SSHClient()
+			ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+			ssh.connect(Dns,
+					username='ec2-user',
+					key_filename='key.pem')
+		
+			stdin, stdout, stderr = ssh.exec_command(commands)
+			stdin.flush()
+			data = []
+			data.append("=======================================================")
+			data.append(instanceId)
+			data.append("=======================================================")
+			data.append(stdout.read().splitlines())
+			errors = stderr.read().splitlines()
+			if(len(errors) == 0):
+				data.append("Successfully ran " + str(len(commands)) + " commands\n")
+
+			threadDataList.append(data)
+			ssh.close()
+
+			if(len(errors) == 0):
+				numOfCommands = len(commands) - 2
+				if numOfCommands == 1:
+					errors.append("Successfully ran 1 command on " + instanceId)
+				else:
+					errors.append("Successfully ran " + str(numOfCommands) + " commands on " + instanceId)
+
+			threadErrorList.append(errors)
+		
+		threadList = []
 		for checkbox in box_list:
 			if(checkbox.value == True):
-				print("=======================================================")
-				print(checkbox.description)
-				print("=======================================================")
-				Dns = ''
-				for vm in instances:
-					if(checkbox.description == vm['Instance Id'] or checkbox.description == vm['Name']):
-						Dns = vm['Dns']
-				ssh = paramiko.SSHClient()
-				ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-				ssh.connect(Dns,
-						username='ec2-user',
-						key_filename='key.pem')
-				commands = command_area.value
-			
-				stdin, stdout, stderr = ssh.exec_command(commands)
-				stdin.flush()
-				data = stdout.read().splitlines()
-				
-				errors = stderr.read().splitlines()
+				thread = threading.Thread(target=ssh, args=(command_area.value,checkbox.description)) 
+				threadList.append(thread)
+				# ssh(command_area.value,checkbox.description)
 
+		for thread in threadList:
+			thread.start()
+
+		for thread in threadList:
+			thread.join()
+		
+		if verbose:		
+			for data in threadDataList:
+				for output_line in data:
+					print(output_line)
+		else:
+			for errors in threadErrorList:
 				for output_line in errors:
 					print(output_line)
 
-				print("")
-
-				for output_line in data:
-					print(output_line)
-				ssh.close()
-				print("")
-				if(len(errors) == 0):
-					print("Successfully ran "+ commands + " on " + checkbox.description)
-					print("")
 
 	
 	def select_button_clicked(b):
