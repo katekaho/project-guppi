@@ -59,7 +59,8 @@ def render_create_interface(cloud_list):
 		# options = google_size_list,
 		options = size_list,
 		description= "Size: ",
-		value = 'n1-standard-1',
+		value = 't2.micro',
+		# value = 'n1-standard-1',
 	)
 
 	num_instances = widgets.BoundedIntText(
