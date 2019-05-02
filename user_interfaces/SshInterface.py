@@ -130,10 +130,11 @@ def render_group(instances,group_name, verbose):
 	#===================================================#
 
 	def submit_button_clicked(b):
-		print("Running please wait...")
+		print("Running, please wait...")
 		threadDataList = []
 		threadErrorList = []
 		def ssh(commands, instanceId):
+			print(instanceId)
 			Dns = ''
 			for vm in instances:
 				if(checkbox.description == vm['Instance Id'] or checkbox.description == vm['Name']):
@@ -152,19 +153,26 @@ def render_group(instances,group_name, verbose):
 			data.append(instanceId)
 			data.append("=======================================================")
 			data.append(stdout.read().splitlines())
+			errors = []
+			errors.append("=======================================================")
+			errors.append(instanceId)
+			errors.append("=======================================================")
 			errors = stderr.read().splitlines()
-			if(len(errors) == 0):
+			
+			if(len(errors) == 3):
 				data.append("Successfully ran " + str(len(commands)) + " commands\n")
 
 			threadDataList.append(data)
 			ssh.close()
 
-			if(len(errors) == 0):
+
+
+			if(len(errors) == 3):
 				numOfCommands = len(commands) - 2
 				if numOfCommands == 1:
-					errors.append("Successfully ran 1 command on " + instanceId)
+					errors.append("Successfully ran 1 command")
 				else:
-					errors.append("Successfully ran " + str(numOfCommands) + " commands on " + instanceId)
+					errors.append("Successfully ran " + str(numOfCommands) + "commands")
 
 			threadErrorList.append(errors)
 		
@@ -173,7 +181,6 @@ def render_group(instances,group_name, verbose):
 			if(checkbox.value == True):
 				thread = threading.Thread(target=ssh, args=(command_area.value,checkbox.description)) 
 				threadList.append(thread)
-				# ssh(command_area.value,checkbox.description)
 
 		for thread in threadList:
 			thread.start()
