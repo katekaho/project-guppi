@@ -134,7 +134,6 @@ def render_group(instances,group_name, verbose):
 		threadDataList = []
 		threadErrorList = []
 		def ssh(commands, instanceId):
-			print(instanceId)
 			Dns = ''
 			for vm in instances:
 				if(checkbox.description == vm['Instance Id'] or checkbox.description == vm['Name']):
@@ -157,22 +156,23 @@ def render_group(instances,group_name, verbose):
 			errors.append("=======================================================")
 			errors.append(instanceId)
 			errors.append("=======================================================")
-			errors = stderr.read().splitlines()
 			
-			if(len(errors) == 3):
-				data.append("Successfully ran " + str(len(commands)) + " commands\n")
+			realErrors = stderr.read().splitlines()
+			numOfCommands = len(commands) - 2
+			if len(realErrors) == 0:
+				data.append("Successfully ran " + str(numOfCommands) + " commands\n")
+			else:
+				for line in realErrors:
+					errors.append(line)
 
 			threadDataList.append(data)
 			ssh.close()
 
-
-
 			if(len(errors) == 3):
-				numOfCommands = len(commands) - 2
 				if numOfCommands == 1:
 					errors.append("Successfully ran 1 command")
 				else:
-					errors.append("Successfully ran " + str(numOfCommands) + "commands")
+					errors.append("Successfully ran " + str(numOfCommands) + " commands")
 
 			threadErrorList.append(errors)
 		
@@ -180,10 +180,8 @@ def render_group(instances,group_name, verbose):
 		for checkbox in box_list:
 			if(checkbox.value == True):
 				thread = threading.Thread(target=ssh, args=(command_area.value,checkbox.description)) 
+				thread.start()
 				threadList.append(thread)
-
-		for thread in threadList:
-			thread.start()
 
 		for thread in threadList:
 			thread.join()
