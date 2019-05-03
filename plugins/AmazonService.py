@@ -151,6 +151,18 @@ class AmazonService(LocalBaseClass):
 		else:
 			print("Please rerun %guppi cloud to reflect changes")
 			print("You can only reboot instances that are  \"Running\" ")
+
+	def update_group(self, instance_id, group_name):
+		self.ec2.create_tags(
+			Resources=instance_id,
+			Tags=[
+				{
+					'Key': 'Group',
+					'Value': group_name
+				}
+			]
+		)
+		print("Please refresh cell to reflect change.")
 	
 if __name__ == '__main__':
 	print('SubClass:', issubclass(AmazonService,

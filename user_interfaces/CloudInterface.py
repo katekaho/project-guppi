@@ -52,7 +52,7 @@ def render_group(service,instances,group_name):
 
 	for instance in instances:
 		if(instance['Group Name'] == group_name or group_name == 'All Instances'):
-			accordion_child = render_instance_info(service,instance,index)
+			accordion_child = render_instance_info(service,instance,index,instances)
 			accordion_children.append(accordion_child)
 		index += 1
 
@@ -77,11 +77,11 @@ def render_group(service,instances,group_name):
 
 	return group_widget_list
 
-def render_instance_info(service,instance_info,index):
+def render_instance_info(service,instance_info,index,instances):
 	
 
 	#appends all info into array of labels
-	info1 = ["<b>Group:</b>", instance_info['Group Name'],"<b>Instance Type:</b>", instance_info['Instance Type'] ,"<b>Availability Zone:</b>", instance_info['Availability Zone']]
+	info1 = ["<b>Instance Type:</b>", instance_info['Instance Type'] ,"<b>Availability Zone:</b>", instance_info['Availability Zone']]
 
 	info2 = ["<b>State:<b>" , instance_info['State'], "<b>Public DNS:<b>", instance_info['Dns']]
 
@@ -91,6 +91,28 @@ def render_instance_info(service,instance_info,index):
 
 	items2 = [widgets.HTML(str(i)) for i in info2]
 	instance_info2 = widgets.HBox(items2)
+
+	group_list = []
+
+	for instance in instances:
+		if instance['Group Name'] not in group_list:
+			group_list.append(instance['Group Name'])
+	
+	#group dropdown
+	group_dropdown = widgets.Dropdown(
+		options = group_list,
+		value=instance_info['Group Name'],
+		description='Group:',
+		disabled=False,
+	)
+
+	instance_list = []
+	instance_list.append(instance_info['Instance Id'])
+
+	def on_change(change):
+		service.update_group(instance_list, group_dropdown.value)
+
+	group_dropdown.observe(on_change)
 
 	#buttons
 	if(instance_info['State'] == "running"): 
@@ -134,7 +156,7 @@ def render_instance_info(service,instance_info,index):
 	button_box = widgets.HBox(buttons)
 
 	#puts info and buttons into vBox
-	instance_box = widgets.VBox([instance_info1, instance_info2, button_box])
+	instance_box = widgets.VBox([instance_info1, group_dropdown, instance_info2, button_box])
 
 	#===================================================#
 	#-----------------Button-Functions------------------#
