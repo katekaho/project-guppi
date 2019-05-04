@@ -162,7 +162,7 @@ class AmazonService(LocalBaseClass):
 				}
 			]
 		)
-		print("Please refresh cell to reflect change.")
+		# print("Please refresh cell to reflect change.")
 	
 if __name__ == '__main__':
 	print('SubClass:', issubclass(AmazonService,

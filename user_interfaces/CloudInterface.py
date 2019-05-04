@@ -81,13 +81,13 @@ def render_instance_info(service,instance_info,index,instances):
 	
 
 	#appends all info into array of labels
-	info1 = ["<b>Instance Type:</b>", instance_info['Instance Type'] ,"<b>Availability Zone:</b>", instance_info['Availability Zone']]
+	info1 = ["<b>Instance Type:</b>", instance_info['Instance Type'] ,"<b>Availability Zone:</b>", instance_info['Availability Zone'],"<b>Group:<b>"]
 
 	info2 = ["<b>State:<b>" , instance_info['State'], "<b>Public DNS:<b>", instance_info['Dns']]
 
 	#makes each label html and puts into HBox
 	items1 = [widgets.HTML(str(i)) for i in info1]
-	instance_info1 = widgets.HBox(items1)
+	
 
 	items2 = [widgets.HTML(str(i)) for i in info2]
 	instance_info2 = widgets.HBox(items2)
@@ -102,17 +102,21 @@ def render_instance_info(service,instance_info,index,instances):
 	group_dropdown = widgets.Dropdown(
 		options = group_list,
 		value=instance_info['Group Name'],
-		description='Group:',
 		disabled=False,
+		layout=widgets.Layout(width='20%'),
 	)
+	items1.append(group_dropdown)
+
+	
+
+	instance_info1 = widgets.HBox(items1)
 
 	instance_list = []
 	instance_list.append(instance_info['Instance Id'])
 
-	def on_change(change):
-		service.update_group(instance_list, group_dropdown.value)
+	
 
-	group_dropdown.observe(on_change)
+	
 
 	#buttons
 	if(instance_info['State'] == "running"): 
@@ -156,7 +160,7 @@ def render_instance_info(service,instance_info,index,instances):
 	button_box = widgets.HBox(buttons)
 
 	#puts info and buttons into vBox
-	instance_box = widgets.VBox([instance_info1, group_dropdown, instance_info2, button_box])
+	instance_box = widgets.VBox([instance_info1, instance_info2, button_box])
 
 	#===================================================#
 	#-----------------Button-Functions------------------#
@@ -173,6 +177,11 @@ def render_instance_info(service,instance_info,index,instances):
 	#terminate instance button handler
 	def reboot_button_clicked(b):
 		service.reboot_instance(index)
+
+	def on_change(change):
+		service.update_group(instance_list, group_dropdown.value)
+
+	group_dropdown.observe(on_change)
 
 	toggle_button.on_click(toggle_button_clicked)
 	terminate_button.on_click(terminate_button_clicked)

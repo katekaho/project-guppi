@@ -1,6 +1,6 @@
 from IPython.core import magic_arguments
 from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, magics_class
-from IPython.display import HTML, display, FileLink
+from IPython.display import HTML, display, FileLink, clear_output
 import ipywidgets as widgets
 from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label, IntSlider
 
@@ -136,7 +136,7 @@ def render_group(instances,group_name, verbose):
 		def ssh(commands, instanceId):
 			Dns = ''
 			for vm in instances:
-				if(checkbox.description == vm['Instance Id'] or checkbox.description == vm['Name']):
+				if(instanceId == vm['Instance Id'] or instanceId == vm['Name']):
 					Dns = vm['Dns']
 			
 			ssh = paramiko.SSHClient()
