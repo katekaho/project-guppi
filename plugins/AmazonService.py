@@ -47,7 +47,6 @@ class AmazonService(LocalBaseClass):
 			TagSpecifications= tag_specification,
 		)
 		print("Instance Created.")
-		print("Rerun %guppi cloud to display.")
 	
 	def get_instances_info(self):
 		response = self.ec2_client.describe_instances()

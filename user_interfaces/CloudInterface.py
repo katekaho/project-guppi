@@ -1,6 +1,6 @@
 from IPython.core import magic_arguments
 from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, magics_class
-from IPython.display import HTML, display, FileLink
+from IPython.display import HTML, display, FileLink, clear_output
 import ipywidgets as widgets
 from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label, IntSlider
 
@@ -180,8 +180,10 @@ def render_instance_info(service,instance_info,index,instances):
 
 	def on_change(change):
 		service.update_group(instance_list, group_dropdown.value)
+		print("Changed group to " + group_dropdown.value)
+		print("Rerun %guppi cloud to display")
 
-	group_dropdown.observe(on_change)
+	group_dropdown.observe(on_change, names='value')
 
 	toggle_button.on_click(toggle_button_clicked)
 	terminate_button.on_click(terminate_button_clicked)
