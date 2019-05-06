@@ -25,13 +25,13 @@ def render_cloud_interface(cloud_list):
 
 	group_list.sort(key=str.lower)
 	tab_arr = []
-	layout_arr = render_group(service,instances,'All Instances')
+	layout_arr = render_group(service,instances,'All Instances', cloud_list)
 	tab_child = widgets.VBox(layout_arr)
 	tab_arr.append(tab_child)
 
 	tab = widgets.Tab()
 	for group_name in group_list:
-		layout_arr = render_group(service,instances,group_name)
+		layout_arr = render_group(service,instances,group_name, cloud_list)
 		tab_child = widgets.VBox(layout_arr)
 		tab_arr.append(tab_child)
 	
@@ -44,7 +44,7 @@ def render_cloud_interface(cloud_list):
 	display(tab)
 	
 
-def render_group(service,instances,group_name):
+def render_group(service,instances, group_name, cloud_list):
 	group_widget_list = []
 
 	accordion_children = []
@@ -52,7 +52,7 @@ def render_group(service,instances,group_name):
 
 	for instance in instances:
 		if(instance['Group Name'] == group_name or group_name == 'All Instances'):
-			accordion_child = render_instance_info(service,instance,index,instances)
+			accordion_child = render_instance_info(service, instance, index, instances, cloud_list)
 			accordion_children.append(accordion_child)
 		index += 1
 
@@ -77,7 +77,7 @@ def render_group(service,instances,group_name):
 
 	return group_widget_list
 
-def render_instance_info(service,instance_info,index,instances):
+def render_instance_info(service, instance_info, index, instances, cloud_list):
 	
 
 	#appends all info into array of labels
@@ -168,15 +168,24 @@ def render_instance_info(service,instance_info,index,instances):
 	#terminate instance button handler
 	def terminate_button_clicked(b):
 		service.terminate_instance(index)
+		# refresh cell
+		clear_output()
+		render_cloud_interface(cloud_list)
 
 
 	#toggle instance button handler
 	def toggle_button_clicked(b):
 		service.toggle_instance(index)
+		# refresh cell
+		clear_output()
+		render_cloud_interface(cloud_list)
 
 	#terminate instance button handler
 	def reboot_button_clicked(b):
 		service.reboot_instance(index)
+		# refresh cell
+		clear_output()
+		render_cloud_interface(cloud_list)
 
 	def on_change(change):
 		service.update_group(instance_list, group_dropdown.value)
