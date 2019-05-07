@@ -60,7 +60,10 @@ class GuppiMagic(Magics):
 				if (len(args.arguments) != 1):
 					if args.arguments[1] == 'v':
 						verbose = True
+					#else:
+					#	self.service.getInstanceInfo()
 				user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, self.cloud_index, verbose)
+			
 			
 			# create instance
 			elif(args.arguments[0] == 'create'):

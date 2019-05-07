@@ -167,23 +167,23 @@ def render_instance_info(service, instance_info, index, instances, cloud_list):
 	def terminate_button_clicked(b):
 		service.terminate_instance(index)
 		# refresh cell
-		clear_output()
-		render_cloud_interface(cloud_list)
+		# clear_output()
+		# render_cloud_interface(cloud_list, 0)
 
 
 	#toggle instance button handler
 	def toggle_button_clicked(b):
 		service.toggle_instance(index)
 		# refresh cell
-		clear_output()
-		render_cloud_interface(cloud_list)
+		# clear_output()
+		# render_cloud_interface(cloud_list, 0)
 
 	#terminate instance button handler
 	def reboot_button_clicked(b):
 		service.reboot_instance(index)
 		# refresh cell
-		clear_output()
-		render_cloud_interface(cloud_list)
+		# clear_output()
+		# render_cloud_interface(cloud_list, 0)
 
 	def on_change(change):
 		service.update_group(instance_list, group_dropdown.value)

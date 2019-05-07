@@ -9,7 +9,6 @@ import plugins
 import paramiko
 import warnings
 import threading
-import io
 
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 
@@ -102,15 +101,14 @@ def ssh(instances, commands, verbose):
 			for output_line in errors:
 				print(output_line)
 
-
+				
 #===================================================#
 #--------------SSH-Interface-Function---------------#
 #===================================================#
-def render_ssh_interface(cloud_list, cloud_index, verbose):
+def render_ssh_interface(cloud_list, verbose):
 	title = widgets.HTML("<h4>SSH into instances </h4>")
 	display(title)
-	service = cloud_list[cloud_index]
-	instances = service.get_instances_info()
+	instances = cloud_list[0].get_instances_info()
 	group_list = []
 
 	for instance in instances:
@@ -120,13 +118,13 @@ def render_ssh_interface(cloud_list, cloud_index, verbose):
 
 	group_list.sort(key=str.lower)
 	tab_arr = []
-	layout_arr = render_group(instances,'All Instances', verbose, cloud_index)
+	layout_arr = render_group(instances,'All Instances', verbose)
 	tab_child = widgets.VBox(layout_arr)
 	tab_arr.append(tab_child)
 
 	tab = widgets.Tab()
 	for group_name in group_list:
-		layout_arr = render_group(instances,group_name, verbose, cloud_index)
+		layout_arr = render_group(instances,group_name, verbose)
 		tab_child = widgets.VBox(layout_arr)
 		tab_arr.append(tab_child)
 	
@@ -139,17 +137,8 @@ def render_ssh_interface(cloud_list, cloud_index, verbose):
 	display(tab)
 	
 
-def render_group(instances, group_name, verbose, cloud_index):
+def render_group(instances, group_name, verbose):
 	group_layout_arr = []
-
-	# box_layout = widgets.Layout(
-	# 		border='solid 1px',
-	# 		# padding='0.5em',
-	# 		margin='0.5em',
-	# 		width = '28%',
-			
-		# )
-	# instances = cloud_list[0].get_instances_info()
 	box_list = []
 	instance_boxes = []
 
@@ -213,115 +202,24 @@ def render_group(instances, group_name, verbose, cloud_index):
 		# display(command_box)
 		group_layout_arr.append(command_box)
 		
-
 	
+
 
 	#===================================================#
 	#-----------------Button-Functions------------------#
 	#===================================================#
 
-	def submit_button_clicked(b):
-		# clear_output()
-		print("Running, please wait...")
-		
-		# threadOutputList contains list of all shell outputs
-		threadOutputList = []
-		
-		# threadErrorList contains list of all shell errors
-		threadErrorList = []
-		
-		# ssh gets called by each thread
-		def ssh(commands, instanceId):
-			# print(instances)
-			# set the dns for each instance
-			Dns = ''
-			for vm in instances:
-				if(instanceId == vm['Instance Id'] or instanceId == vm['Name']):
-					Dns = vm['Dns']
-			
-			# ssh in and run commands
-			ssh = paramiko.SSHClient()
-			ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-			
-			# refactor: get username and key from service file
-			if(cloud_index == 0):
-				ssh.connect(Dns,
-						username='ec2-user',
-						key_filename='key.pem')
-			elif(cloud_index == 1):
-				f = open('gc_rsa.pem','r')
-				s = f.read()
-				keyfile = io.StringIO(s)
-				mykey = paramiko.RSAKey.from_private_key(keyfile)
-				ssh.connect(Dns,
-						username='project_guppi_gmail_com',
-						pkey=mykey)
-		
-			stdin, stdout, stderr = ssh.exec_command(commands)
-			stdin.flush()
-			
-			# create list of all lines of output
-			outputList = []
-			outputList.append("=======================================================")
-			outputList.append(instanceId)
-			outputList.append("=======================================================")
-			for line in stdout.read().splitlines():
-				outputList.append(line)
-			# create list of all lines of errors
-			errorList = []
-			errorList.append("=======================================================")
-			errorList.append(instanceId)
-			errorList.append("=======================================================")
-			errorOutput = stderr.read().splitlines()
-			numOfCommands = len(commands.split(" "))
-			
-			# if no errors append "successfully run" to output and error lists
-			if len(errorOutput) == 0:
-				if numOfCommands == 1:
-					errorList.append("Successfully ran 1 command\n")
-					outputList.append("Successfully ran 1 command\n")
-				else:
-					errorList.append("Successfully ran " + str(numOfCommands) + " commands\n")
-					outputList.append("Successfully ran " + str(numOfCommands) + " commands\n")
-			
-			# append errors to the errorList
-			for line in errorOutput:
-				errorList.append(line)
-
-			# append errorList to threadErrors
-			threadErrorList.append(errorList)
-
-			# append outputList to the threadOutputs
-			threadOutputList.append(outputList)
-			
-			# disconnect from instance
-			ssh.close()
-		
-		# theadList will contain a thread for each instance
-		threadList = []
-		
+	def submit_button_clicked(b):	
 		# for each checked instance create a thread
+		instanceIds = []
 		for checkbox in box_list:
 			if(checkbox.value == True):
-				thread = threading.Thread(target=ssh, args=(command_area.value,checkbox.description)) 
-				thread.start()
-				threadList.append(thread)
-
-		# wait for each thread to finish
-		for thread in threadList:
-			thread.join()
-		
-		# if verbose flag is used print output from each instance shell
-		if verbose:		
-			for data in threadOutputList:
-				for output_line in data:
-					print(output_line)
-		# else just print errors from each instance shell
-		else:
-			for errors in threadErrorList:
-				for output_line in errors:
-					print(output_line)
-
+				instanceIds.append(checkbox.description)
+		sshInstances = []
+		for instance in instances:
+			if instance['Instance Id'] in instanceIds:
+				sshInstances.append(instance)
+		ssh(sshInstances, command_area.value, verbose)
 
 	
 	def select_button_clicked(b):
