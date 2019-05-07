@@ -45,3 +45,8 @@ class PluginBase(ABC):
 		# Returns default size value
 		pass	
 	
+	@abstractmethod
+	def get_user_and_keyname(self):
+		# Returns username and keyname for ssh
+		pass	
+	

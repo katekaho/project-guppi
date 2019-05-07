@@ -194,3 +194,6 @@ class GoogleService():
 
 	def get_default_size(self):
 		return 'n1-standard-1'
+	
+	def get_user_and_keyname(self):
+		return ['project_guppi_gmail_com', 'gc_rsa.pem']

@@ -120,13 +120,13 @@ def render_ssh_interface(cloud_list, cloud_index, verbose):
 
 	group_list.sort(key=str.lower)
 	tab_arr = []
-	layout_arr = render_group(instances,'All Instances', verbose, cloud_index)
+	layout_arr = render_group(instances,'All Instances', verbose, cloud_index, service)
 	tab_child = widgets.VBox(layout_arr)
 	tab_arr.append(tab_child)
 
 	tab = widgets.Tab()
 	for group_name in group_list:
-		layout_arr = render_group(instances,group_name, verbose, cloud_index)
+		layout_arr = render_group(instances,group_name, verbose, cloud_index, service)
 		tab_child = widgets.VBox(layout_arr)
 		tab_arr.append(tab_child)
 	
@@ -139,7 +139,7 @@ def render_ssh_interface(cloud_list, cloud_index, verbose):
 	display(tab)
 	
 
-def render_group(instances, group_name, verbose, cloud_index):
+def render_group(instances, group_name, verbose, cloud_index, service):
 	group_layout_arr = []
 
 	# box_layout = widgets.Layout(
@@ -242,20 +242,13 @@ def render_group(instances, group_name, verbose, cloud_index):
 			# ssh in and run commands
 			ssh = paramiko.SSHClient()
 			ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+			user_and_key = service.get_user_and_keyname()
+
+			ssh.connect(Dns,
+						username=user_and_key[0],
+						key_filename=user_and_key[1])
 			
-			# refactor: get username and key from service file
-			if(cloud_index == 0):
-				ssh.connect(Dns,
-						username='ec2-user',
-						key_filename='key.pem')
-			elif(cloud_index == 1):
-				f = open('gc_rsa.pem','r')
-				s = f.read()
-				keyfile = io.StringIO(s)
-				mykey = paramiko.RSAKey.from_private_key(keyfile)
-				ssh.connect(Dns,
-						username='project_guppi_gmail_com',
-						pkey=mykey)
 		
 			stdin, stdout, stderr = ssh.exec_command(commands)
 			stdin.flush()

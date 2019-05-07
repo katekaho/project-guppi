@@ -170,6 +170,9 @@ class AmazonService(LocalBaseClass):
 	def get_default_size(self):
 		return 't2.micro'
 	
+	def get_user_and_keyname(self):
+		return ['ec2-user', 'key.pem']
+	
 if __name__ == '__main__':
 	print('SubClass:', issubclass(AmazonService,
 								PluginBase))
