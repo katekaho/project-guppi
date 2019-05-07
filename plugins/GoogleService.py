@@ -127,6 +127,9 @@ class GoogleService():
 				state = 'shutting-down'
 			tags = instance.get('tags')
 			items = tags.get('items')
+			networkInterfaces = instance.get('networkInterfaces', [])
+			accessConfigs = networkInterfaces[0].get('accessConfigs', [])
+			externalIP = accessConfigs[0].get('natIP', '0')
 			formatInst = {
 				'Name': instance.get('name', ''),
 				'Instance Id': instance.get('name', ''), # using name instead for now
@@ -135,7 +138,8 @@ class GoogleService():
 				'State': state,
 				'Key Name': '',
 				'Launch Time': instance.get('creationTimestamp', ''),
-				'Dns': '',
+				'Dns': externalIP,
+				'External IP': externalIP,
 				'Group Name': items[0]
 			}
 			
@@ -184,3 +188,9 @@ class GoogleService():
 				instance=name).execute()
 		print("Instance Rebooted.")
 		print("Rerun %guppi cloud to update.")
+	
+	def get_size_list(self):
+		return ['n1-standard-1','n1-standard-2','n1-standard-4','n1-standard-8','n1-standard-16','n1-standard-32','n1-standard-64','n1-standard-96','n1-highmem-2','n1-highmem-4','n1-highmem-8','n1-highmem-16','n1-highmem-32','n1-highmem-64','n1-highmem-96','n1-highcpu-2','n1-highcpu-4','n1-highcpu-8','n1-highcpu-16','n1-highcpu-32','n1-highcpu-64','n1-highcpu-96','f1-micro','g1-small','n1-ultramem-40','n1-ultramem-80','n1-ultramem-160','n1-megamem-96']
+
+	def get_default_size(self):
+		return 'n1-standard-1'

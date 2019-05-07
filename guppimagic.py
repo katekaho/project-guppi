@@ -35,6 +35,7 @@ class GuppiMagic(Magics):
 			python_files.append(python_file)
 
 	cloud_list = []
+	cloud_index = 0
 	file_name = None
 	module_name = None
 	mod_class = None
@@ -59,16 +60,30 @@ class GuppiMagic(Magics):
 				if (len(args.arguments) != 1):
 					if args.arguments[1] == 'v':
 						verbose = True
-				user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, verbose)
+				user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, self.cloud_index, verbose)
 			
 			# create instance
 			elif(args.arguments[0] == 'create'):
-				user_interfaces.CreateInterface.render_create_interface(self.cloud_list)
+				user_interfaces.CreateInterface.render_create_interface(self.cloud_list, self.cloud_index)
+			
+			# switch service
+			elif(args.arguments[0] == 'switch'):
+				if(len(args.arguments) < 3 and len(args.arguments) > 1):
+					i = 0
+					for file_name in self.python_files:
+						if(args.arguments[1] == file_name):
+							self.cloud_index = i
+							print('set cloud interactions to '+file_name)
+						i = i+1
+				else:
+					print("Not a valid command, type guppi switch followed by the service provider, valid services:")
+					for file_name in self.python_files:
+						print(file_name)
 
 			# cloud services
 			elif(args.arguments[0] == 'cloud'):
 				if(len(args.arguments) < 2):
-					user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list)
+					user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list, self.cloud_index)
 				else:
 					print(args.arguments[1] +" is not a cloud command, for usage, use %guppi help")
 				

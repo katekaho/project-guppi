@@ -7,15 +7,13 @@ from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label
 #===================================================#
 #--------------SSH-Interface-Function---------------#
 #===================================================#
-def render_cloud_interface(cloud_list):
-	service = cloud_list[0]
-	# service = cloud_list[1]
+def render_cloud_interface(cloud_list, cloud_index):
+	service = cloud_list[cloud_index]
 	service_name = service.type
 	title = widgets.HTML("<h4>"+service_name+" Instances</h4>")
 	display(title)
 
-	instances = cloud_list[0].get_instances_info()
-	# instances = cloud_list[1].get_instances_info()
+	instances = cloud_list[cloud_index].get_instances_info()
 	group_list = []
 
 	for instance in instances:

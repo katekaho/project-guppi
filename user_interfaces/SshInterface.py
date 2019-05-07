@@ -9,17 +9,18 @@ import plugins
 import paramiko
 import warnings
 import threading
+import io
 
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
-
 
 #===================================================#
 #--------------SSH-Interface-Function---------------#
 #===================================================#
-def render_ssh_interface(cloud_list, verbose):
+def render_ssh_interface(cloud_list, cloud_index, verbose):
 	title = widgets.HTML("<h4>SSH into instances </h4>")
 	display(title)
-	instances = cloud_list[0].get_instances_info()
+	service = cloud_list[cloud_index]
+	instances = service.get_instances_info()
 	group_list = []
 
 	for instance in instances:
@@ -29,13 +30,13 @@ def render_ssh_interface(cloud_list, verbose):
 
 	group_list.sort(key=str.lower)
 	tab_arr = []
-	layout_arr = render_group(instances,'All Instances', verbose)
+	layout_arr = render_group(instances,'All Instances', verbose, cloud_index)
 	tab_child = widgets.VBox(layout_arr)
 	tab_arr.append(tab_child)
 
 	tab = widgets.Tab()
 	for group_name in group_list:
-		layout_arr = render_group(instances,group_name, verbose)
+		layout_arr = render_group(instances,group_name, verbose, cloud_index)
 		tab_child = widgets.VBox(layout_arr)
 		tab_arr.append(tab_child)
 	
@@ -48,7 +49,7 @@ def render_ssh_interface(cloud_list, verbose):
 	display(tab)
 	
 
-def render_group(instances,group_name, verbose):
+def render_group(instances, group_name, verbose, cloud_index):
 	group_layout_arr = []
 
 	# box_layout = widgets.Layout(
@@ -141,6 +142,7 @@ def render_group(instances,group_name, verbose):
 		
 		# ssh gets called by each thread
 		def ssh(commands, instanceId):
+			# print(instances)
 			# set the dns for each instance
 			Dns = ''
 			for vm in instances:
@@ -150,9 +152,20 @@ def render_group(instances,group_name, verbose):
 			# ssh in and run commands
 			ssh = paramiko.SSHClient()
 			ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-			ssh.connect(Dns,
-					username='ec2-user',
-					key_filename='key.pem')
+			
+			# refactor: get username and key from service file
+			if(cloud_index == 0):
+				ssh.connect(Dns,
+						username='ec2-user',
+						key_filename='key.pem')
+			elif(cloud_index == 1):
+				f = open('gc_rsa.pem','r')
+				s = f.read()
+				keyfile = io.StringIO(s)
+				mykey = paramiko.RSAKey.from_private_key(keyfile)
+				ssh.connect(Dns,
+						username='project_guppi_gmail_com',
+						pkey=mykey)
 		
 			stdin, stdout, stderr = ssh.exec_command(commands)
 			stdin.flush()
