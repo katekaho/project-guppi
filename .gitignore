@@ -3,11 +3,7 @@ Testing Notebook.ipynb
 documentation_joey/2019W_cmps116_performance_review.docx
 documentation_joey/performance reiveiw.docx
 .vscode/settings.json
-.pyc
 documentation_joey/
 __pycache__/
-plugins/__pycache__/GoogleService.cpython-37.pyc
-plugins/__pycache__/AmazonService.cpython-37.pyc
-plugins/__pycache__/MicrosoftService.cpython-37.pyc
-plugins/__pycache__/__init__.cpython-37.pyc
-plugins/AmazonService.pyc
+.py[cod]
+*.py[cod]

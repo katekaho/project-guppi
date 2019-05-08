@@ -6,6 +6,7 @@ class PluginBase(ABC):
 		# Returns a boolean on whether the cloud service has been set up or not
 		pass
 
+	@abstractmethod
 	def create_instance(self):
 		# Creates a cloud instance
 		pass

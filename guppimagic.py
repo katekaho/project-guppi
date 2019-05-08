@@ -21,7 +21,7 @@ service = ""
 class GuppiMagic(Magics):
 
 	# initializes file from interfaces and services folders
-	filenames = glob.glob('./plugins/*.py')
+	filenames = glob.glob('./plugins/*')
 	python_files = []
 	print("For useage: use %guppi help")
 	f = None
@@ -31,7 +31,7 @@ class GuppiMagic(Magics):
 		python_file = python_file[10:]
 		python_file = re.sub('.py', '', python_file)
 		
-		if python_file != '__init__':
+		if python_file != '__init__' and python_file != 'pluginbase' and python_file != '_cache__':
 			python_files.append(python_file)
 
 	cloud_list = []

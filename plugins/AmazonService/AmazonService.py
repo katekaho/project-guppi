@@ -1,7 +1,7 @@
-from pluginbase import PluginBase
 import boto3
 import random
 import paramiko
+from ..pluginbase import PluginBase
 
 class LocalBaseClass:
 	pass
@@ -171,10 +171,4 @@ class AmazonService(LocalBaseClass):
 		return 't2.micro'
 	
 	def get_user_and_keyname(self):
-		return ['ec2-user', 'key.pem']
-	
-if __name__ == '__main__':
-	print('SubClass:', issubclass(AmazonService,
-								PluginBase))
-	print("Instance:", isinstance(AmazonService(),
-								  PluginBase))
+		return ['ec2-user', './plugins/AmazonService/key.pem']

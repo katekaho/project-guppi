@@ -1,14 +1,14 @@
-from pluginbase import PluginBase
 from googleapiclient.discovery import build
 import os
 import string
 import random
 import re
+from ..pluginbase import PluginBase
 
 credentials = ''
-for file in os.listdir('plugins/googleCredentials/'):
+for file in os.listdir('plugins/GoogleService/googleCredentials/'):
     if file.endswith('.json'):
-        credentials = (os.path.join('plugins/googleCredentials/', file))
+        credentials = (os.path.join('plugins/GoogleService/googleCredentials/', file))
 if(credentials == ''):
 	print("No google credential file found")
 else:
@@ -196,4 +196,4 @@ class GoogleService():
 		return 'n1-standard-1'
 	
 	def get_user_and_keyname(self):
-		return ['project_guppi_gmail_com', 'gc_rsa.pem']
+		return ['project_guppi_gmail_com', './plugins/GoogleService/gc_rsa.pem']

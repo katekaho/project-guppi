@@ -13,94 +13,96 @@ import io
 
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 
-def ssh(instances, commands, verbose):
-	# clear_output()
-	print("Running, please wait...")
+# def ssh(instances, commands, verbose):
+# 	# clear_output()
+# 	print("Running, please wait...")
 	
-	# threadOutputList contains list of all shell outputs
-	threadOutputList = []
+# 	# threadOutputList contains list of all shell outputs
+# 	threadOutputList = []
 	
-	# threadErrorList contains list of all shell errors
-	threadErrorList = []
+# 	# threadErrorList contains list of all shell errors
+# 	threadErrorList = []
 	
-	# sshThread gets called by each thread
-	def sshThread(commands, instanceId):
-		# set the dns for each instance
-		Dns = ''
-		for vm in instances:
-			if(instanceId == vm['Instance Id'] or instanceId == vm['Name']):
-				Dns = vm['Dns']
+# 	# sshThread gets called by each thread
+# 	def sshThread(commands, instanceId):
+# 		# set the dns for each instance
+# 		Dns = ''
+# 		for vm in instances:
+# 			if(instanceId == vm['Instance Id'] or instanceId == vm['Name']):
+# 				Dns = vm['Dns']
 		
-		# ssh in and run commands
-		ssh = paramiko.SSHClient()
-		ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-		ssh.connect(Dns,
-				username='ec2-user',
-				key_filename='key.pem')
-	
-		stdin, stdout, stderr = ssh.exec_command(commands)
-		stdin.flush()
-		
-		# create list of all lines of output
-		outputList = []
-		outputList.append("=======================================================")
-		outputList.append(instanceId)
-		outputList.append("=======================================================")
-		for line in stdout.read().splitlines():
-			outputList.append(line)
-		# create list of all lines of errors
-		errorList = []
-		errorList.append("=======================================================")
-		errorList.append(instanceId)
-		errorList.append("=======================================================")
-		errorOutput = stderr.read().splitlines()
-		numOfCommands = len(commands.split(" "))
-		
-		# if no errors append "successfully run" to output and error lists
-		if len(errorOutput) == 0:
-			if numOfCommands == 1:
-				errorList.append("Successfully ran 1 command\n")
-				outputList.append("Successfully ran 1 command\n")
-			else:
-				errorList.append("Successfully ran " + str(numOfCommands) + " commands\n")
-				outputList.append("Successfully ran " + str(numOfCommands) + " commands\n")
-		
-		# append errors to the errorList
-		for line in errorOutput:
-			errorList.append(line)
+# 		# ssh in and run commands
+# 		ssh = paramiko.SSHClient()
+# 		ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+# 		user_and_key = service.get_user_and_keyname()
 
-		# append errorList to threadErrors
-		threadErrorList.append(errorList)
-
-		# append outputList to the threadOutputs
-		threadOutputList.append(outputList)
+# 		ssh.connect(Dns,
+# 					username=user_and_key[0],
+# 					key_filename=user_and_key[1])
+	
+# 		stdin, stdout, stderr = ssh.exec_command(commands)
+# 		stdin.flush()
 		
-		# disconnect from instance
-		ssh.close()
-	
-	# theadList will contain a thread for each instance
-	threadList = []
-	
-	# for each checked instance create a thread
-	for instance in instances:
-			thread = threading.Thread(target=sshThread, args=(commands, instance['Instance Id'])) 
-			thread.start()
-			threadList.append(thread)
+# 		# create list of all lines of output
+# 		outputList = []
+# 		outputList.append("=======================================================")
+# 		outputList.append(instanceId)
+# 		outputList.append("=======================================================")
+# 		for line in stdout.read().splitlines():
+# 			outputList.append(line)
+# 		# create list of all lines of errors
+# 		errorList = []
+# 		errorList.append("=======================================================")
+# 		errorList.append(instanceId)
+# 		errorList.append("=======================================================")
+# 		errorOutput = stderr.read().splitlines()
+# 		numOfCommands = len(commands.split(" "))
+		
+# 		# if no errors append "successfully run" to output and error lists
+# 		if len(errorOutput) == 0:
+# 			if numOfCommands == 1:
+# 				errorList.append("Successfully ran 1 command\n")
+# 				outputList.append("Successfully ran 1 command\n")
+# 			else:
+# 				errorList.append("Successfully ran " + str(numOfCommands) + " commands\n")
+# 				outputList.append("Successfully ran " + str(numOfCommands) + " commands\n")
+		
+# 		# append errors to the errorList
+# 		for line in errorOutput:
+# 			errorList.append(line)
 
-	# wait for each thread to finish
-	for thread in threadList:
-		thread.join()
+# 		# append errorList to threadErrors
+# 		threadErrorList.append(errorList)
+
+# 		# append outputList to the threadOutputs
+# 		threadOutputList.append(outputList)
+		
+# 		# disconnect from instance
+# 		ssh.close()
 	
-	# if verbose flag is used print output from each instance shell
-	if verbose:		
-		for data in threadOutputList:
-			for output_line in data:
-				print(output_line)
-	# else just print errors from each instance shell
-	else:
-		for errors in threadErrorList:
-			for output_line in errors:
-				print(output_line)
+# 	# theadList will contain a thread for each instance
+# 	threadList = []
+	
+# 	# for each checked instance create a thread
+# 	for instance in instances:
+# 			thread = threading.Thread(target=sshThread, args=(commands, instance['Instance Id'])) 
+# 			thread.start()
+# 			threadList.append(thread)
+
+# 	# wait for each thread to finish
+# 	for thread in threadList:
+# 		thread.join()
+	
+# 	# if verbose flag is used print output from each instance shell
+# 	if verbose:		
+# 		for data in threadOutputList:
+# 			for output_line in data:
+# 				print(output_line)
+# 	# else just print errors from each instance shell
+# 	else:
+# 		for errors in threadErrorList:
+# 			for output_line in errors:
+# 				print(output_line)
 
 
 #===================================================#
