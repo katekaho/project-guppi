@@ -21,18 +21,6 @@ Ensure the following are installed on your machine:
 
 ### Installation
 
-#### Pip install the following packages (todo: add script/installer)
-
-```
-pip install boto3
-pip install
-pip install --upgrade google-api-python-client
-pip install azure
-pip install awscli
-pip install PyGithub
-pip install slackclient
-pip install paramiko
-```
 
 #### Clone project guppi
 
@@ -44,6 +32,11 @@ git clone https://github.com/katekaho/project-guppi.git
 
 ```
 cd project-guppi
+```
+#### Pip install the required Python packages
+
+```
+pip install -r setup/req.txt
 ```
 
 #### Open Jupyter Notebook
