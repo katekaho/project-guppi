@@ -71,8 +71,10 @@ class GuppiMagic(Magics):
 			# cloud services
 			elif(args.arguments[0] == 'cloud'):
 				i = 1
+				serviceStr = args.arguments[i]
+				i += 1
 				# ssh service
-				if(args.arguments[i] == 'ssh'):
+				if args.arguments[i] == 'ssh':
 					i += 1
 					verbose = False
 					if (len(args.arguments) > 2):
@@ -94,18 +96,29 @@ class GuppiMagic(Magics):
 							if len(sshInstances) == 0:
 								print('No instances in group \'' + group_name + '\'')
 							else:
-								self.cloud_list[0].ssh(sshInstances, commands, verbose)
+								for cloudService in self.cloud_list:
+									if cloudService.name.casefold() == serviceStr.casefold():
+										cloudService.ssh(sshInstances, commands, verbose)
 				
 				
 				# create instance
-				elif(args.arguments[1] == 'create'):
-					user_interfaces.CreateInterface.render_create_interface(self.cloud_list, self.cloud_index)
-
-				elif(args.arguments[1] == 'view'):
-					user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list, self.cloud_index)
+				elif(args.arguments[i] == 'create'):
+					index = 0
+					for i, cloudService in enumerate(self.cloud_list):
+						if cloudService.name.casefold() == serviceStr.casefold():
+							index = i
+					user_interfaces.CreateInterface.render_create_interface(self.cloud_list, index)
+				
+				# view interface
+				elif(args.arguments[i] == 'view'):
+					index = 0
+					for i, cloudService in enumerate(self.cloud_list):
+						if cloudService.name.casefold() == serviceStr.casefold():
+							index = i
+					user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list, index)
 				
 				else:
-					print(args.arguments[1] +" is not a cloud command, for usage, use %guppi help")
+					print(args.arguments[i] +" is not a cloud command, for usage, use %guppi help")
 				
 			#slack service
 			elif(args.arguments[0] == 'slack'):
