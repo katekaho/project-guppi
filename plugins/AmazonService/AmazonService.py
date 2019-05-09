@@ -1,6 +1,7 @@
 import boto3
 import random
 import paramiko
+import threading
 from ..pluginbase import PluginBase
 
 class LocalBaseClass:
@@ -163,6 +164,97 @@ class AmazonService(LocalBaseClass):
 			]
 		)
 		# print("Please refresh cell to reflect change.")
+	
+	def ssh(self, instances, commands, verbose):
+		# clear_output()
+		print("Running, please wait...")
+		
+		# threadOutputList contains list of all shell outputs
+		threadOutputList = []
+		
+		# threadErrorList contains list of all shell errors
+		threadErrorList = []
+		
+		# sshThread gets called by each thread
+		def sshThread(commands, instanceId):
+			# set the dns for each instance
+			Dns = ''
+			for vm in instances:
+				if(instanceId == vm['Instance Id'] or instanceId == vm['Name']):
+					Dns = vm['Dns']
+			
+			# ssh in and run commands
+			ssh = paramiko.SSHClient()
+			ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+			user_and_key = self.get_user_and_keyname()
+
+			ssh.connect(Dns,
+						username=user_and_key[0],
+						key_filename=user_and_key[1])
+		
+			stdin, stdout, stderr = ssh.exec_command(commands)
+			stdin.flush()
+			
+			# create list of all lines of output
+			outputList = []
+			outputList.append("=======================================================")
+			outputList.append(instanceId)
+			outputList.append("=======================================================")
+			for line in stdout.read().splitlines():
+				outputList.append(line)
+			# create list of all lines of errors
+			errorList = []
+			errorList.append("=======================================================")
+			errorList.append(instanceId)
+			errorList.append("=======================================================")
+			errorOutput = stderr.read().splitlines()
+			numOfCommands = len(commands.split(" "))
+			
+			# if no errors append "successfully run" to output and error lists
+			if len(errorOutput) == 0:
+				if numOfCommands == 1:
+					errorList.append("Successfully ran 1 command\n")
+					outputList.append("Successfully ran 1 command\n")
+				else:
+					errorList.append("Successfully ran " + str(numOfCommands) + " commands\n")
+					outputList.append("Successfully ran " + str(numOfCommands) + " commands\n")
+			
+			# append errors to the errorList
+			for line in errorOutput:
+				errorList.append(line)
+
+			# append errorList to threadErrors
+			threadErrorList.append(errorList)
+
+			# append outputList to the threadOutputs
+			threadOutputList.append(outputList)
+			
+			# disconnect from instance
+			ssh.close()
+		
+		# theadList will contain a thread for each instance
+		threadList = []
+		
+		# for each checked instance create a thread
+		for instance in instances:
+			thread = threading.Thread(target=sshThread, args=(commands, instance['Instance Id'])) 
+			thread.start()
+			threadList.append(thread)
+
+		# wait for each thread to finish
+		for thread in threadList:
+			thread.join()
+		
+		# if verbose flag is used print output from each instance shell
+		if verbose:		
+			for data in threadOutputList:
+				for output_line in data:
+					print(output_line)
+		# else just print errors from each instance shell
+		else:
+			for errors in threadErrorList:
+				for output_line in errors:
+					print(output_line)
 	
 	def get_size_list(self):
 		return ['t2.nano', 't2.micro', 't2.small', 't2.small', 't2.medium', 't2.large', 't2.xlarge', 't2.2xlarge', 't3.nano', 't3.micro', 't3.small', 't3.medium', 't3.large', 't3.xlarge', 't3.2xlarge', 'm5d.large', 'm5d.xlarge', 'm5d.2xlarge', 'm5d.4xlarge', 'm5d.12xlarge', 'm5d.24xlarge',  'm5.large', 'm5.xlarge', 'm5.2xlarge', 'm5.4xlarge', 'm5.12xlarge', 'm5.24xlarge', 'm4.large', 'm4.xlarge', 'm4.2xlarge', 'm4.4xlarge', 'm4.10xlarge', 'm4.16xlarge', 'c5d.large', 'c5d.xlarge', 'c5d.2xlarge', 'c5d.4xlarge', 'c5d.9xlarge', 'c5d.18xlarge', 'c5.large', 'c5.xlarge', 'c5.2xlarge', 'c5.4xlarge', 'c5.9xlarge', 'c5.18xlarge', 'c4.large', 'c4.xlarge', 'c4.2xlarge', 'c4.4xlarge', 'c4.8xlarge', 'g2.2xlarge', 'g2.8xlarge', 'g3.4xlarge', 'g3.8xlarge', 'g3.16xlarge', 'r5d.large', 'r5d.xlarge', 'r5d.2xlarge', 'r5d.4xlarge', 'r5d.12xlarge', 'r5.large', 'r5.xlarge', 'r5.2xlarge', 'r5.4xlarge', 'r5.12xlarge', 'r5.24xlarge', 'r4.large', 'r4.xlarge', 'r4.2xlarge', 'r4.4xlarge', 'r4.8xlarge', 'r4.16xlarge', 'z1d.large', 'z1d.xlarge', 'z1d.2xlarge', 'z1d.3xlarge', 'z1d.6xlarge', 'z1d.12xlarge', 'd2.xlarge', 'd2.2xlarge', 'd2.4xlarge', 'd2.8xlarge', 'i2.xlarge', 'i2.2xlarge', 'i2.4xlarge', 'i2.8xlarge', 'i3.large', 'i3.xlarge', 'i3.2xlarge', 'i3.4xlarge', 'i3.8xlarge', 'i3.16xlarge', 'i3.metal']

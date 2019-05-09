@@ -54,23 +54,8 @@ class GuppiMagic(Magics):
 		args = magic_arguments.parse_argstring(self.guppi, line)
 
 		if(len(args.arguments) > 0):
-			# ssh service
-			if(args.arguments[0] == 'ssh'):
-				verbose = False
-				if (len(args.arguments) != 1):
-					if args.arguments[1] == 'v':
-						verbose = True
-					#else:
-					#	self.service.getInstanceInfo()
-				user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, self.cloud_index, verbose)
-			
-			
-			# create instance
-			elif(args.arguments[0] == 'create'):
-				user_interfaces.CreateInterface.render_create_interface(self.cloud_list, self.cloud_index)
-			
 			# switch service
-			elif(args.arguments[0] == 'switch'):
+			if(args.arguments[0] == 'switch'):
 				if(len(args.arguments) < 3 and len(args.arguments) > 1):
 					i = 0
 					for file_name in self.python_files:
@@ -85,8 +70,40 @@ class GuppiMagic(Magics):
 
 			# cloud services
 			elif(args.arguments[0] == 'cloud'):
-				if(len(args.arguments) < 2):
+				i = 1
+				# ssh service
+				if(args.arguments[i] == 'ssh'):
+					i += 1
+					verbose = False
+					if (len(args.arguments) > 2):
+						if args.arguments[i] == 'view':
+							user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, self.cloud_index, verbose)
+						elif args.arguments[i] == 'v':
+							i += 1
+							verbose = True
+						if args.arguments[i] != 'view':
+							group_name = args.arguments[i]
+							i += 1
+							instances = self.cloud_list[0].get_instances_info()
+							sshInstances = []
+							for instance in instances:
+								if instance['Group Name'] == group_name:
+									if instance['State'] == 'running':
+										sshInstances.append(instance)
+							commands = ' '.join(args.arguments[i:])
+							if len(sshInstances) == 0:
+								print('No instances in group \'' + group_name + '\'')
+							else:
+								self.cloud_list[0].ssh(sshInstances, commands, verbose)
+				
+				
+				# create instance
+				elif(args.arguments[1] == 'create'):
+					user_interfaces.CreateInterface.render_create_interface(self.cloud_list, self.cloud_index)
+
+				elif(args.arguments[1] == 'view'):
 					user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list, self.cloud_index)
+				
 				else:
 					print(args.arguments[1] +" is not a cloud command, for usage, use %guppi help")
 				
