@@ -83,7 +83,9 @@ class GuppiMagic(Magics):
 						elif args.arguments[i] == 'v':
 							i += 1
 							verbose = True
-						if args.arguments[i] != 'view':
+						if len(args.arguments) < i:
+							print('please provide group name')
+						elif args.arguments[i] != 'view':
 							group_name = args.arguments[i]
 							i += 1
 							instances = self.cloud_list[0].get_instances_info()
