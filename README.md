@@ -81,7 +81,7 @@ Cisco Security Business Group
 * Subharthi Paul
 * Nancy Cam-Winget
 * Oleg Bessonov
-* Sam Taghavi Zarga
+* Saman Taghavi Zargar
 
 Jack Baskin School of Engineering Staff
 * Richard Jullig
