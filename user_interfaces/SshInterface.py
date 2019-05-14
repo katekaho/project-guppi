@@ -184,12 +184,14 @@ def render_group(instances, group_name, verbose, cloud_index, service):
 		description='Run Commands',
 		disabled=False,
 		tooltip='',
+		layout=Layout(width='50%', height='40px')
 	)
 	
 	submit_button_v = widgets.Button(
 		description='Run Commands Verbose',
 		disabled=False,
 		tooltip='',
+		layout=Layout(width='50%', height='40px')
 	)
 	
 	if(len(box_list) == 0):

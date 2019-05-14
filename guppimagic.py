@@ -71,36 +71,75 @@ class GuppiMagic(Magics):
 			# cloud services
 			elif(args.arguments[0] == 'cloud'):
 				i = 1
+				
+				# set serviceStr to cloud service
 				serviceStr = args.arguments[i]
 				i += 1
+				
 				# ssh service
 				if args.arguments[i] == 'ssh':
 					i += 1
 					verbose = False
 					if (len(args.arguments) > 2):
+						
+						# cloud ssh view mode
 						if args.arguments[i] == 'view':
-							user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, self.cloud_index, verbose)
-						elif args.arguments[i] == 'v':
+							index = 0
+							for i, cloudService in enumerate(self.cloud_list):
+								if cloudService.name.casefold() == serviceStr.casefold():
+									index = i
+							user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, index, verbose)
+							return
+						
+						# verbose flag for ssh non-view
+						if args.arguments[i] == 'v':
 							i += 1
 							verbose = True
-						if len(args.arguments) < i:
+						
+						# check for group name
+						if len(args.arguments) < i + 1:
 							print('please provide group name')
-						elif args.arguments[i] != 'view':
+						else:
+							#set group_name
 							group_name = args.arguments[i]
 							i += 1
-							instances = self.cloud_list[0].get_instances_info()
-							sshInstances = []
-							for instance in instances:
-								if instance['Group Name'] == group_name:
-									if instance['State'] == 'running':
-										sshInstances.append(instance)
-							commands = ' '.join(args.arguments[i:])
-							if len(sshInstances) == 0:
-								print('No instances in group \'' + group_name + '\'')
+							# if multicloud
+							if serviceStr.casefold() == 'multicloud'.casefold():
+								noInstancesFlag = True
+								for cloudService in self.cloud_list:
+									cloudName = cloudService.name
+									instances = cloudService.get_instances_info()
+									sshInstances = []			
+									for instance in instances:
+										if instance['Group Name'] == group_name:
+											if instance['State'] == 'running':
+												sshInstances.append(instance)
+									commands = ' '.join(args.arguments[i:])
+									if len(sshInstances) > 0:
+										noInstancesFlag = False
+										print(cloudName.upper())
+										cloudService.ssh(sshInstances, commands, verbose)
+								
+								if noInstancesFlag == True:
+									print('No instances in group \'' + group_name + '\'')
 							else:
 								for cloudService in self.cloud_list:
 									if cloudService.name.casefold() == serviceStr.casefold():
-										cloudService.ssh(sshInstances, commands, verbose)
+										instances = cloudService.get_instances_info()
+					
+								sshInstances = []			
+								for instance in instances:
+									if instance['Group Name'] == group_name:
+										if instance['State'] == 'running':
+											sshInstances.append(instance)
+								commands = ' '.join(args.arguments[i:])
+								
+								if len(sshInstances) == 0:
+									print('No instances in group \'' + group_name + '\'')
+								else:
+									for cloudService in self.cloud_list:
+										if cloudService.name.casefold() == serviceStr.casefold():
+											cloudService.ssh(sshInstances, commands, verbose)
 				
 				
 				# create instance

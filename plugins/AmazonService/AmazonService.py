@@ -167,7 +167,7 @@ class AmazonService(LocalBaseClass):
 	
 	def ssh(self, instances, commands, verbose):
 		# clear_output()
-		print("Running, please wait...")
+		# print("Running, please wait...")
 		
 		# threadOutputList contains list of all shell outputs
 		threadOutputList = []
