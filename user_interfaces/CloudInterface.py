@@ -10,12 +10,24 @@ from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label
 def render_cloud_interface(cloud_list, cloud_index):
 	service = cloud_list[cloud_index]
 	service_name = service.type
+	if(cloud_index < 0):
+		service_name = "MultiCloud"
 	title = widgets.HTML("<h4>"+service_name+" Instances</h4>")
 	display(title)
+	instances = []
+	if(cloud_index < 0):
+		for cloud in cloud_list:
+			inst_info = cloud.get_instances_info()
+			ind = 0
+			for info in inst_info:
+				info['index'] = ind
+				instances.append(info)
+				ind+=1
+	else:
+		instances = cloud_list[cloud_index].get_instances_info()
 
-	instances = cloud_list[cloud_index].get_instances_info()
 	group_list = []
-
+	# print(instances)
 	for instance in instances:
 		group_name = instance['Group Name']
 		if group_name not in group_list and group_name != '':
@@ -24,8 +36,21 @@ def render_cloud_interface(cloud_list, cloud_index):
 	group_list.sort(key=str.lower)
 	tab_arr = []
 	layout_arr = render_group(service,instances,'All Instances', cloud_list)
+	
 	tab_child = widgets.VBox(layout_arr)
 	tab_arr.append(tab_child)
+
+	if(cloud_index < 0):
+		a_instances = instances[0:len(cloud_list[0].get_instances_info())]
+		g_instances = instances[len(cloud_list[0].get_instances_info()) : len(instances)]
+		a_layout_arr =  render_group(service,a_instances,'Amazon Instances', cloud_list)
+		g_layout_arr =  render_group(service,g_instances,'Google Instances', cloud_list)
+		tab_child1 = widgets.VBox(a_layout_arr)
+		tab_child2 = widgets.VBox(g_layout_arr)
+
+		tab_arr.append(tab_child1)
+		tab_arr.append(tab_child2)
+
 
 	tab = widgets.Tab()
 	for group_name in group_list:
@@ -35,9 +60,14 @@ def render_cloud_interface(cloud_list, cloud_index):
 	
 	tab.children = tab_arr
 	tab.set_title(0,'All Instances')
+	offset = 1
+	if(cloud_index < 0):
+		tab.set_title(1,"Amazon Instances")
+		tab.set_title(2,"Google Instances")
+		offset = 3
 	# set titles for tab
 	for i in range(len(group_list)):
-		tab.set_title(i+1, group_list[i])
+		tab.set_title(i+offset, group_list[i])
 
 	display(tab)
 	
@@ -49,7 +79,7 @@ def render_group(service,instances, group_name, cloud_list):
 	index = 0
 
 	for instance in instances:
-		if(instance['Group Name'] == group_name or group_name == 'All Instances'):
+		if(instance['Group Name'] == group_name or group_name == 'All Instances' or group_name == "Amazon Instances" or group_name == "Google Instances"):
 			accordion_child = render_instance_info(service, instance, index, instances, cloud_list)
 			accordion_children.append(accordion_child)
 		index += 1
@@ -60,13 +90,15 @@ def render_group(service,instances, group_name, cloud_list):
 				
 	#adding titles to the accordian
 	for row in instances:
-		if(row['Group Name'] == group_name or group_name == 'All Instances'):
+		if(row['Group Name'] == group_name or group_name == 'All Instances'or group_name == "Amazon Instances" or group_name == "Google Instances"):
 			acc_title = row['Instance Id']
 			acc_title += " | "
-			if group_name == 'All Instances':
+			if group_name == 'All Instances' or group_name == "Amazon Instances" or group_name == "Google Instances":
 				acc_title += row['Group Name']
 				acc_title += " | "
 			acc_title += row['State']
+			acc_title += " | "
+			acc_title += row['Service']
 			
 			accordion.set_title(acc_index, acc_title)
 			acc_index += 1
@@ -165,7 +197,10 @@ def render_instance_info(service, instance_info, index, instances, cloud_list):
 	#===================================================#
 	#terminate instance button handler
 	def terminate_button_clicked(b):
-		service.terminate_instance(index)
+		if(instance_info['Service'] == "Amazon"):
+			cloud_list[0].terminate_instance(instance_info['index'])
+		else:
+			cloud_list[1].terminate_instance(instance_info['index'])
 		# refresh cell
 		# clear_output()
 		# render_cloud_interface(cloud_list, 0)
@@ -173,14 +208,22 @@ def render_instance_info(service, instance_info, index, instances, cloud_list):
 
 	#toggle instance button handler
 	def toggle_button_clicked(b):
-		service.toggle_instance(index)
+		# service.toggle_instance(index)
+		if(instance_info['Service'] == "Amazon"):
+			cloud_list[0].toggle_instance(instance_info['index'])
+		else:
+			cloud_list[1].toggle_instance(instance_info['index'])
 		# refresh cell
 		# clear_output()
 		# render_cloud_interface(cloud_list, 0)
 
-	#terminate instance button handler
+	#reboot instance button handler
 	def reboot_button_clicked(b):
-		service.reboot_instance(index)
+		# service.reboot_instance(index)
+		if(instance_info['Service'] == "Amazon"):
+			cloud_list[0].reboot_instance(instance_info['index'])
+		else:
+			cloud_list[1].reboot_instance(instance_info['index'])
 		# refresh cell
 		# clear_output()
 		# render_cloud_interface(cloud_list, 0)

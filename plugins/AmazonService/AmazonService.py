@@ -91,6 +91,7 @@ class AmazonService(LocalBaseClass):
 
 			formatInst = {
 				'Name': name,
+				'Service' : self.name,
 				'Instance Id': instance.get('InstanceId', ''),
 				'Instance Type': instance.get('InstanceType', ''),
 				'Availability Zone': availabilityZone,

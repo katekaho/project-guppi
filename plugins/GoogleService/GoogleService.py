@@ -134,6 +134,7 @@ class GoogleService():
 			externalIP = accessConfigs[0].get('natIP', '0')
 			formatInst = {
 				'Name': instance.get('name', ''),
+				'Service': self.name,
 				'Instance Id': instance.get('name', ''), # using name instead for now
 				'Instance Type': machineType,
 				'Availability Zone': zone,

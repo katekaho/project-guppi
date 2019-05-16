@@ -152,11 +152,14 @@ class GuppiMagic(Magics):
 				
 				# view interface
 				elif(args.arguments[i] == 'view'):
-					index = 0
-					for i, cloudService in enumerate(self.cloud_list):
-						if cloudService.name.casefold() == serviceStr.casefold():
-							index = i
-					user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list, index)
+					if(args.arguments[i-1] == "multicloud"):
+						user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list,-1)
+					else:
+						index = 0
+						for i, cloudService in enumerate(self.cloud_list):
+							if cloudService.name.casefold() == serviceStr.casefold():
+								index = i
+						user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list, index)
 				
 				else:
 					print(args.arguments[i] +" is not a cloud command, for usage, use %guppi help")
@@ -166,7 +169,8 @@ class GuppiMagic(Magics):
 				if(len(args.arguments)>1):
 					if(args.arguments[1] == 'view'):
 						if(len(args.arguments)< 3):
-							user_interfaces.SlackInterface.render_slack_interface()
+							# user_interfaces.SlackInterface.render_slack_interface()
+							print("")
 						else:
 							print(args.arguments[2] +" is not a slack command, for usage, use %guppi help")
 					elif(args.arguments[1] == 'send'):
@@ -179,7 +183,8 @@ class GuppiMagic(Magics):
 							elif(len(args.arguments)> 4):
 								print("Your message must be in quotes")
 							else:
-								user_interfaces.SlackInterface.send_message(args.arguments[2],args.arguments[3])
+								# user_interfaces.SlackInterface.send_message(args.arguments[2],args.arguments[3])
+								print("")
 					else:
 						print(args.arguments[1] +" is not a slack command, for usage, use %guppi help")
 				else:
