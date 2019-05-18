@@ -4,6 +4,7 @@ from IPython.display import HTML, display, FileLink, clear_output
 import ipywidgets as widgets
 from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label, IntSlider
 
+#TODO: make button presses take in service dynamically
 #===================================================#
 #--------------SSH-Interface-Function---------------#
 #===================================================#
@@ -14,7 +15,10 @@ def render_cloud_interface(cloud_list, cloud_index):
 		service_name = "MultiCloud"
 	title = widgets.HTML("<h4>"+service_name+" Instances</h4>")
 	display(title)
+
 	instances = []
+
+	#multicloud adds all instances to instance list and appends index
 	if(cloud_index < 0):
 		for cloud in cloud_list:
 			inst_info = cloud.get_instances_info()
@@ -27,7 +31,8 @@ def render_cloud_interface(cloud_list, cloud_index):
 		instances = cloud_list[cloud_index].get_instances_info()
 
 	group_list = []
-	# print(instances)
+	
+	#filling group tabs
 	for instance in instances:
 		group_name = instance['Group Name']
 		if group_name not in group_list and group_name != '':
@@ -35,24 +40,35 @@ def render_cloud_interface(cloud_list, cloud_index):
 
 	group_list.sort(key=str.lower)
 	tab_arr = []
-	layout_arr = render_group(service,instances,'All Instances', cloud_list)
+	layout_arr = render_group(service,instances,'multi', cloud_list)
 	
 	tab_child = widgets.VBox(layout_arr)
 	tab_arr.append(tab_child)
 
-	if(cloud_index < 0):
-		a_instances = instances[0:len(cloud_list[0].get_instances_info())]
-		g_instances = instances[len(cloud_list[0].get_instances_info()) : len(instances)]
-		a_layout_arr =  render_group(service,a_instances,'Amazon Instances', cloud_list)
-		g_layout_arr =  render_group(service,g_instances,'Google Instances', cloud_list)
-		tab_child1 = widgets.VBox(a_layout_arr)
-		tab_child2 = widgets.VBox(g_layout_arr)
+	#multicloud addding separate cloud tabs
+	if cloud_index < 0:
+		# a_instances = instances[0:len(cloud_list[0].get_instances_info())]
+		# g_instances = instances[len(cloud_list[0].get_instances_info()) : len(instances)]
+		# a_layout_arr =  render_group(service,a_instances,'Amazon Instances', cloud_list)
+		# g_layout_arr =  render_group(service,g_instances,'Google Instances', cloud_list)
+		# tab_child1 = widgets.VBox(a_layout_arr)
+		# tab_child2 = widgets.VBox(g_layout_arr)
 
-		tab_arr.append(tab_child1)
-		tab_arr.append(tab_child2)
+		# tab_arr.append(tab_child1)
+		# tab_arr.append(tab_child2)
 
-
+		start_index = 0
+		for cloud in cloud_list:
+			service_length = len(cloud.get_instances_info())
+			cloud_instances = instances[start_index:start_index + service_length]
+			cloud_layout_arr = render_group(service,cloud_instances,'multi', cloud_list)
+			child = widgets.VBox(cloud_layout_arr)
+			tab_arr.append(child)
+			start_index += service_length
+			
 	tab = widgets.Tab()
+
+	#appending groups to the tab array
 	for group_name in group_list:
 		layout_arr = render_group(service,instances,group_name, cloud_list)
 		tab_child = widgets.VBox(layout_arr)
@@ -60,26 +76,37 @@ def render_cloud_interface(cloud_list, cloud_index):
 	
 	tab.children = tab_arr
 	tab.set_title(0,'All Instances')
+	
+	#setting tab titles in multicloud
 	offset = 1
-	if(cloud_index < 0):
-		tab.set_title(1,"Amazon Instances")
-		tab.set_title(2,"Google Instances")
-		offset = 3
+
+	if cloud_index < 0:
+		for cloud in cloud_list:
+			tab.set_title(offset,cloud.name + " Instances")
+			offset+=1
+		# tab.set_title(1,"Amazon Instances")
+		# tab.set_title(2,"Google Instances")
+		# offset = 3
+
 	# set titles for tab
 	for i in range(len(group_list)):
 		tab.set_title(i+offset, group_list[i])
 
 	display(tab)
-	
 
+#renders the accordion for each group
 def render_group(service,instances, group_name, cloud_list):
+	if len(instances) < 1:
+		title = widgets.HTML("<h4> There are no running "+service.name+" instances</h4>")
+		help_title = widgets.HTML("<h4> Use \"%guppi cloud "+service.name.lower()+" create\" to create"+service.name.lower()+"instances</h4>")
+		return([title,help_title])
 	group_widget_list = []
 
 	accordion_children = []
 	index = 0
 
 	for instance in instances:
-		if(instance['Group Name'] == group_name or group_name == 'All Instances' or group_name == "Amazon Instances" or group_name == "Google Instances"):
+		if(instance['Group Name'] == group_name or group_name == 'multi'):
 			accordion_child = render_instance_info(service, instance, index, instances, cloud_list)
 			accordion_children.append(accordion_child)
 		index += 1
@@ -90,10 +117,10 @@ def render_group(service,instances, group_name, cloud_list):
 				
 	#adding titles to the accordian
 	for row in instances:
-		if(row['Group Name'] == group_name or group_name == 'All Instances'or group_name == "Amazon Instances" or group_name == "Google Instances"):
+		if row['Group Name'] == group_name or group_name == 'multi':
 			acc_title = row['Instance Id']
 			acc_title += " | "
-			if group_name == 'All Instances' or group_name == "Amazon Instances" or group_name == "Google Instances":
+			if group_name == 'multi':
 				acc_title += row['Group Name']
 				acc_title += " | "
 			acc_title += row['State']
@@ -107,6 +134,7 @@ def render_group(service,instances, group_name, cloud_list):
 
 	return group_widget_list
 
+#renders instance info per each accordion item
 def render_instance_info(service, instance_info, index, instances, cloud_list):
 	
 
@@ -137,17 +165,12 @@ def render_instance_info(service, instance_info, index, instances, cloud_list):
 	)
 	items1.append(group_dropdown)
 
-	
-
 	instance_info1 = widgets.HBox(items1)
 
 	instance_list = []
 	instance_list.append(instance_info['Instance Id'])
 
 	
-
-	
-
 	#buttons
 	if(instance_info['State'] == "running"): 
 		toggle_button = widgets.Button(description='Stop Instance')
@@ -191,6 +214,7 @@ def render_instance_info(service, instance_info, index, instances, cloud_list):
 
 	#puts info and buttons into vBox
 	instance_box = widgets.VBox([instance_info1, instance_info2, button_box])
+	print(service.name)
 
 	#===================================================#
 	#-----------------Button-Functions------------------#
