@@ -99,7 +99,7 @@ def render_group(service,instances, group_name, cloud_list):
 	index = 0
 
 	for instance in instances:
-		if(instance['Group Name'] == group_name or group_name == 'multi' of group_name == 'service_group'):
+		if instance['Group Name'] == group_name or group_name == 'multi' or group_name == 'service_group':
 			accordion_child = render_instance_info(service, instance, index, instances, cloud_list)
 			accordion_children.append(accordion_child)
 		index += 1
