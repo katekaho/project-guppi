@@ -47,24 +47,16 @@ def render_cloud_interface(cloud_list, cloud_index):
 
 	#multicloud addding separate cloud tabs
 	if cloud_index < 0:
-		# a_instances = instances[0:len(cloud_list[0].get_instances_info())]
-		# g_instances = instances[len(cloud_list[0].get_instances_info()) : len(instances)]
-		# a_layout_arr =  render_group(service,a_instances,'Amazon Instances', cloud_list)
-		# g_layout_arr =  render_group(service,g_instances,'Google Instances', cloud_list)
-		# tab_child1 = widgets.VBox(a_layout_arr)
-		# tab_child2 = widgets.VBox(g_layout_arr)
-
-		# tab_arr.append(tab_child1)
-		# tab_arr.append(tab_child2)
-
+		c_index = 0
 		start_index = 0
 		for cloud in cloud_list:
 			service_length = len(cloud.get_instances_info())
 			cloud_instances = instances[start_index:start_index + service_length]
-			cloud_layout_arr = render_group(service,cloud_instances,'multi', cloud_list)
+			cloud_layout_arr = render_group(cloud_list[c_index],cloud_instances,'service_group', cloud_list)
 			child = widgets.VBox(cloud_layout_arr)
 			tab_arr.append(child)
 			start_index += service_length
+			c_index += 1
 			
 	tab = widgets.Tab()
 
@@ -84,9 +76,6 @@ def render_cloud_interface(cloud_list, cloud_index):
 		for cloud in cloud_list:
 			tab.set_title(offset,cloud.name + " Instances")
 			offset+=1
-		# tab.set_title(1,"Amazon Instances")
-		# tab.set_title(2,"Google Instances")
-		# offset = 3
 
 	# set titles for tab
 	for i in range(len(group_list)):
@@ -97,8 +86,12 @@ def render_cloud_interface(cloud_list, cloud_index):
 #renders the accordion for each group
 def render_group(service,instances, group_name, cloud_list):
 	if len(instances) < 1:
-		title = widgets.HTML("<h4> There are no running "+service.name+" instances</h4>")
-		help_title = widgets.HTML("<h4> Use \"%guppi cloud "+service.name.lower()+" create\" to create"+service.name.lower()+"instances</h4>")
+		if(group_name == 'multi'):
+			title = widgets.HTML("<h4> There are no running instances</h4>")
+			help_title = widgets.HTML("<h4> Use \"%guppi cloud [SERVICE NAME] create\" to create instances</h4>")
+		else:
+			title = widgets.HTML("<h4> There are no running "+service.name+" instances</h4>")
+			help_title = widgets.HTML("<h4> Use \"%guppi cloud "+service.name.lower()+" create\" to create "+service.name.lower()+" instances</h4>")
 		return([title,help_title])
 	group_widget_list = []
 
@@ -106,7 +99,7 @@ def render_group(service,instances, group_name, cloud_list):
 	index = 0
 
 	for instance in instances:
-		if(instance['Group Name'] == group_name or group_name == 'multi'):
+		if(instance['Group Name'] == group_name or group_name == 'multi' of group_name == 'service_group'):
 			accordion_child = render_instance_info(service, instance, index, instances, cloud_list)
 			accordion_children.append(accordion_child)
 		index += 1
@@ -117,15 +110,16 @@ def render_group(service,instances, group_name, cloud_list):
 				
 	#adding titles to the accordian
 	for row in instances:
-		if row['Group Name'] == group_name or group_name == 'multi':
-			acc_title = row['Instance Id']
+		if row['Group Name'] == group_name or group_name == 'multi' or group_name == 'service_group':
+			acc_title = row['Service']
 			acc_title += " | "
 			if group_name == 'multi':
 				acc_title += row['Group Name']
 				acc_title += " | "
-			acc_title += row['State']
+			acc_title += row['Instance Id']
 			acc_title += " | "
-			acc_title += row['Service']
+			acc_title += row['State']
+			
 			
 			accordion.set_title(acc_index, acc_title)
 			acc_index += 1
@@ -214,17 +208,15 @@ def render_instance_info(service, instance_info, index, instances, cloud_list):
 
 	#puts info and buttons into vBox
 	instance_box = widgets.VBox([instance_info1, instance_info2, button_box])
-	print(service.name)
 
 	#===================================================#
 	#-----------------Button-Functions------------------#
 	#===================================================#
 	#terminate instance button handler
 	def terminate_button_clicked(b):
-		if(instance_info['Service'] == "Amazon"):
-			cloud_list[0].terminate_instance(instance_info['index'])
-		else:
-			cloud_list[1].terminate_instance(instance_info['index'])
+		for service in cloud_list:
+			if(instance_info['Service'] == service.name):
+				service.terminate_instance(instance_info['index'])
 		# refresh cell
 		# clear_output()
 		# render_cloud_interface(cloud_list, 0)
@@ -232,28 +224,23 @@ def render_instance_info(service, instance_info, index, instances, cloud_list):
 
 	#toggle instance button handler
 	def toggle_button_clicked(b):
-		# service.toggle_instance(index)
-		if(instance_info['Service'] == "Amazon"):
-			cloud_list[0].toggle_instance(instance_info['index'])
-		else:
-			cloud_list[1].toggle_instance(instance_info['index'])
-		# refresh cell
-		# clear_output()
-		# render_cloud_interface(cloud_list, 0)
+		for service in cloud_list:
+			if(instance_info['Service'] == service.name):
+				service.toggle_instance(instance_info['index'])
 
 	#reboot instance button handler
 	def reboot_button_clicked(b):
-		# service.reboot_instance(index)
-		if(instance_info['Service'] == "Amazon"):
-			cloud_list[0].reboot_instance(instance_info['index'])
-		else:
-			cloud_list[1].reboot_instance(instance_info['index'])
+		for service in cloud_list:
+			if(instance_info['Service'] == service.name):
+				service.reboot_instance(instance_info['index'])
 		# refresh cell
 		# clear_output()
 		# render_cloud_interface(cloud_list, 0)
 
 	def on_change(change):
-		service.update_group(instance_list, group_dropdown.value)
+		for service in cloud_list:
+			if(instance_info['Service'] == service.name):
+				service.update_group(instance_list, group_dropdown.value)
 		print("Changed group to " + group_dropdown.value)
 		print("Rerun %guppi cloud to display")
 
