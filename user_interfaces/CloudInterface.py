@@ -19,11 +19,12 @@ def render_cloud_interface(cloud_list, cloud_index):
 	instances = []
 
 	#multicloud adds all instances to instance list and appends index
+	instDict = {}
 	if(cloud_index < 0):
 		for cloud in cloud_list:
-			inst_info = cloud.get_instances_info()
+			instDict[cloud.name] = cloud.get_instances_info()
 			ind = 0
-			for info in inst_info:
+			for info in instDict[cloud.name]:
 				info['index'] = ind
 				instances.append(info)
 				ind+=1
@@ -50,7 +51,7 @@ def render_cloud_interface(cloud_list, cloud_index):
 		c_index = 0
 		start_index = 0
 		for cloud in cloud_list:
-			service_length = len(cloud.get_instances_info())
+			service_length = len(instDict[cloud.name])
 			cloud_instances = instances[start_index:start_index + service_length]
 			cloud_layout_arr = render_group(cloud_list[c_index],cloud_instances,'service_group', cloud_list)
 			child = widgets.VBox(cloud_layout_arr)
@@ -85,13 +86,24 @@ def render_cloud_interface(cloud_list, cloud_index):
 
 #renders the accordion for each group
 def render_group(service,instances, group_name, cloud_list):
-	if len(instances) < 1:
+	empty = True
+	for instance in instances:
+		if instance['State'] != 'terminated':
+			empty = False
+			break
+
+	if empty:
 		if(group_name == 'multi'):
 			title = widgets.HTML("<h4> There are no running instances</h4>")
 			help_title = widgets.HTML("<h4> Use \"%guppi cloud [SERVICE NAME] create\" to create instances</h4>")
-		else:
+		elif group_name == 'service_group':
 			title = widgets.HTML("<h4> There are no running "+service.name+" instances</h4>")
 			help_title = widgets.HTML("<h4> Use \"%guppi cloud "+service.name.lower()+" create\" to create "+service.name.lower()+" instances</h4>")
+		else:
+			title = widgets.HTML("<h4> There are no running instances in "+group_name+"</h4>")
+			help_title = widgets.HTML("<h4> Use \"%guppi cloud [SERVICE NAME] create\" to create instances</h4>")
+
+
 		return([title,help_title])
 	group_widget_list = []
 
@@ -99,9 +111,10 @@ def render_group(service,instances, group_name, cloud_list):
 	index = 0
 
 	for instance in instances:
-		if instance['Group Name'] == group_name or group_name == 'multi' or group_name == 'service_group':
-			accordion_child = render_instance_info(service, instance, index, instances, cloud_list)
-			accordion_children.append(accordion_child)
+		if (instance['Group Name'] == group_name or group_name == 'multi' or group_name == 'service_group'):
+			if instance['State'] != 'terminated':
+				accordion_child = render_instance_info(service, instance, index, instances, cloud_list)
+				accordion_children.append(accordion_child)
 		index += 1
 
 	accordion = widgets.Accordion(accordion_children)
@@ -111,18 +124,22 @@ def render_group(service,instances, group_name, cloud_list):
 	#adding titles to the accordian
 	for row in instances:
 		if row['Group Name'] == group_name or group_name == 'multi' or group_name == 'service_group':
-			acc_title = row['Service']
-			acc_title += " | "
-			if group_name == 'multi':
-				acc_title += row['Group Name']
+			if row['State'] != 'terminated':
+				acc_title = row['Service']
 				acc_title += " | "
-			acc_title += row['Instance Id']
-			acc_title += " | "
-			acc_title += row['State']
-			
-			
-			accordion.set_title(acc_index, acc_title)
-			acc_index += 1
+				if group_name == 'multi':
+					acc_title += row['Group Name']
+					acc_title += " | "
+				if row['Name'] == '':
+					acc_title += row['Instance Id']
+				else:
+					acc_title += row['Name']
+				acc_title += " | "
+				acc_title += row['State']
+				
+				
+				accordion.set_title(acc_index, acc_title)
+				acc_index += 1
 
 	group_widget_list.append(accordion)
 
@@ -133,7 +150,7 @@ def render_instance_info(service, instance_info, index, instances, cloud_list):
 	
 
 	#appends all info into array of labels
-	info1 = ["<b>Instance Type:</b>", instance_info['Instance Type'] ,"<b>Availability Zone:</b>", instance_info['Availability Zone'],"<b>Group:<b>"]
+	info1 = ["<b>Instance ID:</b>", instance_info['Instance Id'] ,"<b>Instance Type:</b>", instance_info['Instance Type'] ,"<b>Availability Zone:</b>", instance_info['Availability Zone'],"<b>Group:<b>"]
 
 	info2 = ["<b>State:<b>" , instance_info['State'], "<b>Public DNS:<b>", instance_info['Dns']]
 

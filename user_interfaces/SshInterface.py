@@ -112,7 +112,21 @@ def render_ssh_interface(cloud_list, cloud_index, verbose):
 	title = widgets.HTML("<h4>SSH into instances </h4>")
 	display(title)
 	service = cloud_list[cloud_index]
-	instances = service.get_instances_info()
+	instances = []
+	
+
+	#multicloud adds all instances to instance list and appends index
+	if(cloud_index < 0):
+		for cloud in cloud_list:
+			inst_info = cloud.get_instances_info()
+			ind = 0
+			for info in inst_info:
+				info['index'] = ind
+				instances.append(info)
+				ind+=1
+	else:
+		instances = cloud_list[cloud_index].get_instances_info()
+
 	group_list = []
 
 	for instance in instances:
@@ -122,47 +136,62 @@ def render_ssh_interface(cloud_list, cloud_index, verbose):
 
 	group_list.sort(key=str.lower)
 	tab_arr = []
-	layout_arr = render_group(instances,'All Instances', verbose, cloud_index, service)
+	layout_arr = render_group(instances,'All Instances', verbose, service,cloud_list)
 	tab_child = widgets.VBox(layout_arr)
 	tab_arr.append(tab_child)
 
+	#multicloud addding separate cloud tabs
+	if cloud_index < 0:
+		c_index = 0
+		start_index = 0
+		for cloud in cloud_list:
+			service_length = len(cloud.get_instances_info())
+			cloud_instances = instances[start_index:start_index + service_length]
+			cloud_layout_arr = render_group(cloud_instances,"service_group",verbose, cloud_list[c_index], cloud_list)
+			child = widgets.VBox(cloud_layout_arr)
+			tab_arr.append(child)
+			start_index += service_length
+			c_index += 1
+
 	tab = widgets.Tab()
 	for group_name in group_list:
-		layout_arr = render_group(instances,group_name, verbose, cloud_index, service)
+		layout_arr = render_group(instances,group_name, verbose, service, cloud_list)
 		tab_child = widgets.VBox(layout_arr)
 		tab_arr.append(tab_child)
 	
 	tab.children = tab_arr
 	tab.set_title(0,'All Instances')
 	# set titles for tab
+	#setting tab titles in multicloud
+	offset = 1
+
+	if cloud_index < 0:
+		for cloud in cloud_list:
+			tab.set_title(offset,cloud.name + " Instances")
+			offset+=1
+
+	# set titles for tab
 	for i in range(len(group_list)):
-		tab.set_title(i+1, group_list[i])
+		tab.set_title(i+offset, group_list[i])
 
 	display(tab)
 	
 
-def render_group(instances, group_name, verbose, cloud_index, service):
+def render_group(instances, group_name, verbose, service, cloud_list):
 	group_layout_arr = []
 
-	# box_layout = widgets.Layout(
-	# 		border='solid 1px',
-	# 		# padding='0.5em',
-	# 		margin='0.5em',
-	# 		width = '28%',
-			
-		# )
 	# instances = cloud_list[0].get_instances_info()
 	box_list = []
 	instance_boxes = []
 
 	#creates the checkboxes
 	for vm in instances:
-		if(vm['State'] == 'running' and (vm['Group Name'] == group_name or group_name == 'All Instances')):
+		if vm['State'] == 'running' and (vm['Group Name'] == group_name or group_name == 'All Instances' or group_name == 'service_group'):
 			if(vm['Name'] == ''):	
 				cb = widgets.Checkbox(
 					value=True,
 					description=vm['Instance Id'],
-					disabled=False
+					disabled=False,
 				)
 			else:
 				cb = widgets.Checkbox(
@@ -184,16 +213,16 @@ def render_group(instances, group_name, verbose, cloud_index, service):
 		description='Run Commands',
 		disabled=False,
 		tooltip='',
-		layout=Layout(width='50%', height='40px')
+		layout=Layout(width='30%', height='40px')
 	)
 	
 	submit_button_v = widgets.Button(
 		description='Run Commands Verbose',
 		disabled=False,
 		tooltip='',
-		layout=Layout(width='50%', height='40px')
+		layout=Layout(width='30%', height='40px')
 	)
-	
+	button_box= widgets.HBox([submit_button,submit_button_v])
 	if(len(box_list) == 0):
 		if(group_name != "All Instances"):
 			group_layout_arr.append(widgets.HTML(value="There are no running instances in " + group_name))
@@ -219,7 +248,7 @@ def render_group(instances, group_name, verbose, cloud_index, service):
 			placeholder='Type your commands here',
 			layout=Layout(width='auto'),
 		)
-		command_box = widgets.VBox([command_area,submit_button, submit_button_v])
+		command_box = widgets.VBox([command_area,button_box])
 		# display(command_box)
 		group_layout_arr.append(command_box)
 		
@@ -231,24 +260,38 @@ def render_group(instances, group_name, verbose, cloud_index, service):
 	#===================================================#
 
 	def submit_button_clicked(b):
-		sshInstances = []
+		sshListInstances = {}
 		for checkbox in box_list:
 			if(checkbox.value == True):
 				for instance in instances:
 					if instance['Instance Id'] == checkbox.description:
-						sshInstances.append(instance)
-		
-		service.ssh(sshInstances, command_area.value, False)
+						if instance['Service'] in sshListInstances:
+							sshListInstances[instance['Service']].append(instance)
+						else:
+							sshListInstances[instance['Service']] = [instance]
+
+		for key in sshListInstances:
+			for service in cloud_list:
+				if key == service.name:
+					print(service.name.upper())
+					service.ssh(sshListInstances[key], command_area.value, False)
 
 	def submit_button_v_clicked(b):
-		sshInstances = []
+		sshListInstances = {}
 		for checkbox in box_list:
 			if(checkbox.value == True):
 				for instance in instances:
 					if instance['Instance Id'] == checkbox.description:
-						sshInstances.append(instance)
-		
-		service.ssh(sshInstances, command_area.value, True)
+						if instance['Service'] in sshListInstances:
+							sshListInstances[instance['Service']].append(instance)
+						else:
+							sshListInstances[instance['Service']] = [instance]
+
+		for key in sshListInstances:
+			for service in cloud_list:
+				if key == service.name:
+					print(service.name.upper())
+					service.ssh(sshListInstances[key], command_area.value, True)
 	
 	def select_button_clicked(b):
 		toggle = check_true(box_list)

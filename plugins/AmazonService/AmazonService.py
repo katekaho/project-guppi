@@ -40,7 +40,7 @@ class AmazonService(LocalBaseClass):
 
 		tag_specification = [{'ResourceType': 'instance', 'Tags': tags},]
 
-		self.ec2.create_instances(
+		new_instances = self.ec2.create_instances(
 			ImageId='ami-082c116bf79a9feef',
 			MinCount=num,
 			MaxCount=num,
@@ -48,7 +48,11 @@ class AmazonService(LocalBaseClass):
 			KeyName='key',
 			TagSpecifications= tag_specification,
 		)
-		print("Instance Created.")
+
+		for instance in new_instances:
+			self.ec2.create_tags(Resources = [instance.instance_id], Tags=[{'Key': 'Name', 'Value': self.name + '-' + instance.instance_id[-4:]}])
+		
+		print("Instance(s) Created.")
 	
 	def get_instances_info(self):
 		response = self.ec2_client.describe_instances()

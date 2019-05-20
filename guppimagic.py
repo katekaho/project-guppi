@@ -84,11 +84,14 @@ class GuppiMagic(Magics):
 						
 						# cloud ssh view mode
 						if args.arguments[i] == 'view':
-							index = 0
-							for i, cloudService in enumerate(self.cloud_list):
-								if cloudService.name.casefold() == serviceStr.casefold():
-									index = i
-							user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, index, verbose)
+							if serviceStr.casefold() == 'multicloud':
+								user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, -1, verbose)
+							else:
+								index = 0
+								for i, cloudService in enumerate(self.cloud_list):
+									if cloudService.name.casefold() == serviceStr.casefold():
+										index = i
+								user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, index, verbose)
 							return
 						
 						# verbose flag for ssh non-view

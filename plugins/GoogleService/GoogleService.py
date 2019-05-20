@@ -54,8 +54,9 @@ class GoogleService():
 
 		i = 1
 		while i <= num:
-			name = ''.join(random.choice(string.ascii_lowercase) for _ in range(4))
-			name = name + ''.join(random.choice(string.digits) for _ in range(4))
+			name = self.name.lower() + '-'
+			name += ''.join(random.choice(string.ascii_lowercase) for _ in range(2))
+			name += ''.join(random.choice(string.digits) for _ in range(2))
 			image_response = compute.images().getFromFamily(
 				project='debian-cloud', family='debian-9').execute()
 			source_disk_image = image_response['selfLink']
