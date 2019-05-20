@@ -11,7 +11,7 @@ from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label
 def render_cloud_interface(cloud_list, cloud_index):
 	service = cloud_list[cloud_index]
 	service_name = service.type
-	if(cloud_index < 0):
+	if cloud_index < 0:
 		service_name = "MultiCloud"
 	title = widgets.HTML("<h4>"+service_name+" Instances</h4>")
 	display(title)
@@ -20,7 +20,7 @@ def render_cloud_interface(cloud_list, cloud_index):
 
 	#multicloud adds all instances to instance list and appends index
 	instDict = {}
-	if(cloud_index < 0):
+	if cloud_index < 0:
 		for cloud in cloud_list:
 			instDict[cloud.name] = cloud.get_instances_info()
 			ind = 0
@@ -41,7 +41,7 @@ def render_cloud_interface(cloud_list, cloud_index):
 
 	group_list.sort(key=str.lower)
 	tab_arr = []
-	layout_arr = render_group(service,instances,'multi', cloud_list)
+	layout_arr = render_group(service,instances,'multi', cloud_list,cloud_index)
 	
 	tab_child = widgets.VBox(layout_arr)
 	tab_arr.append(tab_child)
@@ -53,7 +53,7 @@ def render_cloud_interface(cloud_list, cloud_index):
 		for cloud in cloud_list:
 			service_length = len(instDict[cloud.name])
 			cloud_instances = instances[start_index:start_index + service_length]
-			cloud_layout_arr = render_group(cloud_list[c_index],cloud_instances,'service_group', cloud_list)
+			cloud_layout_arr = render_group(cloud_list[c_index],cloud_instances,'service_group', cloud_list,cloud_index)
 			child = widgets.VBox(cloud_layout_arr)
 			tab_arr.append(child)
 			start_index += service_length
@@ -63,7 +63,7 @@ def render_cloud_interface(cloud_list, cloud_index):
 
 	#appending groups to the tab array
 	for group_name in group_list:
-		layout_arr = render_group(service,instances,group_name, cloud_list)
+		layout_arr = render_group(service,instances,group_name, cloud_list,cloud_index)
 		tab_child = widgets.VBox(layout_arr)
 		tab_arr.append(tab_child)
 	
@@ -85,7 +85,28 @@ def render_cloud_interface(cloud_list, cloud_index):
 	display(tab)
 
 #renders the accordion for each group
-def render_group(service,instances, group_name, cloud_list):
+def render_group(service,instances, group_name, cloud_list,cloud_index):
+	if group_name == "multi":
+		missing = True
+		for cloud in cloud_list:
+			if cloud.check_setup():
+				missing = False
+		if cloud_index < 0 :
+			if missing:
+				setup = widgets.HTML("<h3>No Cloud Service has been setup</h3>")
+				return [setup]
+		else:
+			fn = "./plugins/"+service.name+"Service/"+service.name +"Setup.txt"
+			html_as_str = open(fn, 'r').read()
+			setup = widgets.HTML(value=html_as_str)
+			return [setup]
+	else:
+		if not service.check_setup():
+			fn = "./plugins/"+service.name+"Service/"+service.name +"Setup.txt"
+			html_as_str = open(fn, 'r').read()
+			setup = widgets.HTML(value=html_as_str)
+			return [setup]
+
 	empty = True
 	for instance in instances:
 		if instance['State'] != 'terminated':
@@ -93,7 +114,7 @@ def render_group(service,instances, group_name, cloud_list):
 			break
 
 	if empty:
-		if(group_name == 'multi'):
+		if group_name == 'multi':
 			title = widgets.HTML("<h4> There are no running instances</h4>")
 			help_title = widgets.HTML("<h4> Use \"%guppi cloud [SERVICE NAME] create\" to create instances</h4>")
 		elif group_name == 'service_group':
@@ -104,7 +125,7 @@ def render_group(service,instances, group_name, cloud_list):
 			help_title = widgets.HTML("<h4> Use \"%guppi cloud [SERVICE NAME] create\" to create instances</h4>")
 
 
-		return([title,help_title])
+		return [title,help_title]
 	group_widget_list = []
 
 	accordion_children = []

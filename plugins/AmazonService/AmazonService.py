@@ -29,7 +29,6 @@ class AmazonService(LocalBaseClass):
 	
 	def check_setup(self):
 		#comment this to show instructions
-		#return False
 		return self.configured
 		
 	def create_instance(self,group,size,num):
