@@ -23,6 +23,16 @@ class GuppiMagic(Magics):
 	# initializes file from interfaces and services folders
 	filenames = glob.glob('./plugins/*')
 	python_files = []
+
+	#title display
+	icon_file = open("icons/guppi-small.png", "rb")
+	image = icon_file.read()
+	logo = widgets.Image(value=image,format='png',width = 100,height = 100)
+	title = widgets.HTML("<h2>Project GUPPI</h2>")
+	title_box = widgets.Box([title])
+	display(title_box)
+	display(logo)
+
 	print("For useage: use %guppi help")
 	f = None
 	python_file = None
@@ -73,100 +83,111 @@ class GuppiMagic(Magics):
 				i = 1
 				
 				# set serviceStr to cloud service
-				serviceStr = args.arguments[i]
-				i += 1
+				if len(args.arguments) > 1:
+					serviceStr = args.arguments[i]
+					i += 1
+				else:
+					print("Please enter a cloud service, the available services are:")
+					for file_name in self.python_files:
+						print(" -- "+file_name[0:-7].lower())
+					print("or choose multicloud to view all services")
+					return 
+
 				
 				# ssh service
-				if args.arguments[i] == 'ssh':
-					i += 1
-					verbose = False
-					if (len(args.arguments) > 2):
-						
-						# cloud ssh view mode
-						if args.arguments[i] == 'view':
-							if serviceStr.casefold() == 'multicloud':
-								user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, -1, verbose)
+				if len(args.arguments) > 2:
+					if args.arguments[i] == 'ssh':
+						i += 1
+						verbose = False
+						if len(args.arguments) > 3:
+							
+							# cloud ssh view mode
+							if args.arguments[i] == 'view':
+								if serviceStr.casefold() == 'multicloud':
+									user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, -1, verbose)
+								else:
+									index = 0
+									for i, cloudService in enumerate(self.cloud_list):
+										if cloudService.name.casefold() == serviceStr.casefold():
+											index = i
+									user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, index, verbose)
+								return
+							
+							# verbose flag for ssh non-view
+							if args.arguments[i] == 'v':
+								i += 1
+								verbose = True
+							
+							# check for group name
+							if len(args.arguments) < i + 1:
+								print('please provide group name')
 							else:
-								index = 0
-								for i, cloudService in enumerate(self.cloud_list):
-									if cloudService.name.casefold() == serviceStr.casefold():
-										index = i
-								user_interfaces.SshInterface.render_ssh_interface(self.cloud_list, index, verbose)
-							return
+								#set group_name
+								group_name = args.arguments[i]
+								i += 1
+								# if multicloud
+								if serviceStr.casefold() == 'multicloud'.casefold():
+									noInstancesFlag = True
+									for cloudService in self.cloud_list:
+										cloudName = cloudService.name
+										instances = cloudService.get_instances_info()
+										sshInstances = []			
+										for instance in instances:
+											if instance['Group Name'] == group_name:
+												if instance['State'] == 'running':
+													sshInstances.append(instance)
+										commands = ' '.join(args.arguments[i:])
+										if len(sshInstances) > 0:
+											noInstancesFlag = False
+											print(cloudName.upper())
+											cloudService.ssh(sshInstances, commands, verbose)
+									
+									if noInstancesFlag == True:
+										print('No instances in group \'' + group_name + '\'')
+								else:
+									for cloudService in self.cloud_list:
+										if cloudService.name.casefold() == serviceStr.casefold():
+											instances = cloudService.get_instances_info()
 						
-						# verbose flag for ssh non-view
-						if args.arguments[i] == 'v':
-							i += 1
-							verbose = True
-						
-						# check for group name
-						if len(args.arguments) < i + 1:
-							print('please provide group name')
-						else:
-							#set group_name
-							group_name = args.arguments[i]
-							i += 1
-							# if multicloud
-							if serviceStr.casefold() == 'multicloud'.casefold():
-								noInstancesFlag = True
-								for cloudService in self.cloud_list:
-									cloudName = cloudService.name
-									instances = cloudService.get_instances_info()
 									sshInstances = []			
 									for instance in instances:
 										if instance['Group Name'] == group_name:
 											if instance['State'] == 'running':
 												sshInstances.append(instance)
 									commands = ' '.join(args.arguments[i:])
-									if len(sshInstances) > 0:
-										noInstancesFlag = False
-										print(cloudName.upper())
-										cloudService.ssh(sshInstances, commands, verbose)
-								
-								if noInstancesFlag == True:
-									print('No instances in group \'' + group_name + '\'')
-							else:
-								for cloudService in self.cloud_list:
-									if cloudService.name.casefold() == serviceStr.casefold():
-										instances = cloudService.get_instances_info()
+									
+									if len(sshInstances) == 0:
+										print('No instances in group \'' + group_name + '\'')
+									else:
+										for cloudService in self.cloud_list:
+											if cloudService.name.casefold() == serviceStr.casefold():
+												cloudService.ssh(sshInstances, commands, verbose)
+						else:
+							print("Please enter an ssh mode use %guppi help for commands")
 					
-								sshInstances = []			
-								for instance in instances:
-									if instance['Group Name'] == group_name:
-										if instance['State'] == 'running':
-											sshInstances.append(instance)
-								commands = ' '.join(args.arguments[i:])
-								
-								if len(sshInstances) == 0:
-									print('No instances in group \'' + group_name + '\'')
-								else:
-									for cloudService in self.cloud_list:
-										if cloudService.name.casefold() == serviceStr.casefold():
-											cloudService.ssh(sshInstances, commands, verbose)
-				
-				
-				# create instance
-				elif(args.arguments[i] == 'create'):
-					index = 0
-					for i, cloudService in enumerate(self.cloud_list):
-						if cloudService.name.casefold() == serviceStr.casefold():
-							index = i
-					user_interfaces.CreateInterface.render_create_interface(self.cloud_list, index)
-				
-				# view interface
-				elif(args.arguments[i] == 'view'):
-					if(args.arguments[i-1] == "multicloud"):
-						user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list,-1)
-					else:
+					# create instance
+					elif(args.arguments[i] == 'create'):
 						index = 0
 						for i, cloudService in enumerate(self.cloud_list):
 							if cloudService.name.casefold() == serviceStr.casefold():
 								index = i
-						user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list, index)
-				
+						user_interfaces.CreateInterface.render_create_interface(self.cloud_list, index)
+					
+					# view interface
+					elif(args.arguments[i] == 'view'):
+						if(args.arguments[i-1] == "multicloud"):
+							user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list,-1)
+						else:
+							index = 0
+							for i, cloudService in enumerate(self.cloud_list):
+								if cloudService.name.casefold() == serviceStr.casefold():
+									index = i
+							user_interfaces.CloudInterface.render_cloud_interface(self.cloud_list, index)
+					
+					else:
+						print(args.arguments[i] +" is not a cloud command, for usage, use %guppi help")
 				else:
-					print(args.arguments[i] +" is not a cloud command, for usage, use %guppi help")
-				
+					print("Please enter a cloud command to use. eg: view, ssh, create")
 			#slack service
 			elif(args.arguments[0] == 'slack'):
 				if(len(args.arguments)>1):
@@ -205,12 +226,11 @@ class GuppiMagic(Magics):
 					else:
 						user_interfaces.GitHubInterface.display_notifications(num+1)
 			elif(args.arguments[0] == 'help'):
-				print("To see a list of available cloud services, use:\n%init\n")
-				print("To choose a cloud service to view, use:\n%init <cloud_service>\n")
-				print("To view a cloud service, use:\n%guppi cloud\n")
-				print("To view Slack messages, use:\n%guppi slack view\n")
-				print("To send a Slack message, use:\n%guppi slack send <channel_name> <message in quotes>\n")
-				print("To view GitHub notifications, use:\n%guppi github <number_of_notifications>\n")
+				print("To view running cloud instances use: %guppi cloud <cloud_service> view")
+				print("To view all running cloud instances use: %guppi cloud multicloud view")
+				print("To create a new instance use: %guppi cloud <cloud_service> create")
+				print("To ssh into running cloud instances with a GUI use: %guppi cloud <cloud_service> ssh view")
+				print("To ssh into all running cloud instances with a GUI use: %guppi cloud multicloud ssh view")
 			else:
 				print(args.arguments[0] + " is not a guppi command, for usage, use %guppi help")
 					

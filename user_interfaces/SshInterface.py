@@ -260,38 +260,38 @@ def render_group(instances, group_name, verbose, service, cloud_list):
 	#===================================================#
 
 	def submit_button_clicked(b):
-		sshListInstances = {}
+		ssh_list_instances = {}
 		for checkbox in box_list:
 			if(checkbox.value == True):
 				for instance in instances:
-					if instance['Instance Id'] == checkbox.description:
-						if instance['Service'] in sshListInstances:
-							sshListInstances[instance['Service']].append(instance)
+					if instance['Instance Id'] == checkbox.description or instance['Name'] == checkbox.description:
+						if instance['Service'] in ssh_list_instances:
+							ssh_list_instances[instance['Service']].append(instance)
 						else:
-							sshListInstances[instance['Service']] = [instance]
-
-		for key in sshListInstances:
+							ssh_list_instances[instance['Service']] = [instance]
+							
+		for key in ssh_list_instances:
 			for service in cloud_list:
 				if key == service.name:
 					print(service.name.upper())
-					service.ssh(sshListInstances[key], command_area.value, False)
+					service.ssh(ssh_list_instances[key], command_area.value, False)
 
 	def submit_button_v_clicked(b):
-		sshListInstances = {}
+		ssh_list_instances = {}
 		for checkbox in box_list:
 			if(checkbox.value == True):
 				for instance in instances:
-					if instance['Instance Id'] == checkbox.description:
-						if instance['Service'] in sshListInstances:
-							sshListInstances[instance['Service']].append(instance)
+					if instance['Instance Id'] == checkbox.description or instance['Name'] == checkbox.description:
+						if instance['Service'] in ssh_list_instances:
+							ssh_list_instances[instance['Service']].append(instance)
 						else:
-							sshListInstances[instance['Service']] = [instance]
+							ssh_list_instances[instance['Service']] = [instance]
 
-		for key in sshListInstances:
+		for key in ssh_list_instances:
 			for service in cloud_list:
 				if key == service.name:
 					print(service.name.upper())
-					service.ssh(sshListInstances[key], command_area.value, True)
+					service.ssh(ssh_list_instances[key], command_area.value, True)
 	
 	def select_button_clicked(b):
 		toggle = check_true(box_list)
