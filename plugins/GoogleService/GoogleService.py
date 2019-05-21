@@ -289,10 +289,8 @@ class GoogleService():
 
 		request = compute.instances().get(project=project_name, zone=zone, instance=instance_id[0])
 		instance = request.execute()
-		
 		tags = instance.get('tags')
 		fingerprint = tags.get('fingerprint')
-		print(fingerprint)
 		tags_body = {
 			"items": [group_name],
 			"fingerprint": fingerprint 
