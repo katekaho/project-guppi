@@ -53,13 +53,14 @@ def render_cloud_interface(cloud_list, cloud_index):
 		c_index = 0
 		start_index = 0
 		for cloud in cloud_list:
-			service_length = len(instDict[cloud.name])
-			cloud_instances = instances[start_index:start_index + service_length]
-			cloud_layout_arr = render_group(cloud_list[c_index],cloud_instances,'service_group', cloud_list,cloud_index)
-			child = widgets.VBox(cloud_layout_arr)
-			tab_arr.append(child)
-			start_index += service_length
-			c_index += 1
+			if cloud.check_setup():
+				service_length = len(instDict[cloud.name])
+				cloud_instances = instances[start_index:start_index + service_length]
+				cloud_layout_arr = render_group(cloud_list[c_index],cloud_instances,'service_group', cloud_list,cloud_index)
+				child = widgets.VBox(cloud_layout_arr)
+				tab_arr.append(child)
+				start_index += service_length
+				c_index += 1
 			
 	tab = widgets.Tab()
 
