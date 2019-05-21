@@ -96,10 +96,11 @@ def render_group(service,instances, group_name, cloud_list,cloud_index):
 				setup = widgets.HTML("<h3>No Cloud Service has been setup</h3>")
 				return [setup]
 		else:
-			fn = "./plugins/"+service.name+"Service/"+service.name +"Setup.txt"
-			html_as_str = open(fn, 'r').read()
-			setup = widgets.HTML(value=html_as_str)
-			return [setup]
+			if not service.check_setup():
+				fn = "./plugins/"+service.name+"Service/"+service.name +"Setup.txt"
+				html_as_str = open(fn, 'r').read()
+				setup = widgets.HTML(value=html_as_str)
+				return [setup]
 	else:
 		if not service.check_setup():
 			fn = "./plugins/"+service.name+"Service/"+service.name +"Setup.txt"
@@ -148,7 +149,7 @@ def render_group(service,instances, group_name, cloud_list,cloud_index):
 			if row['State'] != 'terminated':
 				acc_title = row['Service']
 				acc_title += " | "
-				if group_name == 'multi':
+				if group_name == 'multi' or group_name == 'service_group':
 					acc_title += row['Group Name']
 					acc_title += " | "
 				if row['Name'] == '':
