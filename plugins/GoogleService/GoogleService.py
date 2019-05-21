@@ -284,6 +284,22 @@ class GoogleService():
 				for output_line in errors:
 					print(output_line)	
 	
+
+	def update_group(self, instance_id, group_name):
+
+		request = compute.instances().get(project=project_name, zone=zone, instance=instance_id[0])
+		instance = request.execute()
+		
+		tags = instance.get('tags')
+		fingerprint = tags.get('fingerprint')
+		print(fingerprint)
+		tags_body = {
+			"items": [group_name],
+			"fingerprint": fingerprint 
+		}
+		compute.instances().setTags(project=project_name, zone=zone, instance=instance_id[0], body=tags_body).execute()
+
+	
 	def get_size_list(self):
 		return ['n1-standard-1','n1-standard-2','n1-standard-4','n1-standard-8','n1-standard-16','n1-standard-32','n1-standard-64','n1-standard-96','n1-highmem-2','n1-highmem-4','n1-highmem-8','n1-highmem-16','n1-highmem-32','n1-highmem-64','n1-highmem-96','n1-highcpu-2','n1-highcpu-4','n1-highcpu-8','n1-highcpu-16','n1-highcpu-32','n1-highcpu-64','n1-highcpu-96','f1-micro','g1-small','n1-ultramem-40','n1-ultramem-80','n1-ultramem-160','n1-megamem-96']
 
