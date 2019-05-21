@@ -305,4 +305,12 @@ class GoogleService():
 		return 'n1-standard-1'
 	
 	def get_user_and_keyname(self):
-		return ['project_guppi_gmail_com', './plugins/GoogleService/gc_rsa.pem']
+		request = compute.projects().get(project=project_name)
+		response = request.execute()
+		metadata = response.get('commonInstanceMetadata')
+		items = metadata.get('items')
+		for item in items:
+			if(item.get('key') == 'ssh-keys'):
+				rsa = item.get('value')
+				username = rsa.rsplit(' ', 1)[1]
+		return [username, './plugins/GoogleService/gc_rsa.pem']
