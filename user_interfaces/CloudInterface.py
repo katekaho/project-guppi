@@ -22,14 +22,16 @@ def render_cloud_interface(cloud_list, cloud_index):
 	instDict = {}
 	if cloud_index < 0:
 		for cloud in cloud_list:
-			instDict[cloud.name] = cloud.get_instances_info()
-			ind = 0
-			for info in instDict[cloud.name]:
-				info['index'] = ind
-				instances.append(info)
-				ind+=1
+			if cloud.check_setup():
+				instDict[cloud.name] = cloud.get_instances_info()
+				ind = 0
+				for info in instDict[cloud.name]:
+					info['index'] = ind
+					instances.append(info)
+					ind+=1
 	else:
-		instances = cloud_list[cloud_index].get_instances_info()
+		if cloud_list[cloud_index].check_setup():
+			instances = cloud_list[cloud_index].get_instances_info()
 
 	group_list = []
 	
