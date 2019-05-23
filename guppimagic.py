@@ -231,6 +231,8 @@ class GuppiMagic(Magics):
 				print("To create a new instance use: %guppi cloud <cloud_service> create")
 				print("To ssh into running cloud instances with a GUI use: %guppi cloud <cloud_service> ssh view")
 				print("To ssh into all running cloud instances with a GUI use: %guppi cloud multicloud ssh view")
+				print("To ssh into running cloud instances without a GUI use: %guppi cloud <cloud_service> ssh <group_name> <commands>")
+				print("Or %guppi cloud <cloud_service> ssh v <group_name> <commands> for verbose")
 			else:
 				print(args.arguments[0] + " is not a guppi command, for usage, use %guppi help")
 					
