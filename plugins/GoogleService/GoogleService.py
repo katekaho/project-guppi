@@ -7,46 +7,60 @@ import threading
 import paramiko
 from ..pluginbase import PluginBase
 
-credentials = ''
-for file in os.listdir('plugins/GoogleService/googleCredentials/'):
-    if file.endswith('.json'):
-        credentials = (os.path.join('plugins/GoogleService/googleCredentials/', file))
-if(credentials == ''):
-	print("No google credential file found")
-else:
-	os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials
-
-	compute = build('compute', 'v1')
-	cloudresourcemanager = build('cloudresourcemanager', 'v1')
-
-
-	project_name = ''
-	zone = 'us-east1-c'
-
-	# The following code gets the project id
-	# Todo: support selecting specific project
-	# while True:
-
-	request = cloudresourcemanager.projects().list()
-	response = request.execute()
-
-	for project in response.get('projects', []):
-
-		project_name = project.get('projectId')
-		break
-		# break
-	#     request = service.projects().list_next(previous_request=request, previous_response=response)
-
 @PluginBase.register
 class GoogleService():
 	def __init__(self):
 		self.type = "GOOGLE SERVICE"
 		self.name = "Google"
-	
+		self.configured = True
+		credentials = ''
+		self.project_name = ''
+		self.username = ''
+		self.zone = 'us-east1-c'
+
+		for file in os.listdir('plugins/GoogleService/googleCredentials/'):
+			if file.endswith('.json'):
+				credentials = (os.path.join('plugins/GoogleService/googleCredentials/', file))
+		if(credentials == ''):
+			print("No google credential file found")
+			self.configured = False
+
+		os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials
+
+		try:
+			self.compute = build('compute', 'v1')
+		except Exception :
+			print("Google compute has not been configured!")
+			self.configured = False
+		
+		try:
+			self.cloudresourcemanager = build('cloudresourcemanager', 'v1')
+			request = self.cloudresourcemanager.projects().list()
+			response = request.execute()
+			for project in response.get('projects', []):
+				self.project_name = project.get('projectId')
+				break
+		except Exception :
+			print("Google compute has not been configured!")
+			self.configured = False
+		
+		try:
+			request = self.compute.projects().get(project=self.project_name)
+			response = request.execute()
+			metadata = response.get('commonInstanceMetadata')
+			items = metadata.get('items')
+			for item in items:
+				if(item.get('key') == 'ssh-keys'):
+					rsa = item.get('value')
+					self.username = rsa.rsplit(' ', 1)[1]
+		except Exception:
+			print("Google compute has not been configured!")
+			self.configured = False
+
+		
+
 	def check_setup(self):
-		if credentials == '':
-			return False
-		return True
+		return self.configured
 
 	def create_instance(self, group, size, num):
 		print("Creating Instance...")
@@ -57,7 +71,7 @@ class GoogleService():
 			name = self.name.lower() + '-'
 			name += ''.join(random.choice(string.ascii_lowercase) for _ in range(2))
 			name += ''.join(random.choice(string.digits) for _ in range(2))
-			image_response = compute.images().getFromFamily(
+			image_response = self.compute.images().getFromFamily(
 				project='debian-cloud', family='debian-9').execute()
 			source_disk_image = image_response['selfLink']
 
@@ -69,7 +83,7 @@ class GoogleService():
 				return
 			
 			# Configure the machine
-			machine_type = "zones/%s/machineTypes/%s" % (zone, size)
+			machine_type = "zones/%s/machineTypes/%s" % (self.zone, size)
 			config = {
 				'name': name,
 				'machineType': machine_type,
@@ -106,16 +120,15 @@ class GoogleService():
 				]
 				}],
 			}
-			compute.instances().insert(project=project_name, zone=zone, body=config).execute()
+			self.compute.instances().insert(project=self.project_name, zone=self.zone, body=config).execute()
 			print("Created Instance %d" % i)
 			i = i + 1
 		print("All instances created")
 		print("Rerun %guppi cloud to display.")
 
 	def get_instances_info(self):
-		global zone
 		# Get instances from Google Compute
-		instances = compute.instances().list(project=project_name, zone=zone).execute()
+		instances = self.compute.instances().list(project=self.project_name, zone=self.zone).execute()
 		instancesFormatted = []
 		instances = instances.get('items', '')
 		
@@ -155,9 +168,9 @@ class GoogleService():
 		print("Terminating Instance...")
 		instances = self.get_instances_info()
 		name = instances[index]['Instance Id']
-		compute.instances().delete(
-				project=project_name,
-				zone=zone,
+		self.compute.instances().delete(
+				project=self.project_name,
+				zone=self.zone,
 				instance=name).execute()
 		print("Google Instance Terminated.")
 		print("Rerun %guppi cloud to update.")
@@ -168,17 +181,17 @@ class GoogleService():
 
 		current_state = instances[index]['State']
 		if(current_state == "running"):
-			compute.instances().stop(
-				project=project_name,
-				zone=zone,
+			self.compute.instances().stop(
+				project=self.project_name,
+				zone=self.zone,
 				instance=name).execute()
 			print("Instance Stopped.")
 			print("Rerun %guppi cloud to update.")
 
 		elif(current_state == "stopped"):
-			compute.instances().start(
-				project=project_name,
-				zone=zone,
+			self.compute.instances().start(
+				project=self.project_name,
+				zone=self.zone,
 				instance=name).execute()
 			print("Instance Started.")
 			print("Rerun %guppi cloud to update.")
@@ -186,9 +199,9 @@ class GoogleService():
 	def reboot_instance(self,index):
 		instances = self.get_instances_info()
 		name = instances[index]['Instance Id']
-		compute.instances().reset(
-				project=project_name,
-				zone=zone,
+		self.compute.instances().reset(
+				project=self.project_name,
+				zone=self.zone,
 				instance=name).execute()
 		print("Instance Rebooted.")
 		print("Rerun %guppi cloud to update.")
@@ -287,7 +300,7 @@ class GoogleService():
 
 	def update_group(self, instance_id, group_name):
 
-		request = compute.instances().get(project=project_name, zone=zone, instance=instance_id[0])
+		request = self.compute.instances().get(project=self.project_name, zone=self.zone, instance=instance_id[0])
 		instance = request.execute()
 		tags = instance.get('tags')
 		fingerprint = tags.get('fingerprint')
@@ -295,7 +308,7 @@ class GoogleService():
 			"items": [group_name],
 			"fingerprint": fingerprint 
 		}
-		compute.instances().setTags(project=project_name, zone=zone, instance=instance_id[0], body=tags_body).execute()
+		self.compute.instances().setTags(project=self.project_name, zone=self.zone, instance=instance_id[0], body=tags_body).execute()
 
 	
 	def get_size_list(self):
@@ -305,12 +318,4 @@ class GoogleService():
 		return 'n1-standard-1'
 	
 	def get_user_and_keyname(self):
-		request = compute.projects().get(project=project_name)
-		response = request.execute()
-		metadata = response.get('commonInstanceMetadata')
-		items = metadata.get('items')
-		for item in items:
-			if(item.get('key') == 'ssh-keys'):
-				rsa = item.get('value')
-				username = rsa.rsplit(' ', 1)[1]
-		return [username, './plugins/GoogleService/gc_rsa.pem']
+		return [self.username, './plugins/GoogleService/gc_rsa.pem']
