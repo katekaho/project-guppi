@@ -205,7 +205,7 @@ class AmazonService(LocalBaseClass):
 			outputList.append(instanceId)
 			outputList.append("=======================================================")
 			for line in stdout.read().splitlines():
-				outputList.append(line)
+				outputList.append(line.decode('ascii'))
 			# create list of all lines of errors
 			errorList = []
 			errorList.append("=======================================================")
@@ -225,8 +225,7 @@ class AmazonService(LocalBaseClass):
 			
 			# append errors to the errorList
 			for line in errorOutput:
-				errorList.append(line)
-
+				errorList.append(line.decode('ascii'))
 			# append errorList to threadErrors
 			threadErrorList.append(errorList)
 
