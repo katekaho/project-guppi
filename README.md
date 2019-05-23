@@ -61,7 +61,7 @@ Once everything is properly configured, you'll be able to view and run commands 
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/katekaho/project-guppi/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 
@@ -69,11 +69,6 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 * **Japheth Frolick** - *Initial work* - [japhyf](https://github.com/japhyf)
 * **Kate Miller** - *Initial work* - [katekaho](https://github.com/katekaho)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under ? - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
 
