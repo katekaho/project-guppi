@@ -12,38 +12,44 @@ class GoogleService():
 	def __init__(self):
 		self.type = "GOOGLE SERVICE"
 		self.name = "Google"
+		self.zone = 'us-east1-c'
 		self.configured = True
-		credentials = ''
+		self.credentials = ''
 		self.project_name = ''
 		self.username = ''
-		self.zone = 'us-east1-c'
 
+		# Checks for the google credentials file which allows usage of google apis
 		for file in os.listdir('plugins/GoogleService/googleCredentials/'):
 			if file.endswith('.json'):
-				credentials = (os.path.join('plugins/GoogleService/googleCredentials/', file))
-		if(credentials == ''):
+				self.credentials = (os.path.join('plugins/GoogleService/googleCredentials/', file))
+		if(self.credentials == ''):
 			print("No google credential file found")
 			self.configured = False
 
-		os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials
+		# Sets the os path for google credentials to the one in the plugin folder
+		os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = self.credentials
 
+		# Checks if google compute api works
 		try:
 			self.compute = build('compute', 'v1')
 		except Exception :
-			print("Google compute has not been configured!")
+			print("Google compute has not been configured! Unable to use api")
 			self.configured = False
 		
+		# Retrieves the project name by getting the first project it sees
+		# This only works if the google user only has one project, needs work
 		try:
-			self.cloudresourcemanager = build('cloudresourcemanager', 'v1')
-			request = self.cloudresourcemanager.projects().list()
+			cloudresourcemanager = build('cloudresourcemanager', 'v1')
+			request = cloudresourcemanager.projects().list()
 			response = request.execute()
 			for project in response.get('projects', []):
 				self.project_name = project.get('projectId')
 				break
 		except Exception :
-			print("Google compute has not been configured!")
+			print("Google compute has not been configured! Unable to retrieve project name")
 			self.configured = False
 		
+		# Retrieves the ssh username set for virtual machines based off of the rsa key
 		try:
 			request = self.compute.projects().get(project=self.project_name)
 			response = request.execute()
@@ -54,33 +60,36 @@ class GoogleService():
 					rsa = item.get('value')
 					self.username = rsa.rsplit(' ', 1)[1]
 		except Exception:
-			print("Google compute has not been configured!")
+			print("Google compute has not been configured! Error in retrieving rsa key")
 			self.configured = False
-
-		
 
 	def check_setup(self):
 		return self.configured
 
 	def create_instance(self, group, size, num):
 		print("Creating Instance...")
-		# Get the latest Debian Jessie image.
 
+		# Checks if group name is valid
+		pattern = re.compile("[a-z]([-a-z0-9]*[a-z0-9])?")
+		if not pattern.match(group):
+			print("group name does not match regular expression")
+			print(" first character must be a lowercase letter, and all following characters must be a dash,")
+			print(" lowercase letter, or digit, except the last character, which cannot be a dash.")
+			print("try creating your instance again")
+			return
+
+		# Get the latest Debian Jessie image.
 		i = 1
 		while i <= num:
+			# Creates instance name
 			name = self.name.lower() + '-'
 			name += ''.join(random.choice(string.ascii_lowercase) for _ in range(2))
 			name += ''.join(random.choice(string.digits) for _ in range(2))
+
+			# Retrieve the image to use as a source
 			image_response = self.compute.images().getFromFamily(
 				project='debian-cloud', family='debian-9').execute()
 			source_disk_image = image_response['selfLink']
-
-			pattern = re.compile("[a-z]([-a-z0-9]*[a-z0-9])?")
-			if not pattern.match(group):
-				print("group name does not match regular expression")
-				print(" first character must be a lowercase letter, and all following characters must be a dash, lowercase letter, or digit, except the last character, which cannot be a dash.")
-				print("try creating your instance again")
-				return
 			
 			# Configure the machine
 			machine_type = "zones/%s/machineTypes/%s" % (self.zone, size)
@@ -120,6 +129,8 @@ class GoogleService():
 				]
 				}],
 			}
+
+			# Api call to create vm based on params
 			self.compute.instances().insert(project=self.project_name, zone=self.zone, body=config).execute()
 			print("Created Instance %d" % i)
 			i = i + 1
@@ -132,6 +143,7 @@ class GoogleService():
 		instancesFormatted = []
 		instances = instances.get('items', '')
 		
+		# Formats each instance to make data easier to work with and consistent with other services
 		for instance in instances:
 			machineType = instance.get('machineType', '').rsplit('/', 1)[-1]
 			zone = instance.get('zone', '').rsplit('/', 1)[-1]
@@ -185,7 +197,7 @@ class GoogleService():
 				project=self.project_name,
 				zone=self.zone,
 				instance=name).execute()
-			print("Instance Stopped.")
+			print("Google Instance Stopped.")
 			print("Rerun %guppi cloud to update.")
 
 		elif(current_state == "stopped"):
@@ -193,7 +205,7 @@ class GoogleService():
 				project=self.project_name,
 				zone=self.zone,
 				instance=name).execute()
-			print("Instance Started.")
+			print("Google Instance Started.")
 			print("Rerun %guppi cloud to update.")
 
 	def reboot_instance(self,index):
@@ -203,7 +215,7 @@ class GoogleService():
 				project=self.project_name,
 				zone=self.zone,
 				instance=name).execute()
-		print("Instance Rebooted.")
+		print("Google Instance Rebooted.")
 		print("Rerun %guppi cloud to update.")
 	
 	def ssh(self, instances, commands, verbose):
@@ -304,19 +316,35 @@ class GoogleService():
 
 	def update_group(self, instance_id, group_name):
 
+		# Checks if the group name fits the regular expression required by google tags
+		pattern = re.compile("[a-z]([-a-z0-9]*[a-z0-9])?")
+		if not pattern.match(group_name):
+			print("group name does not match regular expression")
+			print(" first character must be a lowercase letter, and all following characters must be a dash,")
+			print(" lowercase letter, or digit, except the last character, which cannot be a dash.")
+			print("give your google instance a valid group")
+			return
+
+		# Retrieve the instance so we can set the fingerprint for the tags body
 		request = self.compute.instances().get(project=self.project_name, zone=self.zone, instance=instance_id[0])
 		instance = request.execute()
 		tags = instance.get('tags')
 		fingerprint = tags.get('fingerprint')
+
+		# Set tags body of instance to updated group
 		tags_body = {
 			"items": [group_name],
 			"fingerprint": fingerprint 
 		}
 		self.compute.instances().setTags(project=self.project_name, zone=self.zone, instance=instance_id[0], body=tags_body).execute()
-
+		
 	
 	def get_size_list(self):
-		return ['n1-standard-1','n1-standard-2','n1-standard-4','n1-standard-8','n1-standard-16','n1-standard-32','n1-standard-64','n1-standard-96','n1-highmem-2','n1-highmem-4','n1-highmem-8','n1-highmem-16','n1-highmem-32','n1-highmem-64','n1-highmem-96','n1-highcpu-2','n1-highcpu-4','n1-highcpu-8','n1-highcpu-16','n1-highcpu-32','n1-highcpu-64','n1-highcpu-96','f1-micro','g1-small','n1-ultramem-40','n1-ultramem-80','n1-ultramem-160','n1-megamem-96']
+		return ['n1-standard-1','n1-standard-2','n1-standard-4','n1-standard-8','n1-standard-16','n1-standard-32',
+		'n1-standard-64','n1-standard-96','n1-highmem-2','n1-highmem-4','n1-highmem-8','n1-highmem-16',
+		'n1-highmem-32','n1-highmem-64','n1-highmem-96','n1-highcpu-2','n1-highcpu-4','n1-highcpu-8','n1-highcpu-16',
+		'n1-highcpu-32','n1-highcpu-64','n1-highcpu-96','f1-micro','g1-small','n1-ultramem-40',
+		'n1-ultramem-80','n1-ultramem-160','n1-megamem-96']
 
 	def get_default_size(self):
 		return 'n1-standard-1'

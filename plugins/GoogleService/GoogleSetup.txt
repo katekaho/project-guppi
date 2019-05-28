@@ -35,6 +35,12 @@
         </ol>
     </li>
     <li>
+        Follow <a href="https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys#project-wide" target="_blank">these instructions</a>
+         to create and add a public SSH key to your project. Save the private SSH key as gc_rsa.pem and move it into the GoogleService file.
+    <li>
+    <li>
+        Go to project metadata and save the public RSA key to SSH keys
+    <li>
         Reload the <b>"guppi cloud"</b> command
     </li>
 </ol>
