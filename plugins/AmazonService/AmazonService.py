@@ -212,7 +212,11 @@ class AmazonService(LocalBaseClass):
 			errorList.append(instanceId)
 			errorList.append("=======================================================")
 			errorOutput = stderr.read().splitlines()
-			numOfCommands = len(commands.split(" "))
+			splitCommands = commands.split(";")
+			for command in splitCommands:
+				if command == " ":
+					splitCommands.remove(command)
+			numOfCommands = len(splitCommands)
 			
 			# if no errors append "successfully run" to output and error lists
 			if len(errorOutput) == 0:
