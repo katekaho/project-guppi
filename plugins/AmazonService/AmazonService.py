@@ -51,7 +51,10 @@ class AmazonService(LocalBaseClass):
 		for instance in new_instances:
 			self.ec2.create_tags(Resources = [instance.instance_id], Tags=[{'Key': 'Name', 'Value': self.name + '-' + instance.instance_id[-4:]}])
 		
-		print("Instance(s) Created.")
+		if num == 1:
+			print("Instance Created.")
+		elif num > 1:
+			print("Instances Created.")
 	
 	def get_instances_info(self):
 		response = self.ec2_client.describe_instances()
