@@ -38,11 +38,21 @@ class GuppiMagic(Magics):
 	python_file = None
 	for f in filenames:
 		python_file = f
+
 		python_file = python_file[10:]
+		if python_file == 'pluginbase.py':
+			continue
+		if python_file == '__pycache__':
+			continue
+		if python_file == '__init__.py':
+			continue
+		pattern = re.compile('.pyc')
+		if pattern.search(python_file):
+			continue
 		python_file = re.sub('.py', '', python_file)
-		
-		if python_file != '__init__' and python_file != 'pluginbase' and python_file != '_cache__':
-			python_files.append(python_file)
+		print(python_file)
+	
+		python_files.append(python_file)
 
 	cloud_list = []
 	cloud_index = 0

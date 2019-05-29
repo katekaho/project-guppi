@@ -17,12 +17,14 @@ class AmazonService(LocalBaseClass):
 		except Exception :
 			print("AWS CLI has not been configured!")
 			self.configured = False
+			return
 
 		try:
 			self.ec2_client = boto3.client('ec2')
 		except Exception :
 			print("AWS CLI has not been configured!")
 			self.configured = False
+			return
 
 		if(self.configured):
 			self.formatted_instances = self.get_instances_info()
