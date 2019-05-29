@@ -23,7 +23,7 @@ class GoogleService():
 			if file.endswith('.json'):
 				self.credentials = (os.path.join('plugins/GoogleService/googleCredentials/', file))
 		if(self.credentials == ''):
-			print("No google credential file found")
+			print("Google compute config error: No credential file found")
 			self.configured = False
 
 		# Sets the os path for google credentials to the one in the plugin folder
@@ -33,7 +33,7 @@ class GoogleService():
 		try:
 			self.compute = build('compute', 'v1')
 		except Exception :
-			print("Google compute has not been configured! Unable to use api")
+			print("Google compute config error: Unable to use api")
 			self.configured = False
 		
 		# Retrieves the project name by getting the first project it sees
@@ -46,7 +46,7 @@ class GoogleService():
 				self.project_name = project.get('projectId')
 				break
 		except Exception :
-			print("Google compute has not been configured! Unable to retrieve project name")
+			print("Google compute config error: Unable to retrieve project name")
 			self.configured = False
 		
 		# Retrieves the ssh username set for virtual machines based off of the rsa key
@@ -60,7 +60,7 @@ class GoogleService():
 					rsa = item.get('value')
 					self.username = rsa.rsplit(' ', 1)[1]
 		except Exception:
-			print("Google compute has not been configured! Error in retrieving rsa key")
+			print("Google compute config error: Unable to retrieve rsa key")
 			self.configured = False
 
 	def check_setup(self):

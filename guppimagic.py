@@ -49,9 +49,7 @@ class GuppiMagic(Magics):
 		pattern = re.compile('.pyc')
 		if pattern.search(python_file):
 			continue
-		python_file = re.sub('.py', '', python_file)
-		print(python_file)
-	
+		python_file = re.sub('.py', '', python_file)	
 		python_files.append(python_file)
 
 	cloud_list = []

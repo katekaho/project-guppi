@@ -15,16 +15,14 @@ class AmazonService(LocalBaseClass):
 		try:
 			self.ec2 = boto3.resource('ec2')
 		except Exception :
-			print("AWS CLI has not been configured!")
+			print("AWS CLI config error: Unable to retrieve boto3 resource")
 			self.configured = False
-			return
 
 		try:
 			self.ec2_client = boto3.client('ec2')
 		except Exception :
-			print("AWS CLI has not been configured!")
+			print("AWS CLI config error: Unable to retrieve boto3 client")
 			self.configured = False
-			return
 
 		if(self.configured):
 			self.formatted_instances = self.get_instances_info()
