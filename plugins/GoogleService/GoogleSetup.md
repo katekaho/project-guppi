@@ -27,7 +27,7 @@
     2.  In the **Service account name field**, enter a name.
     3.  From the **Role list,** select **Project > Owner.**
     4.  Click **Create.** This should download a JSON key
-    5.  Move this key file into the **googleCredentials** folder found in **guppi/plugins**
+    5.  Move this key file into the ``googleCredentials`` folder found in ``project-guppi/plugins/GoogleService``, this file should end with .json
 
 9.  Follow [these instructions](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys#project-wide) to create and add a public SSH key to your project. 
 Note: When generating the rsa key, ensure that the key comment is the same as your email, with ``. @ -`` symbols replaced with underscores, for example ``user_lastname_gmail_com``.

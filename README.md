@@ -4,7 +4,9 @@
 
 # Project GUPPI
 
-A unified platform for data scientists to easily access all the services they need within Jupyter Notebook.
+A unified platform for data scientists to easily access all the services they need within Jupyter Notebook. 
+
+Currently our most key feature is the ability to display and interact with cloud virtual machine instances across different cloud providers at once. We support Amazon EC2 and Google Compute. Users can start/stop, restart, terminate, and group instances. Users can easily SSH into groups of instances and run commands accross multiple services at once.
 
 ## Getting Started
 
@@ -13,16 +15,22 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 Ensure the following are installed on your machine:
 
-* [Python (3.3 or greater, or Python 2.7)](https://www.python.org/downloads/)
+* [Jupyter Notebook](https://jupyter.org/install)
+
+Installing Jupyter using the Anaconda Distribution is ideal, as it includes Python along with other commonly used packages for data science
+
+* [Python (3.3 or greater)](https://www.python.org/downloads/)
+To check if you have python installed, type `python --version`
+
+* pip (should should be installed along with Python but to check, type `pip -V`)
 
 * [git](https://git-scm.com/downloads)
-
-* [Jupyter Notebook](https://jupyter.org/install)
 
 ### Installation
 
 
-#### Clone project guppi
+#### Clone project guppi to a directory of your choice
+Make sure to put it somewhere you can easily access again, as you will need to add files to GUPPI during setup, as well as reference the path to the extension from where you run Jupyter Notebooks
 
 ```
 git clone https://github.com/katekaho/project-guppi.git
@@ -34,6 +42,7 @@ git clone https://github.com/katekaho/project-guppi.git
 cd project-guppi
 ```
 #### Pip install the required Python packages
+If you have both Python 2 and 3 installed, you may have to type pip3 instead of pip
 
 ```
 pip install -r setup/req.txt
@@ -42,18 +51,18 @@ pip install -r setup/req.txt
 #### Open Jupyter Notebook
 
 ```
-Jupyter Notebook
+jupyter notebook
 ```
 
 #### Create a new Python3 notebook
 ![](./icons/create-notebook.gif)
 
-#### Load our GUPPI extension by typing the following iPython magic command into a cell and running it
+#### Load our GUPPI extension by typing the following iPython magic command into a cell and running it. If you want to use this extension elsewhere, you must specify the path of guppimagic from the current directory, or set the system wide PATH
 ```
 %reload_ext guppimagic
 ```
 
-#### Follow the configuration instructions for the cloud services.
+#### Follow the configuration instructions for the cloud services. You can view them in the ``%guppi cloud multicloud`` command or through viewing the md files in the ``plugins`` folder of the service you want 
 Once everything is properly configured, you'll be able to view and run commands on your cloud instances 🎉
 
 ![](./icons/cloud-example.gif)
