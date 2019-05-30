@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./icons/guppi-logo.png" width="300" height="300" alt="guppi_logo">
+  <img src="./src/icons/guppi-logo.png" width="300" height="300" alt="guppi_logo">
 </p>
 
 # Project GUPPI
