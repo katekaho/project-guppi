@@ -7,3 +7,5 @@ documentation_joey/
 __pycache__/
 .py[cod]
 *.py[cod]
+*.json
+*.pem
