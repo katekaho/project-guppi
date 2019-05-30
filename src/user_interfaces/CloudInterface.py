@@ -237,20 +237,20 @@ def render_instance_info(service, instance_info, index, instances, cloud_list):
 		reboot_button = widgets.Button(description='Reboot Instance',disabled=True)
 
 
-	file = open("icons/running.png", "rb")
+	file = open("src/icons/running.png", "rb")
 
 	if(instance_info['State'] == "running"):
-		file = open("icons/running.png", "rb")
+		file = open("src/icons/running.png", "rb")
 	elif(instance_info['State'] == "pending"or instance_info['State'] == 'staging'):
-		file = open("icons/pending.png", "rb")
+		file = open("src/icons/pending.png", "rb")
 	elif(instance_info['State'] == "stopping"):
-		file = open("icons/stopping.png", "rb")
+		file = open("src/icons/stopping.png", "rb")
 	elif(instance_info['State'] == "stopped"):
-		file = open("icons/stopped.png", "rb")
+		file = open("src/icons/stopped.png", "rb")
 	elif(instance_info['State'] == "shutting-down"):
-		file = open("icons/shutting-down.png", "rb")
+		file = open("src/icons/shutting-down.png", "rb")
 	else:
-		file = open("icons/terminated.png", "rb")
+		file = open("src/icons/terminated.png", "rb")
 
 	image = file.read()
 	indicator = widgets.Image(value=image,format='png')

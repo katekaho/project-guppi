@@ -5,7 +5,7 @@ import ipywidgets as widgets
 from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label, IntSlider
 
 
-import plugins
+import src.plugins as plugins
 import paramiko
 import warnings
 import threading

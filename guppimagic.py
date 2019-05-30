@@ -3,13 +3,13 @@ from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, 
 from IPython.display import HTML, display, Markdown
 import glob
 import re
-import plugins
+import src.plugins as plugins
 import sys
 import paramiko
 
 import ipywidgets as widgets
 from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label, IntSlider
-import user_interfaces
+import src.user_interfaces as user_interfaces
 
 selected_instance = ""
 accordion =""
@@ -21,11 +21,11 @@ service = ""
 class GuppiMagic(Magics):
 
 	# initializes file from interfaces and services folders
-	filenames = glob.glob('./plugins/*')
+	filenames = glob.glob('src/plugins/*')
 	python_files = []
 
 	#title display
-	icon_file = open("icons/guppi-small.png", "rb")
+	icon_file = open("src/icons/guppi-small.png", "rb")
 	image = icon_file.read()
 	logo = widgets.Image(value=image,format='png',width = 100,height = 100)
 	title = widgets.HTML("<h2>Project GUPPI</h2>")
@@ -39,7 +39,7 @@ class GuppiMagic(Magics):
 	for f in filenames:
 		python_file = f
 
-		python_file = python_file[10:]
+		python_file = python_file[12:]
 		if python_file == 'pluginbase.py':
 			continue
 		if python_file == '__pycache__':

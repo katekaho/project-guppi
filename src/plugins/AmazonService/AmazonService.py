@@ -273,4 +273,4 @@ class AmazonService(LocalBaseClass):
 		return 't2.micro'
 	
 	def get_user_and_keyname(self):
-		return ['ec2-user', './plugins/AmazonService/key.pem']
+		return ['ec2-user', './src/plugins/AmazonService/key.pem']

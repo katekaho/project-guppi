@@ -19,9 +19,9 @@ class GoogleService():
 		self.username = ''
 
 		# Checks for the google credentials file which allows usage of google apis
-		for file in os.listdir('plugins/GoogleService/googleCredentials/'):
+		for file in os.listdir('src/plugins/GoogleService/googleCredentials/'):
 			if file.endswith('.json'):
-				self.credentials = (os.path.join('plugins/GoogleService/googleCredentials/', file))
+				self.credentials = (os.path.join('src/plugins/GoogleService/googleCredentials/', file))
 		if(self.credentials == ''):
 			print("Google compute config error: No credential file found")
 			self.configured = False
@@ -350,4 +350,4 @@ class GoogleService():
 		return 'n1-standard-1'
 	
 	def get_user_and_keyname(self):
-		return [self.username, './plugins/GoogleService/gc_rsa.pem']
+		return [self.username, './src/plugins/GoogleService/gc_rsa.pem']
