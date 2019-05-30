@@ -4,7 +4,6 @@ from IPython.display import HTML, display, FileLink, clear_output
 import ipywidgets as widgets
 from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label, IntSlider
 
-#TODO: make button presses take in service dynamically
 #===================================================#
 #--------------SSH-Interface-Function---------------#
 #===================================================#
@@ -32,6 +31,10 @@ def render_cloud_interface(cloud_list, cloud_index):
 	else:
 		if cloud_list[cloud_index].check_setup():
 			instances = cloud_list[cloud_index].get_instances_info()
+			ind = 0
+			for info in instances:
+				info['index'] = ind
+				ind+=1
 
 	group_list = []
 	
