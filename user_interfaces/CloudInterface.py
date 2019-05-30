@@ -64,6 +64,12 @@ def render_cloud_interface(cloud_list, cloud_index):
 				tab_arr.append(child)
 				start_index += service_length
 				c_index += 1
+			else:
+				cloud_instances = []
+				cloud_layout_arr = render_group(cloud_list[c_index],cloud_instances,'service_group', cloud_list,cloud_index)
+				child = widgets.VBox(cloud_layout_arr)
+				tab_arr.append(child)
+				c_index += 1
 			
 	tab = widgets.Tab()
 
@@ -109,10 +115,11 @@ def render_group(service,instances, group_name, cloud_list,cloud_index):
 				return [setup]
 	else:
 		if not service.check_setup():
-			fn = "./plugins/"+service.name+"Service/"+service.name +"Setup.txt"
-			html_as_str = open(fn, 'r').read()
-			setup = widgets.HTML(value=html_as_str)
-			return [setup]
+			if group_name == "service_group":
+				fn = "./plugins/"+service.name+"Service/"+service.name +"Setup.txt"
+				html_as_str = open(fn, 'r').read()
+				setup = widgets.HTML(value=html_as_str)
+				return [setup]
 
 	empty = True
 	for instance in instances:

@@ -128,7 +128,8 @@ class GuppiMagic(Magics):
 							
 							# check for group name
 							if len(args.arguments) < i + 1:
-								print('please provide group name')
+								print('Please provide group name')
+								print('Run %guppi help for the list of commands')
 							else:
 								#set group_name
 								group_name = args.arguments[i]
@@ -171,7 +172,9 @@ class GuppiMagic(Magics):
 											if cloudService.name.casefold() == serviceStr.casefold():
 												cloudService.ssh(sshInstances, commands, verbose)
 						else:
-							print("Please enter an ssh mode use %guppi help for commands")
+							print("Please enter an ssh mode")
+							print('Run %guppi help for the list of commands')
+
 					
 					# create instance
 					elif(args.arguments[i] == 'create'):
@@ -196,6 +199,8 @@ class GuppiMagic(Magics):
 						print(args.arguments[i] +" is not a cloud command, for usage, use %guppi help")
 				else:
 					print("Please enter a cloud command to use. eg: view, ssh, create")
+					print('Run %guppi help for the list of commands')
+
 			#slack service
 			elif(args.arguments[0] == 'slack'):
 				if(len(args.arguments)>1):
