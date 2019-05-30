@@ -1,6 +1,6 @@
 from IPython.core import magic_arguments
 from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, magics_class
-from IPython.display import HTML, display
+from IPython.display import HTML, display, Markdown
 import glob
 import re
 import plugins
@@ -239,12 +239,9 @@ class GuppiMagic(Magics):
 					else:
 						user_interfaces.GitHubInterface.display_notifications(num+1)
 			elif(args.arguments[0] == 'help'):
-				print("To view running cloud instances use: %guppi cloud <cloud_service> view")
-				print("To view all running cloud instances use: %guppi cloud multicloud view")
-				print("To create a new instance use: %guppi cloud <cloud_service> create")
-				print("To ssh into running cloud instances with a GUI use: %guppi cloud <cloud_service> ssh view")
-				print("To ssh into all running cloud instances with a GUI use: %guppi cloud multicloud ssh view")
-				print("To ssh into running cloud instances without a GUI use: %guppi cloud <cloud_service> ssh [v] <group_name> <commands>")
+				fn = "guppihelp.md"
+				help_markdown = open(fn, 'r').read()
+				display(Markdown(help_markdown))
 			else:
 				print(args.arguments[0] + " is not a guppi command, for usage, use %guppi help")
 					
