@@ -4,6 +4,9 @@ from IPython.display import HTML, display, FileLink, clear_output
 import ipywidgets as widgets
 from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label, IntSlider
 
+from pathlib import Path
+import sys
+
 #===================================================#
 #--------------SSH-Interface-Function---------------#
 #===================================================#
@@ -98,6 +101,8 @@ def render_cloud_interface(cloud_list, cloud_index):
 
 #renders the accordion for each group
 def render_group(service,instances, group_name, cloud_list,cloud_index):
+
+
 	if group_name == "multi":
 		missing = True
 		for cloud in cloud_list:
@@ -216,6 +221,7 @@ def render_instance_info(service, instance_info, index, instances, cloud_list):
 	instance_list = []
 	instance_list.append(instance_info['Instance Id'])
 
+
 	
 	#buttons
 	if(instance_info['State'] == "running"): 
@@ -236,26 +242,32 @@ def render_instance_info(service, instance_info, index, instances, cloud_list):
 	else:
 		reboot_button = widgets.Button(description='Reboot Instance',disabled=True)
 
+	# print(sys.path)
+	# notebook_directory = Path(sys.path[0])
+	# notebook_directory = str(guppi_directory.resolve())
 
-	file = open("src/icons/running.png", "rb")
+	# icon_directory = guppi_directory + '\src\icons\\'
 
-	if(instance_info['State'] == "running"):
-		file = open("src/icons/running.png", "rb")
-	elif(instance_info['State'] == "pending"or instance_info['State'] == 'staging'):
-		file = open("src/icons/pending.png", "rb")
-	elif(instance_info['State'] == "stopping"):
-		file = open("src/icons/stopping.png", "rb")
-	elif(instance_info['State'] == "stopped"):
-		file = open("src/icons/stopped.png", "rb")
-	elif(instance_info['State'] == "shutting-down"):
-		file = open("src/icons/shutting-down.png", "rb")
-	else:
-		file = open("src/icons/terminated.png", "rb")
+	# file = open(icon_directory + "running.png", "rb")
 
-	image = file.read()
-	indicator = widgets.Image(value=image,format='png')
+	# if(instance_info['State'] == "running"):
+	# 	file = open(icon_directory + "running.png", "rb")
+	# elif(instance_info['State'] == "pending"or instance_info['State'] == 'staging'):
+	# 	file = open(icon_directory + "pending.png", "rb")
+	# elif(instance_info['State'] == "stopping"):
+	# 	file = open(icon_directory + "stopping.png", "rb")
+	# elif(instance_info['State'] == "stopped"):
+	# 	file = open(icon_directory + "stopped.png", "rb")
+	# elif(instance_info['State'] == "shutting-down"):
+	# 	file = open(icon_directory + "shutting-down.png", "rb")
+	# else:
+	# 	file = open(icon_directory + "terminated.png", "rb")
 
-	buttons = [toggle_button,reboot_button,terminate_button,indicator]
+	# image = file.read()
+	# indicator = widgets.Image(value=image,format='png')
+
+	# buttons = [toggle_button,reboot_button,terminate_button,indicator]
+	buttons = [toggle_button,reboot_button,terminate_button]
 	button_box = widgets.HBox(buttons)
 
 	#puts info and buttons into vBox

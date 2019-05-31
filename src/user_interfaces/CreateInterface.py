@@ -3,7 +3,7 @@ from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, 
 from IPython.display import HTML, display, FileLink
 import ipywidgets as widgets
 
-import src.plugins as plugins
+import project_guppi.src.plugins as plugins
 import paramiko
 import warnings
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')

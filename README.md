@@ -24,28 +24,37 @@ To check if you have python installed, type `python --version`
 
 * pip (should should be installed along with Python but to check, type `pip -V`)
 
+* ipython (install with `pip install ipython`)
+
 * [git](https://git-scm.com/downloads)
 
 ### Installation
 
 
-#### Clone project guppi to a directory of your choice
-Make sure to put it somewhere you can easily access again, as you will need to add files to GUPPI during setup, as well as reference the path to the extension from where you run Jupyter Notebooks
+#### Clone project guppi into the ipython startup directory
+Typically the default folder will be in $HOME/.config/ipython/profile_default/startup on Linux, or $HOME/.ipython/profile_default/startup elsewhere
 
 ```
 git clone https://github.com/katekaho/project-guppi.git
 ```
 
+#### Rename the guppi directory to project_guppi
+Python does not recognize dashes in a folder name as an identifier
+
 #### Move into guppi directory
 
 ```
-cd project-guppi
+cd project_guppi
 ```
-#### Pip install the required Python packages
+
+#### Move the `guppi_setup.py` file into the parent directory
+Move the `guppi_setup.py` into the `startup` directory. This will ensure that guppi is loaded each time the ipython kernel starts up
+
+#### Navigate back to the guppi directory and Pip install the required Python packages
 If you have both Python 2 and 3 installed, you may have to type pip3 instead of pip
 
 ```
-pip install -r setup/req.txt
+pip install -r src/setup/req.txt
 ```
 
 #### Open Jupyter Notebook
@@ -57,12 +66,14 @@ jupyter notebook
 #### Create a new Python3 notebook
 ![](./icons/create-notebook.gif)
 
-#### Load our GUPPI extension by typing the following iPython magic command into a cell and running it. If you want to use this extension elsewhere, you must specify the path of guppimagic from the current directory, or set the system wide PATH
+#### Load our GUPPI extension by typing the following iPython magic command into a cell and running it
 ```
-%reload_ext guppimagic
+%reload_ext project_guppi.guppimagic
 ```
 
-#### Follow the configuration instructions for the cloud services. You can view them in the ``%guppi cloud multicloud`` command or through viewing the md files in the ``plugins`` folder of the service you want 
+#### For the list of commands to run, type %guppi help
+
+#### Follow the configuration instructions for the cloud services. You can view them in the ``%guppi cloud multicloud`` command 
 Once everything is properly configured, you'll be able to view and run commands on your cloud instances 🎉
 
 ![](./icons/cloud-example.gif)

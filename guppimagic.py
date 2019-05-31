@@ -3,13 +3,15 @@ from IPython.core.magic import line_magic, cell_magic, line_cell_magic, Magics, 
 from IPython.display import HTML, display, Markdown
 import glob
 import re
-import src.plugins as plugins
+
 import sys
 import paramiko
+from pathlib import Path
 
 import ipywidgets as widgets
 from ipywidgets import Layout, Button, Box, FloatText, Textarea, Dropdown, Label, IntSlider
-import src.user_interfaces as user_interfaces
+import project_guppi.src.user_interfaces as user_interfaces
+import project_guppi.src.plugins as plugins
 
 selected_instance = ""
 accordion =""
@@ -17,15 +19,18 @@ accordion =""
 # Setting default service
 service = ""
 
+guppi_directory = Path(sys.path[0])
+guppi_directory = str(guppi_directory.resolve()) + "\project_guppi"
+
 @magics_class
 class GuppiMagic(Magics):
-
+	
 	# initializes file from interfaces and services folders
-	filenames = glob.glob('src/plugins/*')
+	filenames = glob.glob(guppi_directory + '\src\plugins\*')
 	python_files = []
 
 	#title display
-	icon_file = open("src/icons/guppi-small.png", "rb")
+	icon_file = open(guppi_directory + "\src\icons\guppi-small.png", "rb")
 	image = icon_file.read()
 	logo = widgets.Image(value=image,format='png',width = 100,height = 100)
 	title = widgets.HTML("<h2>Project GUPPI</h2>")
@@ -38,8 +43,8 @@ class GuppiMagic(Magics):
 	python_file = None
 	for f in filenames:
 		python_file = f
-
-		python_file = python_file[12:]
+		python_file = python_file.rsplit('\\', 1)[-1]
+		print(python_file)
 		if python_file == 'pluginbase.py':
 			continue
 		if python_file == '__pycache__':
@@ -239,7 +244,7 @@ class GuppiMagic(Magics):
 					else:
 						user_interfaces.GitHubInterface.display_notifications(num+1)
 			elif(args.arguments[0] == 'help'):
-				fn = "guppihelp.md"
+				fn = guppi_directory + "\guppihelp.md"
 				help_markdown = open(fn, 'r').read()
 				display(Markdown(help_markdown))
 			else:
@@ -248,15 +253,12 @@ class GuppiMagic(Magics):
 		else:
 			print("For usage, use the %guppi help command")
 
-
-#===================================================#
-#-----------ipython-Magic-Registering---------------#
-#===================================================#
-
 def load_ipython_extension(ipython):
 	"""This function is called when the extension is
 	loaded. It accepts an IPython InteractiveShell
 	instance. We can register the magic with the
 	`register_magic_function` method of the shell
 	instance."""
+	print("registering guppi")
 	ipython.register_magics(GuppiMagic)
+	print("registered")

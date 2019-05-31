@@ -27,12 +27,12 @@
     2.  In the **Service account name field**, enter a name.
     3.  From the **Role list,** select **Project > Owner.**
     4.  Click **Create.** This should download a JSON key
-    5.  Move this key file into the ``googleCredentials`` folder found in ``project-guppi/plugins/GoogleService``, this file should end with .json
+    5.  Move this key file into the ``googleCredentials`` folder found in ``project-guppi/src/plugins/GoogleService``, this file should end with .json
 
 9.  Follow [these instructions](https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys#project-wide) to create and add a public SSH key to your project. 
 Note: When generating the rsa key, ensure that the key comment is the same as your email, with ``. @ -`` symbols replaced with underscores, for example ``user_lastname_gmail_com``.
 Make sure that you go to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys) and save the public RSA key to your SSH keys
 
-10. Save the private SSH key as gc_rsa.pem and move it into the ``GoogleService`` file in guppi.
+10. Save the private SSH key as gc_rsa.pem and move it into ``project-guppi/src/plugins/GoogleService`` in guppi.
 
 11.  Reload the ``%guppi cloud`` command in Jupyter Notebook

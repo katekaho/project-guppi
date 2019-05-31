@@ -4,8 +4,10 @@ import string
 import random
 import re
 import threading
+import sys
 import paramiko
 from ..pluginbase import PluginBase
+from pathlib import Path
 
 @PluginBase.register
 class GoogleService():
@@ -18,10 +20,15 @@ class GoogleService():
 		self.project_name = ''
 		self.username = ''
 
+		guppi_directory = Path(sys.path[0])
+		guppi_directory = str(guppi_directory.resolve())
+
+		credential_path = guppi_directory + '\project_guppi\src\plugins\GoogleService\googleCredentials'
+
 		# Checks for the google credentials file which allows usage of google apis
-		for file in os.listdir('src/plugins/GoogleService/googleCredentials/'):
+		for file in os.listdir(credential_path):
 			if file.endswith('.json'):
-				self.credentials = (os.path.join('src/plugins/GoogleService/googleCredentials/', file))
+				self.credentials = (os.path.join(credential_path, file))
 		if(self.credentials == ''):
 			print("Google compute config error: No credential file found")
 			self.configured = False
