@@ -18,6 +18,12 @@ class GoogleService():
 		self.project_name = ''
 		self.username = ''
 
+		if not os.path.exists('src/plugins/GoogleService/googleCredentials/'):
+			print("Google compute config error: No googleCredentials file")
+			self.configured = False
+			return
+		
+
 		# Checks for the google credentials file which allows usage of google apis
 		for file in os.listdir('src/plugins/GoogleService/googleCredentials/'):
 			if file.endswith('.json'):
@@ -25,6 +31,7 @@ class GoogleService():
 		if(self.credentials == ''):
 			print("Google compute config error: No credential file found")
 			self.configured = False
+			return
 
 		# Sets the os path for google credentials to the one in the plugin folder
 		os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = self.credentials
@@ -35,6 +42,7 @@ class GoogleService():
 		except Exception :
 			print("Google compute config error: Unable to use api")
 			self.configured = False
+			return
 		
 		# Retrieves the project name by getting the first project it sees
 		# This only works if the google user only has one project, needs work
@@ -48,6 +56,7 @@ class GoogleService():
 		except Exception :
 			print("Google compute config error: Unable to retrieve project name")
 			self.configured = False
+			return
 		
 		# Retrieves the ssh username set for virtual machines based off of the rsa key
 		try:
@@ -62,6 +71,7 @@ class GoogleService():
 		except Exception:
 			print("Google compute config error: Unable to retrieve rsa key")
 			self.configured = False
+			return
 
 	def check_setup(self):
 		return self.configured

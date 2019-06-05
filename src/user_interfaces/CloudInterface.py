@@ -109,14 +109,14 @@ def render_group(service,instances, group_name, cloud_list,cloud_index):
 				return [setup]
 		else:
 			if not service.check_setup():
-				fn = "./plugins/"+service.name+"Service/"+service.name +"Setup.txt"
+				fn = "./src/plugins/"+service.name+"Service/"+service.name +"Setup.txt"
 				html_as_str = open(fn, 'r').read()
 				setup = widgets.HTML(value=html_as_str)
 				return [setup]
 	else:
 		if not service.check_setup():
 			if group_name == "service_group":
-				fn = "./plugins/"+service.name+"Service/"+service.name +"Setup.txt"
+				fn = "./src/plugins/"+service.name+"Service/"+service.name +"Setup.txt"
 				html_as_str = open(fn, 'r').read()
 				setup = widgets.HTML(value=html_as_str)
 				return [setup]
