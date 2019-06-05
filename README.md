@@ -30,7 +30,7 @@ To check if you have python installed, type `python --version`
 
 
 #### Clone project guppi to a directory of your choice
-Make sure to put it somewhere you can easily access again, as you will need to add files to GUPPI during setup, as well as reference the path to the extension from where you run Jupyter Notebooks
+Make sure to put it somewhere you can easily access again, as you will need to add files to GUPPI during setup and run notebooks from within this folder
 
 ```
 git clone https://github.com/katekaho/project-guppi.git
