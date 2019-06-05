@@ -55,17 +55,19 @@ jupyter notebook
 ```
 
 #### Create a new Python3 notebook
-![](./icons/create-notebook.gif)
+![](./src/icons/create-notebook.gif)
 
-#### Load our GUPPI extension by typing the following iPython magic command into a cell and running it. If you want to use this extension elsewhere, you must specify the path of guppimagic from the current directory, or set the system wide PATH
+#### Load our GUPPI extension by typing the following iPython magic command into a cell and running it. (note: currently, our extension needs to be run inside the project-guppi folder)
 ```
 %reload_ext guppimagic
 ```
 
-#### Follow the configuration instructions for the cloud services. You can view them in the ``%guppi cloud multicloud`` command or through viewing the md files in the ``plugins`` folder of the service you want 
+#### For the list of commands to run, type %guppi help
+
+#### Follow the configuration instructions for the cloud services. You can view the instructions in the ``%guppi cloud multicloud`` command or through viewing the md files in the ``plugins`` folder of the service you want 
 Once everything is properly configured, you'll be able to view and run commands on your cloud instances 🎉
 
-![](./icons/cloud-example.gif)
+![](./src/icons/cloud-example.gif)
 
 
 ## Contributing
