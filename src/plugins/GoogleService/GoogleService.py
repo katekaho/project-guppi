@@ -273,7 +273,7 @@ class GoogleService():
 			errorOutput = stderr.read().splitlines()
 			splitCommands = commands.split(";")
 			for command in splitCommands:
-				if command == " " or command == "":
+				if command.strip() == "":
 					splitCommands.remove(command)
 			numOfCommands = len(splitCommands)
 			
