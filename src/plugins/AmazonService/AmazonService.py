@@ -217,7 +217,7 @@ class AmazonService(LocalBaseClass):
 			errorOutput = stderr.read().splitlines()
 			splitCommands = commands.split(";")
 			for command in splitCommands:
-				if command == " ":
+				if command == " " or command == "":
 					splitCommands.remove(command)
 			numOfCommands = len(splitCommands)
 			
