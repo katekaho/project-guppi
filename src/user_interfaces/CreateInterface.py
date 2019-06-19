@@ -15,8 +15,10 @@ warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 def render_create_interface(cloud_list, cloud_index):
 
 	service = cloud_list[cloud_index]
-
-	instances = service.get_instances_info()
+	if not service.check_setup():
+		instances = []
+	else:
+		instances = service.get_instances_info()
 
 	group_list = ["Create Group"]
 
@@ -49,7 +51,7 @@ def render_create_interface(cloud_list, cloud_index):
 	name_row_arr = [group_dropdown,new_group_text]
 
 	name_row = widgets.HBox(name_row_arr)
-	display(name_row)
+	
 
 	size_list = service.get_size_list()
 	value = service.get_default_size()
@@ -92,8 +94,16 @@ def render_create_interface(cloud_list, cloud_index):
 
 	size_region_row = [size_dropdown,num_instances]
 	sr_row = widgets.HBox(size_region_row)
-	display(sr_row)
-	display(create_button)
+	if service.check_setup():
+		display(name_row)
+		display(sr_row)
+		display(create_button)
+	else:
+		fn = "./src/plugins/"+service.name+"Service/"+service.name +"Setup.txt"
+		html_as_str = open(fn, 'r').read()
+		setup = widgets.HTML(value=html_as_str)
+		display(setup)
+
 
 
 
