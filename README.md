@@ -45,7 +45,7 @@ cd project-guppi
 If you have both Python 2 and 3 installed, you may have to type pip3 instead of pip
 
 ```
-pip install -r setup/req.txt
+pip install -r src/setup/req.txt
 ```
 
 #### Open Jupyter Notebook
